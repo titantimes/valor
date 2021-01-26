@@ -16,6 +16,10 @@ class Valor(discord.ext.commands.Bot):
             "description": "A bot to help out with guild tasks."
         }
 
+        self.endpoints = {
+
+        }
+
         # default configuration file is not found
         if not os.path.exists('config.json'):
             with open("config.json", 'w') as f:
@@ -23,6 +27,10 @@ class Valor(discord.ext.commands.Bot):
         else:
             with open("config.json", 'r') as f:
                 self.config = json.load(f)
+
+        # get all wynncraft endpoints
+        with open("endpoints.json", 'r') as f:
+            self.endpoints = json.load(f)
 
         super(Valor, self).__init__(*args, **kwargs, description=self.config["description"])
 

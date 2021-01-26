@@ -3,12 +3,12 @@ import os
 import json
 from discord.ext.commands import Bot, Context
 import valor
+import commands
+import asyncio
 
 valor = valor.Valor('-')
 
-
-@valor.command()
-async def echo(ctx: Context):
-    await ctx.send("echo")
+loop = asyncio.get_event_loop()
+loop.run_until_complete(commands.register_all(valor))
 
 valor.run()
