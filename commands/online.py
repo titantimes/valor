@@ -19,8 +19,5 @@ async def _register_online(valor: Valor):
         online_rn = [(p, k) for k in all_players for p in all_players[k] if p in members]
         await ctx.send("```"+'\n'.join("%16s | %8s" % (p, k) for p, k in online_rn) + "```")
     
-    @valor.command()
-    async def test(ctx: Context):
-        await LongTextEmbed.send_message(valor, ctx, "test", '\n'.join(
-            ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for x in range (100)) for _ in range(random.randrange(100))))
-        
+    
+    
