@@ -6,7 +6,9 @@ from valor import Valor
 from abc import abstractclassmethod
 import math
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 SELF_ID = os.environ["SELFID"]
 
 class ErrorEmbed(discord.Embed):
