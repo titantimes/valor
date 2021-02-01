@@ -1,10 +1,13 @@
 import discord
 from discord.ext.commands import Context
 from typing import List, Tuple
-from .constants import LEFT_PAGE_EMOJI, RIGHT_PAGE_EMOJI, SELF_ID
+from .constants import LEFT_PAGE_EMOJI, RIGHT_PAGE_EMOJI
 from valor import Valor
 from abc import abstractclassmethod
 import math
+import os
+
+SELF_ID = os.environ["SELFID"]
 
 class ErrorEmbed(discord.Embed):
     def __init__(self, err = "The command failed!"):
