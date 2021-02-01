@@ -3,7 +3,8 @@ from discord.ext.commands import Context
 from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed
 
 async def _register_showbuild(valor: Valor):
-    desc = "Reveals wynnbuilder links as an embed... because wynnbuilder doesn't have meta tags for em."
+    desc = """Reveals wynnbuilder links as an embed... because wynnbuilder doesn't have meta tags for em.
+    Syntax: -showbuild <link>"""
     @valor.command()
     async def showbuild(ctx: Context, link: str):
         if not link.startswith("https://wynnbuilder.github.io/") and not link.startswith("https://hppeng-wynn.github.io/"):
@@ -14,4 +15,4 @@ async def _register_showbuild(valor: Valor):
     
     @valor.help_override.command()
     async def showbuild(ctx: Context):
-        await ctx.send(desc)
+        await LongTextEmbed.send_message(valor, ctx, "Showbuild", desc, color=0xFF00)

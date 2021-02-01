@@ -27,7 +27,10 @@ def info(build_string: str):
         res_vals.append(ItemDB.get_name(base64.to_int(build_string[i:i+3])))
     # find skill pts
     for i in range(5):
-        res_vals.append(str(base64.to_int(build_string[27+i*2:29+i*2])))
+        v = base64.to_int(build_string[27+i*2:29+i*2])
+        if v > 200:
+            v = "Impossible (negative points)"
+        res_vals.append(str(v))
     # find player level
     lvl = str(base64.to_int(build_string[37:39]))
     return [*zip(result, res_vals+[lvl])]
