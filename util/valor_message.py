@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-SELF_ID = os.environ["SELFID"]
+SELF_ID = int(os.environ["SELFID"])
 
 class ErrorEmbed(discord.Embed):
     def __init__(self, err = "The command failed!"):
