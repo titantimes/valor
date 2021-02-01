@@ -2,7 +2,6 @@ import discord
 import os
 import json
 
-
 class Valor(discord.ext.commands.Bot):
     """
     Subclass of discord.ext.commands.Bot class holding additional information

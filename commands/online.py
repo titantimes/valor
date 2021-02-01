@@ -19,7 +19,7 @@ async def _register_online(valor: Valor):
     
     @valor.help_override.command()
     async def online(ctx: Context):
-        await ctx.send(desc)
+        await LongTextEmbed.send_message(valor, ctx, "Online", desc, color=0xFF00)
     
     
     
