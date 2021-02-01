@@ -12,6 +12,11 @@ async def _register_showbuild(valor: Valor):
         link = link[link.find('#'):]
         build = info(link)
         await LongFieldEmbed.send_message(valor, ctx, "WynnBuilder build", build)
+
+    @showbuild.error
+    async def cmd_error(ctx, error):
+        await ctx.send(embed=ErrorEmbed())
+        print(error)
     
     @valor.help_override.command()
     async def showbuild(ctx: Context):
