@@ -13,7 +13,7 @@ class ErrorEmbed(discord.Embed):
             description = err,
             color = 0xFF0000
         )
-        self.set_footer(text="Scream at Andrew or Cal to fix the problem")
+        self.set_footer(text="Scream at Andrew or Cal if something should be working")
 
 class LongTextEmbed(discord.Embed):
     def __init__(self, title: str, content):
