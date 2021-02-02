@@ -81,6 +81,8 @@ class LongTextEmbed(discord.Embed):
         em: cls = cls(title, content)
         em.color = color
         msg: discord.Message = await ctx.send(embed=em)
+        if em.total_pages <= 1:
+            return
         await msg.add_reaction(LEFT_PAGE_EMOJI)
         await msg.add_reaction(RIGHT_PAGE_EMOJI)
         while True:
@@ -186,6 +188,8 @@ class HelpEmbed(LongTextEmbed):
     async def send_message(cls, valor: Valor, ctx: Context):
         em: HelpEmbed = cls._help(valor)
         msg: discord.Message = await ctx.send(embed=em)
+        if em.total_pages <= 1:
+            return
         await msg.add_reaction(LEFT_PAGE_EMOJI)
         await msg.add_reaction(RIGHT_PAGE_EMOJI)
         while True:

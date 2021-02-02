@@ -15,6 +15,8 @@ async def _register_online(valor: Valor):
         all_players = requests.get(valor.endpoints["online"]).json()
         del all_players["request"]
         online_rn = [(p, k) for k in all_players for p in all_players[k] if p in members]
+        if not len(online_rn):
+            return await LongTextEmbed.send_message(valor, ctx, "Guild Members Online", "There are no members online.", color = 0xFF)
         await LongFieldEmbed.send_message(valor, ctx, "Guild Members Online", online_rn)
         # await ctx.send("```"+'\n'.join("%16s | %8s" % (p, k) for p, k in online_rn) + "```")
     
