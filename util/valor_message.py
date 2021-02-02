@@ -77,7 +77,7 @@ class LongTextEmbed(discord.Embed):
         return usr.id != SELF_ID and (str(rxn.emoji) == LEFT_PAGE_EMOJI or str(rxn.emoji) == RIGHT_PAGE_EMOJI)
 
     @abstractclassmethod
-    async def send_message(cls, valor: Valor, ctx: Context, title: str, content, color=0x000000):
+    async def send_message(cls, valor: Valor, ctx: Context, title: str, content="", color=0x000000):
         em: cls = cls(title, content)
         em.color = color
         msg: discord.Message = await ctx.send(embed=em)

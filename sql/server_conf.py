@@ -26,9 +26,9 @@ class ValorSQL:
     
     # should probably use a decorator for the ones with _add_new_user
     @classmethod
-    def set_user_wynnbuilder(cls, userid: int, r: bool):
+    def set_user_wynnbuilder(cls, userid: int, pref: str, r: bool):
         cls._add_new_user(userid)
-        cls.cursor.execute(f"UPDATE TABLE user_config SET wynnbuilder = {r} WHERE user_id = {userid}")
+        cls.cursor.execute(f"UPDATE user_config SET {pref} = {r} WHERE user_id = {userid}")
         cls.db.commit()
 
     @classmethod
