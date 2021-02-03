@@ -6,21 +6,22 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class ValorSQL:
+    _info = {"host": os.environ["DBHOST"],
+        "user": os.environ["DBUSER"],
+        "password": os.environ["DBPASS"],
+        "database":os.environ["DBNAME"]}
     db = mysql.connector.connect(
-        host = os.environ["DBHOST"],
-        user = os.environ["DBUSER"],
-        password = os.environ["DBPASS"],
-        database = os.environ["DBNAME"]
+        **_info
     )
     cursor = db.cursor()
     @classmethod
     def insert_new_server(cls, *args):
         # get columns N before string indicates unicode
-        cls.cursor.execute("SHOW columns FROM server_options")
-        cols = tuple(c[0] for c in cls.cursor.fetchall())
+        cls._execute("SHOW columns FROM server_options")
+        cols = tuple(c[0] for c in cls._fetchall())
         if len(args) != len(cols):
             raise Exception("DB QUERY: Column Mismatch")
-        cls.cursor.execute(
+        cls._execute(
             f"INSERT INTO server_options ({', '.join(map(str, cols))}) VALUES ({', '.join(map(str, args))})")
         cls.db.commit()
     
@@ -28,27 +29,43 @@ class ValorSQL:
     @classmethod
     def set_user_wynnbuilder(cls, userid: int, pref: str, r: bool):
         cls._add_new_user(userid)
-        cls.cursor.execute(f"UPDATE user_config SET {pref} = {r} WHERE user_id = {userid}")
+        cls._execute(f"UPDATE user_config SET {pref} = {r} WHERE user_id = {userid}")
         cls.db.commit()
 
     @classmethod
     def get_user_config(cls, userid: int):
         cls._add_new_user(userid)
-        cls.cursor.execute("SHOW columns FROM user_config")
+        cls._execute("SHOW columns FROM user_config")
         cols = tuple(c[0] for c in cls.cursor.fetchall())
-        cls.cursor.execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
+        cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
         res = cls.cursor.fetchone()
         return {cols[i]: res[i] for i in range(len(cols))}
     @classmethod
     def _add_new_user(cls, userid: int):
-        cls.cursor.execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
-        if len(cls.cursor.fetchall()): # if user exists
+        cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
+        if len(cls._fetchall()): # if user exists
             return
-        cls.cursor.execute("SHOW columns FROM user_config")
-        cols = tuple(c[0] for c in cls.cursor.fetchall())
-        cls.cursor.execute(f"INSERT INTO user_config (user_id) VALUES ({userid})")
+        cls._execute("SHOW columns FROM user_config")
+        cols = tuple(c[0] for c in cls._fetchall.fetchall())
+        cls._execute(f"INSERT INTO user_config (user_id) VALUES ({userid})")
         cls.db.commit()
+    @classmethod
+    def _execute(cls, query: str):
+        try:
+            cls.cursor.execute(query)
+        except:
+            cls._reconnect()
+    @classmethod
+    def _fetchall(cls):
+        return cls.cursor.fetchall()
 
+    @classmethod
+    def _reconnect(cls):
+        print("ValorSQL: Reconnecting to db")
+        cls.db = mysql.connector.connect(
+            **_info
+        )
+        cls.cursor = cls.db.cursor()
 if __name__ == "__main__":
     # ValorSQL.insert_new_server(1, 1)
     ValorSQL._add_new_user(1651)
