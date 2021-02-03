@@ -63,7 +63,7 @@ class ValorSQL:
     def _reconnect(cls):
         print("ValorSQL: Reconnecting to db")
         cls.db = mysql.connector.connect(
-            **_info
+            **cls._info
         )
         cls.cursor = cls.db.cursor()
 if __name__ == "__main__":
