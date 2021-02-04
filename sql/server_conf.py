@@ -36,7 +36,7 @@ class ValorSQL:
     def get_user_config(cls, userid: int):
         cls._add_new_user(userid)
         cls._execute("SHOW columns FROM user_config")
-        cols = tuple(c[0] for c in cls.cursor.fetchall())
+        cols = tuple(c[0] for c in cls._fetchall())
         cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
         res = cls.cursor.fetchone()
         return {cols[i]: res[i] for i in range(len(cols))}
@@ -46,7 +46,7 @@ class ValorSQL:
         if len(cls._fetchall()): # if user exists
             return
         cls._execute("SHOW columns FROM user_config")
-        cols = tuple(c[0] for c in cls._fetchall.fetchall())
+        cols = tuple(c[0] for c in cls._fetchall())
         cls._execute(f"INSERT INTO user_config (user_id) VALUES ({userid})")
         cls.db.commit()
     @classmethod
