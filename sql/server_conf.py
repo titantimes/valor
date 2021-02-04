@@ -53,8 +53,10 @@ class ValorSQL:
     def _execute(cls, query: str):
         try:
             cls.cursor.execute(query)
-        except:
+        except (Exception) as e:
+            print(e)
             cls._reconnect()
+            cls.cursor.execute(query)
     @classmethod
     def _fetchall(cls):
         return cls.cursor.fetchall()
