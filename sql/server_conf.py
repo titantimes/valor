@@ -52,7 +52,9 @@ class ValorSQL:
     @classmethod
     def _execute(cls, query: str):
         try:
+            print("starting query")
             cls.cursor.execute(query)
+            print("finished query")
         except (Exception) as e:
             print(e)
             cls._reconnect()
