@@ -44,6 +44,7 @@ class ValorSQL:
     def _add_new_user(cls, userid: int):
         cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
         if len(cls._fetchall()): # if user exists
+            print("user exists")
             return
         cls._execute("SHOW columns FROM user_config")
         cols = tuple(c[0] for c in cls._fetchall())
@@ -57,6 +58,7 @@ class ValorSQL:
             print("finished query")
         except (Exception) as e:
             print(e)
+            cls.db.close()
             cls._reconnect()
             cls.cursor.execute(query)
     @classmethod
@@ -66,6 +68,8 @@ class ValorSQL:
     @classmethod
     def _reconnect(cls):
         print("ValorSQL: Reconnecting to db")
+        cls.cursor.close()
+        cls.db.close()
         cls.db = mysql.connector.connect(
             **cls._info
         )
