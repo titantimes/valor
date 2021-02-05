@@ -54,11 +54,13 @@ class ValorSQL:
     def _execute(cls, query: str):
         if not cls.db.is_connected():
             cls.db._reconnect()
+        cls.cursor = cls.db.cursor()
         print("starting query")
         cls.cursor.execute(query)
         print("finished query")
     @classmethod
     def _fetchall(cls):
+        cls.cursor = cls.db.cursor()
         return cls.cursor.fetchall()
 
     @classmethod
