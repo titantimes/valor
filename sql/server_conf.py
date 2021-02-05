@@ -44,7 +44,6 @@ class ValorSQL:
     def _add_new_user(cls, userid: int):
         cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
         if len(cls._fetchall()): # if user exists
-            print("user exists")
             return
         cls._execute("SHOW columns FROM user_config")
         cols = tuple(c[0] for c in cls._fetchall())
@@ -57,13 +56,13 @@ class ValorSQL:
         except Exception as e:
             print(e)
             cls._reconnect()
+        # refrsehing the cursor is very important see _fetchall for closing the cursor
         cls.cursor = cls.db.cursor()
-        print("starting query")
         cls.cursor.execute(query)
-        print("finished query")
     @classmethod
     def _fetchall(cls):
         res = list(cls.cursor.fetchall())
+        # closing the cursor is important
         cls.cursor.close()
         return res
 
