@@ -53,14 +53,15 @@ class ValorSQL:
     @classmethod
     def _execute(cls, query: str):
         try:
-            print("starting query")
-            cls.cursor.execute(query)
-            print("finished query")
+            cls.db.ping(reconnect=True, attempts=100, delay=10)
         except (Exception) as e:
             print(e)
-            cls.db.close()
-            cls._reconnect()
-            cls.cursor.execute(query)
+            # cls.db.close()
+            # cls._reconnect()
+            # cls.cursor.execute(query)
+        print("starting query")
+        cls.cursor.execute(query)
+        print("finished query")
     @classmethod
     def _fetchall(cls):
         return cls.cursor.fetchall()
