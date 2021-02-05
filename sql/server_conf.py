@@ -38,7 +38,7 @@ class ValorSQL:
         cls._execute("SHOW columns FROM user_config")
         cols = tuple(c[0] for c in cls._fetchall())
         cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
-        res = cls.cursor.fetchone()
+        res = cls._fetchall()[0]
         return {cols[i]: res[i] for i in range(len(cols))}
     @classmethod
     def _add_new_user(cls, userid: int):
@@ -58,14 +58,15 @@ class ValorSQL:
             print(e)
             cls._reconnect()
         cls.cursor.close()
-        cls.cursor = cls.db.cursor()
         print("starting query")
         cls.cursor.execute(query)
         print("finished query")
     @classmethod
     def _fetchall(cls):
         cls.cursor = cls.db.cursor()
-        return cls.cursor.fetchall()
+        res = list(cls.cursor.fetchall())
+        cls.cursor.close()
+        return res
 
     @classmethod
     def _reconnect(cls):
