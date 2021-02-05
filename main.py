@@ -20,10 +20,4 @@ loop = asyncio.get_event_loop()
 loop.run_until_complete(commands.register_all(valor))
 loop.run_until_complete(listeners.register_all(valor))
 
-async def check():
-    while True:
-        logging.info("Ping")
-        await asyncio.sleep(60)
-loop.create_task(check())
-
 valor.run()
