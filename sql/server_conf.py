@@ -57,13 +57,12 @@ class ValorSQL:
         except Exception as e:
             print(e)
             cls._reconnect()
-        cls.cursor.close()
+        cls.cursor = cls.db.cursor()
         print("starting query")
         cls.cursor.execute(query)
         print("finished query")
     @classmethod
     def _fetchall(cls):
-        cls.cursor = cls.db.cursor()
         res = list(cls.cursor.fetchall())
         cls.cursor.close()
         return res
