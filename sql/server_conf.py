@@ -52,8 +52,12 @@ class ValorSQL:
         cls.db.commit()
     @classmethod
     def _execute(cls, query: str):
-        if not cls.db.is_connected():
-            cls.db._reconnect()
+        try:
+            cls.db.ping(reconnect=True, attempts=10, delay=30)
+        except Exception as e:
+            print(e)
+            cls._reconnect()
+        cls.cursor.close()
         cls.cursor = cls.db.cursor()
         print("starting query")
         cls.cursor.execute(query)
