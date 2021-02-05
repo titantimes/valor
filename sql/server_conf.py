@@ -35,20 +35,21 @@ class ValorSQL:
     @classmethod
     def get_user_config(cls, userid: int):
         cls._add_new_user(userid)
-        cls._execute("SHOW columns FROM user_config")
-        cols = tuple(c[0] for c in cls._fetchall())
-        cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
-        res = cls._fetchall()[0]
+        res = cls._execute("SHOW columns FROM user_config")
+        cols = tuple(c[0] for c in res)
+        res = cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
+        res = res[0]
         return {cols[i]: res[i] for i in range(len(cols))}
     @classmethod
     def _add_new_user(cls, userid: int):
-        cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
-        if len(cls._fetchall()): # if user exists
+        res = cls._execute(f"SELECT * FROM user_config WHERE user_id = {userid}")
+        if len(res): # if user exists
             return
-        cls._execute("SHOW columns FROM user_config")
-        cols = tuple(c[0] for c in cls._fetchall())
+        res = cls._execute("SHOW columns FROM user_config")
+        cols = tuple(c[0] for c in res)
         cls._execute(f"INSERT INTO user_config (user_id) VALUES ({userid})")
         cls.db.commit()
+
     @classmethod
     def _execute(cls, query: str):
         try:
@@ -57,13 +58,10 @@ class ValorSQL:
             print(e)
             cls._reconnect()
         # refrsehing the cursor is very important see _fetchall for closing the cursor
-        cls.cursor = cls.db.cursor()
-        cls.cursor.execute(query)
-    @classmethod
-    def _fetchall(cls):
-        res = list(cls.cursor.fetchall())
-        # closing the cursor is important
-        cls.cursor.close()
+        cursor = cls.db.cursor()
+        cursor.execute(query)
+        res = list(cursor.fetchall())
+        cursor.close()
         return res
 
     @classmethod
@@ -74,7 +72,6 @@ class ValorSQL:
         cls.db = mysql.connector.connect(
             **cls._info
         )
-        cls.cursor = cls.db.cursor()
 if __name__ == "__main__":
     # ValorSQL.insert_new_server(1, 1)
     ValorSQL._add_new_user(1651)
