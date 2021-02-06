@@ -3,6 +3,9 @@ import mysql.connector
 from mysql.connector import pooling
 import os
 from dotenv import load_dotenv
+import logging
+import time
+
 # in case it hasn't already been done yet
 load_dotenv()
 
@@ -11,7 +14,9 @@ class ValorSQL:
         "user": os.environ["DBUSER"],
         "password": os.environ["DBPASS"],
         "database":os.environ["DBNAME"]}
-    pool = pooling.MySQLConnectionPool(pool_name="valor_pool", **_info, pool_size=1)
+    last_connected = time.time()
+    connection_live = 120 # 2 minute(s) per connection
+    conn = mysql.connector.connect(**_info)
     @classmethod
     def insert_new_server(cls, *args):
         # get columns N before string indicates unicode
@@ -48,14 +53,16 @@ class ValorSQL:
 
     @classmethod
     def _execute(cls, query: str):
-        conn = cls.pool.get_connection()
-        while not conn.is_connected():
-            print("Not connected")
-            conn = cls.pool.get_connection()
-        cursor = conn.cursor()
+        if time.time() - cls.last_connected > cls.connection_live:
+            cls.conn = mysql.connector.connect(**_info)
+        while not cls.conn.is_connected():
+            logging.info("DB disconnected. Now reconnecting")
+            cls.conn = mysql.connector.connect(**_info)
+            cls.last_connected = time.time()
+        cursor = cls.conn.cursor()
         cursor.execute(query)
         res = list(cursor.fetchall())
-        conn.commit()
+        cls.conn.commit()
         cursor.close()
         return res
 
