@@ -54,10 +54,10 @@ class ValorSQL:
     @classmethod
     def _execute(cls, query: str):
         if time.time() - cls.last_connected > cls.connection_live:
-            cls.conn = mysql.connector.connect(**_info)
+            cls.conn = mysql.connector.connect(**cls._info)
         while not cls.conn.is_connected():
             logging.info("DB disconnected. Now reconnecting")
-            cls.conn = mysql.connector.connect(**_info)
+            cls.conn = mysql.connector.connect(**cls._info)
             cls.last_connected = time.time()
         cursor = cls.conn.cursor()
         cursor.execute(query)
@@ -74,6 +74,7 @@ class ValorSQL:
     #     cls.db = mysql.connector.connect(
     #         **cls._info
     #     )
+
 if __name__ == "__main__":
     # ValorSQL.insert_new_server(1, 1)
     ValorSQL._add_new_user(1651)
