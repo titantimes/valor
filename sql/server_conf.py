@@ -56,6 +56,7 @@ class ValorSQL:
         if time.time() - cls.last_connected > cls.connection_live:
             cls.conn.close()
             cls.conn = mysql.connector.connect(**cls._info)
+            cls.last_connected = time.time()
         while not cls.conn.is_connected():
             logging.info("DB disconnected. Now reconnecting")
             cls.conn = mysql.connector.connect(**cls._info)
