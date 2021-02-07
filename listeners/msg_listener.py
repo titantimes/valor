@@ -13,7 +13,12 @@ async def _register_msg_listiner(valor: Valor):
                 return
             link = message.content
             pos = link.find(".github.io/#")+len(".github.io/#")-1
-            link = link[pos:link[pos:].find(' ')]
+            ending = link[pos:].find(' ')
+            # make sure to also handle newlins
+            a = link[pos:].find('\n')
+            if a != -1 and a < ending:
+                ending = a
+            link = link[pos:ending+pos]
             build = info(link)
             ctx = await valor.get_context(message)
             return await LongFieldEmbed.send_message(valor, ctx, "WynnBuilder build", build)
