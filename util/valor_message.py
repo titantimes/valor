@@ -154,7 +154,7 @@ class LongFieldEmbed(LongTextEmbed):
         while i < len(content) and cnt < limit:
             # update cnt with length of key and value
             # a single line counts as a lot more. so 50 lines of 'a' will take up tons of space
-            cnt += len(content[i][0]) + len(content[i][1]) 
+            cnt += 0 if not content[i][0] else len(content[i][0]) + 0 if not content[i][1] else len(content[i][1]) 
             i += 1
 
         return start_line, i
