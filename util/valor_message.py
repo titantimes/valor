@@ -115,9 +115,8 @@ class LongFieldEmbed(LongTextEmbed):
             lp = LongFieldEmbed.find_linepair(self.content, line_idx)
             self.line_pairs.append(lp)
             line_idx = lp[1]
-
         self.title = title
-        for line in self.content[lp[0]:lp[1]]:
+        for line in self.content[self.line_pairs[0][0]:self.line_pairs[0][1]]:
             self.add_field(name=line[0], value=line[1])
             
         self.set_footer(text="Page 1 of {}".format(self.total_pages))
@@ -143,17 +142,19 @@ class LongFieldEmbed(LongTextEmbed):
         self.set_footer(text="Page {} of {}".format(self.page, self.total_pages))
 
     @classmethod
-    def find_linepair(cls, content: List[Tuple[str, str]], start_line = 0, limit=1500) -> Tuple[int, int]:
+    def find_linepair(cls, content: List[Tuple[str, str]], start_line = 0, limit=1500, field_limit=24) -> Tuple[int, int]:
         """
         Find the beginning line and ending line (not included) under maxlimit. This is due to
         discord's max char limit of 2000, so this is used to split messages into pages.
         returns indices [start_line, i)
         """
         cnt = 0
+        lcnt = 0
         i = start_line
-        while i < len(content) and cnt < limit:
+        while i < len(content) and (cnt < limit and lcnt < field_limit):
             # update cnt with length of key and value
             # a single line counts as a lot more. so 50 lines of 'a' will take up tons of space
+            lcnt += 1
             cnt += 0 if not content[i][0] else len(content[i][0]) + 0 if not content[i][1] else len(content[i][1]) 
             i += 1
 

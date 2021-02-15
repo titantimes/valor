@@ -3,6 +3,7 @@ from .test import _register_test
 from .help import _register_help
 from .showbuild import _register_showbuild
 from .preferences import _register_preferences
+from .gxp import _register_gxp
 from valor import Valor
 
 async def register_all(valor: Valor):
@@ -14,3 +15,4 @@ async def register_all(valor: Valor):
     await _register_test(valor)
     await _register_showbuild(valor)
     await _register_preferences(valor)
+    await _register_gxp(valor)
