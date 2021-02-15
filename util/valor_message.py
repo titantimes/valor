@@ -132,9 +132,9 @@ class LongFieldEmbed(LongTextEmbed):
         self.set_footer(text="Page {} of {}".format(self.page, self.total_pages))
     
     def back_page(self):
-        self.clear_fields()
         if self.page == 1:
             return
+        self.clear_fields()
         self.page -= 1
         lp = self.line_pairs[self.page-1]
         for line in self.content[lp[0]:lp[1]]:
