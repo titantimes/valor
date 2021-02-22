@@ -50,8 +50,9 @@ async def _register_plot(valor: Valor):
         ax.plot(xvalues, yvalues)
         ax.tick_params("x",rotation=97)
         # ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
-        for label in ax.get_xticklabels()[::math.ceil(math.log10(len(xvalues)))]:
-            label.set_visible(False)
+        for i, label in enumerate(ax.get_xticklabels()):
+            if i % math.ceil(math.log(len(xvalues), 4)):
+                label.set_visible(False)
         # plt.plot(res["data"].keys(), [res["data"][k] for k in res["data"]])
         plt.savefig("/tmp/valor_guild_plot.png")
         file = File("/tmp/valor_guild_plot.png", filename="plot.png")
