@@ -21,7 +21,7 @@ class ErrorEmbed(discord.Embed):
         self.set_footer(text="Scream at Andrew or Cal if something should be working")
 
 class LongTextEmbed(discord.Embed):
-    def __init__(self, title: str, content):
+    def __init__(self, title: str, content, **kwargs):
         if isinstance(content, str):
             self.content = content.split('\n')
         self.page = 1
@@ -37,7 +37,8 @@ class LongTextEmbed(discord.Embed):
 
         super(LongTextEmbed, self).__init__(
             title = title,
-            description = '\n'.join(self.content[self.line_pairs[0][0]:self.line_pairs[0][1]])
+            description = '\n'.join(self.content[self.line_pairs[0][0]:self.line_pairs[0][1]]),
+            **kwargs
         )
         self.set_footer(text="Page 1 of {}".format(self.total_pages))
 
@@ -77,10 +78,12 @@ class LongTextEmbed(discord.Embed):
         return usr.id != SELF_ID and (str(rxn.emoji) == LEFT_PAGE_EMOJI or str(rxn.emoji) == RIGHT_PAGE_EMOJI)
 
     @abstractclassmethod
-    async def send_message(cls, valor: Valor, ctx: Context, title: str, content="", color=0x000000):
-        em: cls = cls(title, content)
+    async def send_message(cls, valor: Valor, ctx: Context, title: str, content="", color=0x000000, file="", url="", **kwargs):
+        em: cls = cls(title, content, **kwargs)
+        if url:
+            em.set_image(url=url)
         em.color = color
-        msg: discord.Message = await ctx.send(embed=em)
+        msg: discord.Message = await ctx.send(file=file, embed=em)
         if em.total_pages <= 1:
             return
         await msg.add_reaction(LEFT_PAGE_EMOJI)
@@ -103,8 +106,8 @@ class LongTextEmbed(discord.Embed):
 
 class LongFieldEmbed(LongTextEmbed):
     # CONTENT MUST BE TUPLE LIST
-    def __init__(self, title: str, content: List[Tuple[str, str]]):
-        discord.Embed.__init__(self)
+    def __init__(self, title: str, content: List[Tuple[str, str]], **kwargs):
+        discord.Embed.__init__(self, **kwargs)
         self.page = 1
         self.content = content
         line_idx = 0
@@ -161,8 +164,8 @@ class LongFieldEmbed(LongTextEmbed):
         return start_line, i
 
     @classmethod
-    async def send_message(cls, valor: Valor, ctx: Context, title: str, content, color=0xa1ffe1):
-        await super(LongFieldEmbed, cls).send_message(valor, ctx, title, content, color)
+    async def send_message(cls, valor: Valor, ctx: Context, title: str, content, color=0xa1ffe1, file="", **kwargs):
+        await super(LongFieldEmbed, cls).send_message(valor, ctx, title, content, color, file, kwargs)
 
     @staticmethod
     def check(rxn: discord.Reaction, usr: discord.User) -> bool:
