@@ -22,9 +22,9 @@ async def _register_online(valor: Valor):
         # await ctx.send("```"+'\n'.join("%16s | %8s" % (p, k) for p, k in online_rn) + "```")
     
     @online.error
-    async def cmd_error(ctx, error):
+    async def cmd_error(ctx, error: Exception):
         await ctx.send(embed=ErrorEmbed())
-        print(error)
+        print(error.with_traceback())
     
     @valor.help_override.command()
     async def online(ctx: Context):
