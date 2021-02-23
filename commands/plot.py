@@ -54,7 +54,7 @@ async def _register_plot(valor: Valor):
             if i % math.ceil(math.log(len(xvalues), 4)):
                 label.set_visible(False)
         # plt.plot(res["data"].keys(), [res["data"][k] for k in res["data"]])
-        plt.savefig("/tmp/valor_guild_plot.png")
+        fig.savefig("/tmp/valor_guild_plot.png")
         file = File("/tmp/valor_guild_plot.png", filename="plot.png")
         await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {guild_name}", "", color=0xFF0000, 
             file=file, 
