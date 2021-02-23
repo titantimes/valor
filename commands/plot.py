@@ -24,12 +24,13 @@ async def _register_plot(valor: Valor):
     @plot.command()
     async def guild(ctx: Context, guild_name = "Avicia", start=int(time.time())-7*24*3600, end=int(time.time())):
         fig: plt.Figure = plt.figure()
+        fig.clear()
         ax: plt.Axes = fig.add_subplot(5,1,(1,4))
         ax.set_ylabel("Player Online Count")
         ax.set_xlabel("Date (by the hour)")
         # plt.ylabel = "Player Count"
         schema = "https://" if os.getenv("USESSL") == "true" else "http://"
-        print(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{guild_name}/{start}/{end}")
+        # print(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{guild_name}/{start}/{end}")
         res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{guild_name}/{start}/{end}").json()
         old_xvalues = list(res["data"])
         # old_xvalues = sorted(old_xvalues)
