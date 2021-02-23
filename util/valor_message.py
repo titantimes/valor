@@ -83,7 +83,11 @@ class LongTextEmbed(discord.Embed):
         if url:
             em.set_image(url=url)
         em.color = color
-        msg: discord.Message = await ctx.send(file=file, embed=em)
+        msg: discord.Message
+        if file:
+            msg = await ctx.send(file=file, embed=em)
+        else:
+            msg = await ctx.send(embed=em)
         if em.total_pages <= 1:
             return
         await msg.add_reaction(LEFT_PAGE_EMOJI)
