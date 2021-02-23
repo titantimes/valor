@@ -11,6 +11,10 @@ import time
 from dotenv import load_dotenv
 
 load_dotenv()
+# set to GMT time
+os.environ["TZ"] = "Europe/London"
+time.tzset()
+
 logging.basicConfig(format='%(asctime)s %(message)s')
 logging.getLogger().setLevel(logging.INFO)
 logging.warning("Starting")
