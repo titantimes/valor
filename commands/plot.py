@@ -32,23 +32,25 @@ async def _register_plot(valor: Valor):
         print(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{guild_name}/{start}/{end}")
         res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{guild_name}/{start}/{end}").json()
         old_xvalues = list(res["data"])
+        # old_xvalues = sorted(old_xvalues)
         xvalues = [datetime.fromtimestamp(int(old_xvalues[0])).strftime("%-d/%m/%y-%H")]
         yvalues = [res["data"][old_xvalues[0]]]
         for i in range(1, len(old_xvalues)):
             # fill in the gaps in time
             old_xvalues[i] = int(old_xvalues[i])
             old_xvalues[i-1] = int(old_xvalues[i-1]) 
-            xvalues.append(datetime.fromtimestamp(old_xvalues[i]).strftime("%-d/%m/%y-%H"))
-            yvalues.append(res["data"][str(old_xvalues[i])])
-            if int(old_xvalues[i])-int(old_xvalues[i-1]) > 60*61:
-                fill = int((old_xvalues[i]-old_xvalues[i-1])/3600)
+            fill = (old_xvalues[i]-old_xvalues[i-1])/3600
+            if fill > 2:
+                fill = int(fill)
                 xvalues.extend(
-                    [datetime.fromtimestamp(old_xvalues[i]+j*3600).strftime("%-d/%m/%y-%H")
+                    [datetime.fromtimestamp(old_xvalues[i-1]+j*3600).strftime("%-d/%m/%y-%H")
                         for j in range(1, fill)]
                 )
                 yvalues.extend([0 for _ in range(1, fill)])
+            xvalues.append(datetime.fromtimestamp(old_xvalues[i]).strftime("%-d/%m/%y-%H"))
+            yvalues.append(res["data"][str(old_xvalues[i])])
         ax.plot(xvalues, yvalues)
-        ax.tick_params("x",rotation=97)
+        ax.tick_params("x",rotation=90)
         # ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
         for i, label in enumerate(ax.get_xticklabels()):
             if i % math.ceil(math.log(len(xvalues), 4)):
