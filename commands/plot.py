@@ -1,6 +1,6 @@
 import requests
 from valor import Valor
-from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed
+from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress
 from discord.ext.commands import Context
 from datetime import datetime
 from discord import File
@@ -40,6 +40,7 @@ async def _register_plot(valor: Valor):
         old_xvalues = [*map(int, res["data"])]
         # old_xvalues = sorted(old_xvalues)
         xvalues = [datetime.fromtimestamp(old_xvalues[0]).strftime("%-d/%m/%y-%H")]
+        xtimes = [int(old_xvalues[0])]
         yvalues = [res["data"][str(old_xvalues[0])]]
         for i in range(1, len(old_xvalues)):
             # fill in the gaps in time
@@ -49,7 +50,10 @@ async def _register_plot(valor: Valor):
                     [datetime.fromtimestamp(old_xvalues[i-1]+j*3600).strftime("%-d/%m/%y-%H")
                         for j in range(1, fill)]
                 )
+                xtimes.extend([old_xvalues[i-1]+j*3600
+                        for j in range(1, fill)])
                 yvalues.extend([0]*(fill-1))
+            xtimes.append(old_xvalues[i])
             xvalues.append(datetime.fromtimestamp(old_xvalues[i]).strftime("%-d/%m/%y-%H"))
             yvalues.append(res["data"][str(old_xvalues[i])])
 
@@ -91,7 +95,10 @@ async def _register_plot(valor: Valor):
 
         fig.savefig("/tmp/valor_guild_plot.png")
         file = File("/tmp/valor_guild_plot.png", filename="plot.png")
-        await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {guild_name}", "", color=0xFF0000, 
+        solved = sinusoid_regress(xtimes, yvalues)
+        model = lambda t: solved[0]*math.sin(solved[1]*t-solved[2])+solved[3]
+        template = "`%f*sin(%f*t-%f)+%f`"
+        await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {guild_name}", template % solved, color=0xFF0000, 
             file=file, 
             url="attachment://plot.png"
         )
