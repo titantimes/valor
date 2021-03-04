@@ -11,7 +11,7 @@ import matplotlib.ticker as ticker
 import time
 import math
 import random
-import matplotlib.ticker as mticker
+from matplotlib.ticker import MaxNLocator
 
 load_dotenv()
 async def _register_plot(valor: Valor):
@@ -57,8 +57,16 @@ async def _register_plot(valor: Valor):
             xvalues.append(datetime.fromtimestamp(old_xvalues[i]).strftime("%-d/%m/%y-%H"))
             yvalues.append(res["data"][str(old_xvalues[i])])
 
-        ax.plot(xvalues, yvalues)
-
+        ax.plot(xtimes, yvalues)
+        solved = sinusoid_regress([x-xtimes[0] for x in xtimes], yvalues)
+        freq = 1/solved[1]*2*3.1415
+        model = lambda t: solved[0]*math.sin(freq*t-solved[2])+solved[3]
+        model_x = range(xtimes[0], xtimes[-1], 3600)
+        model_values = [model(x) for x in model_x]
+        model_x_date = [datetime.fromtimestamp(x).strftime("%-d/%m/%y-%H") for x in model_x]
+        # print(model_x_date)
+        ax.plot(model_x, model_values, 'g--')
+        # print(model_x_date)
         # ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
         # skip = len(xvalues)//10
         
@@ -79,26 +87,30 @@ async def _register_plot(valor: Valor):
         # hacky way to do this
         newax.plot([x[:x.find('-')] for x in xvalues], [1]*len(xvalues), alpha=0)
         # newax.tick_params(axis='x', rotation=90)
-        
-        skip = math.ceil(math.exp(len(xvalues)/100))
-        for i, label in enumerate(ax.get_xticklabels()):
-             if not i % 20:
-                 label.set_visible(False)
-                 
+        ax.xaxis.set_major_locator(MaxNLocator(20)) 
+        skip = 1
+        # for i, label in enumerate(ax.get_xticklabels()):
+        #     if not i % skip:
+        #         label.set_visible(False)
+        labels = [item.get_text() for item in ax.get_xticklabels()]
+        for i in range(len(labels)):
+            labels[i] = int(xvalues[i][xvalues[i].find('-')+1:])
+        ax.set_xticklabels(labels)
+
         for tick in ax.xaxis.get_major_ticks():
             tick.label.set_fontsize(8)
+
         # .label.set_fontsize(14) 
         # old = ax.xaxis.get_major_formatter()
-        tick_rename = lambda x, pos: int(xvalues[pos-1][xvalues[pos-1].find('-')+1:]) if not (pos-1) % skip else ""
-        ax.xaxis.set_major_formatter(mticker.FuncFormatter(tick_rename))
+        # tick_rename = lambda x, pos: int(xvalues[pos-1][xvalues[pos-1].find('-')+1:]) if not (pos-1) % skip else ""
+        # ax.xaxis.set_major_formatter(mticker.FuncFormatter(tick_rename))
         # ax.tick_params("x",rotation=20)
 
         fig.savefig("/tmp/valor_guild_plot.png")
         file = File("/tmp/valor_guild_plot.png", filename="plot.png")
-        solved = sinusoid_regress(xtimes, yvalues)
-        model = lambda t: solved[0]*math.sin(solved[1]*t-solved[2])+solved[3]
-        template = "`%f*sin(%f*t-%f)+%f`"
-        await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {guild_name}", template % solved, color=0xFF0000, 
+        template = f"{solved[0]}*sin({freq}*t-{solved[2]})+{solved[3]}"
+        content = f"```Min: {min(yvalues)}\nMax: {max(yvalues)}\nMean: {solved[3]}\n{template}```"
+        await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {guild_name}", content, color=0xFF0000, 
             file=file, 
             url="attachment://plot.png"
         )

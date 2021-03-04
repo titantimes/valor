@@ -13,7 +13,6 @@ def sinusoid_regress(x, y) -> Tuple[int, int, int, int]:
     periods = [inx[i]-inx[i-1] for i in range(len(inx)) if inx[i]-inx[i-1] >= min_period]
     avg_period = np.mean(periods)
     freq = 1/avg_period
-    print(avg, stdev, freq*2*3.1415)
     # candidate phase shifts
     clamp = lambda x: -1 if x < -1 else 1 if x > 1 else x
     candidate_ps = [math.asin(clamp((y[i]-avg)/stdev))-(freq*2*3.1415)*x[i] for i in range(len(x))]
