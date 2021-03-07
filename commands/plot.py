@@ -36,7 +36,7 @@ async def _register_plot(valor: Valor):
                     start = 0
                 else:
                     start = int(datetime.strptime(options[0], "%d/%m/%y").timestamp())
-            if len(options) > 1 and options[1] != "now":
+            if len(options) > 1 and options[1] != "end":
                 end = int(datetime.strptime(options[1], "%d/%m/%y").timestamp())
             if len(options) > 2:
                 ignore_regression = options[2] == 'no'
