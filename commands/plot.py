@@ -58,7 +58,11 @@ async def _register_plot(valor: Valor):
             yvalues.append(res["data"][str(old_xvalues[i])])
 
         ax.plot(xtimes, yvalues)
-        solved = sinusoid_regress([x-xtimes[0] for x in xtimes], yvalues)
+        try:
+            solved = sinusoid_regress([x-xtimes[0] for x in xtimes], yvalues)
+        # runtime errors with numpy. This really never happens unless the guild was recently added
+        except:
+            solved = [0,0,0,0]
         freq = 1/solved[1]*2*3.1415
         model = lambda t: solved[0]*math.sin(freq*t-solved[2])+solved[3]
         model_x = range(xtimes[0], xtimes[-1], 3600)
@@ -94,7 +98,9 @@ async def _register_plot(valor: Valor):
         #         label.set_visible(False)
         labels = [item.get_text() for item in ax.get_xticklabels()]
         for i in range(len(labels)):
-            labels[i] = int(xvalues[i][xvalues[i].find('-')+1:])
+            if i >= len(xvalues):
+                break
+            labels[i] = int(xvalues[i][xvalues[i].find('-')+1:]) + 5 # the server is hosted in EST. This for UTC. os tz doesn't affect
         ax.set_xticklabels(labels)
 
         for tick in ax.xaxis.get_major_ticks():
@@ -115,15 +121,15 @@ async def _register_plot(valor: Valor):
             url="attachment://plot.png"
         )
 
-    @guild.error
-    async def guild_error(ctx, error):
-        await ctx.send(embed=ErrorEmbed("Command failed :/. Make sure to surround guild names with quotes"))
-        print(error)
+    # @guild.error
+    # async def guild_error(ctx, error):
+    #     await ctx.send(embed=ErrorEmbed("Command failed :/. Make sure to surround guild names with quotes"))
+    #     print(error)
 
-    @plot.error
-    async def plot_error(ctx, error):
-        await ctx.send(embed=ErrorEmbed("Command failed :/. Make sure to surround guild names with quotes"))
-        print(error)
+    # @plot.error
+    # async def plot_error(ctx, error):
+    #     await ctx.send(embed=ErrorEmbed("Command failed :/. Make sure to surround guild names with quotes"))
+    #     print(error)
     
     @valor.help_override.command()
     async def plot(ctx: Context):
