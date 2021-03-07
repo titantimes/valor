@@ -24,11 +24,20 @@ async def _register_plot(valor: Valor):
             await ctx.send(embed=choice_em)
     
     @plot.command()
-    async def guild(ctx: Context, guild_name = "Avicia", start = None, end= None):
-        if not end:
-            end = int(time.time())
-        if not start:
-            start = int(time.time()) - 3600*24*7
+    async def guild(ctx: Context, guild_name = "Avicia", options = ""):
+        options = options.split(' ')
+        end = int(time.time())
+        start = int(time.time()) - 3600*24*7
+        ignore_regression = False
+        if len(options) > 0:
+            if options[0] == "start":
+                start = 0
+            else:
+                start = int(datetime.strptime(options[0], "%d/%m/%y").timestamp())
+        if len(options) > 1 and options[1] != "now":
+            end = int(datetime.strptime(options[1], "%d/%m/%y").timestamp())
+        if len(options) > 2:
+            ignore_regression = options[2] == 'no'
         fig: plt.Figure = plt.figure()
         ax: plt.Axes = fig.add_subplot(7,1,(1,6))
         ax.set_ylabel("Player Online Count")
@@ -63,13 +72,19 @@ async def _register_plot(valor: Valor):
         # runtime errors with numpy. This really never happens unless the guild was recently added
         except:
             solved = [0,0,0,0]
-        freq = 1/solved[1]*2*3.1415
-        model = lambda t: solved[0]*math.sin(freq*t-solved[2])+solved[3]
-        model_x = range(xtimes[0], xtimes[-1], 3600)
-        model_values = [model(x) for x in model_x]
-        model_x_date = [datetime.fromtimestamp(x).strftime("%-d/%m/%y-%H") for x in model_x]
-        # print(model_x_date)
-        ax.plot(model_x, model_values, 'g--')
+        content = f"```Min: {min(yvalues)}\nMax: {max(yvalues)}\nMean: {solved[3]}"
+        if not ignore_regression:
+
+            freq = 1/solved[1]*2*3.1415
+            model = lambda t: solved[0]*math.sin(freq*t-solved[2])+solved[3]
+            model_x = range(xtimes[0], xtimes[-1], 3600)
+            model_values = [model(x) for x in model_x]
+            model_x_date = [datetime.fromtimestamp(x).strftime("%-d/%m/%y-%H") for x in model_x]
+            template = f"\n{solved[0]}*sin({freq}*t-{solved[2]})+{solved[3]}"
+            content += template
+            # print(model_x_date)
+            ax.plot(model_x, model_values, 'g--')
+        content += '```'
         # print(model_x_date)
         # ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
         # skip = len(xvalues)//10
@@ -112,8 +127,7 @@ async def _register_plot(valor: Valor):
 
         fig.savefig("/tmp/valor_guild_plot.png")
         file = File("/tmp/valor_guild_plot.png", filename="plot.png")
-        template = f"{solved[0]}*sin({freq}*t-{solved[2]})+{solved[3]}"
-        content = f"```Min: {min(yvalues)}\nMax: {max(yvalues)}\nMean: {solved[3]}\n{template}```"
+        
         await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {guild_name}", content, color=0xFF0000, 
             file=file, 
             url="attachment://plot.png"
@@ -130,8 +144,8 @@ async def _register_plot(valor: Valor):
     #     print(error)
     
     @plot.command()
-    async def tag(ctx: Context, guild_name = "AVO", start = None, end= None):
-        return await guild(ctx, guild_name_from_tag(guild_name), start, end) 
+    async def tag(ctx: Context, guild_name = "AVO", options = ""):
+        return await guild(ctx, guild_name_from_tag(guild_name), options) 
 
     @valor.help_override.command()
     async def plot(ctx: Context):
