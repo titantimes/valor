@@ -1,6 +1,6 @@
 import requests
 from valor import Valor
-from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress
+from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress, guild_name_from_tag
 from discord.ext.commands import Context
 from datetime import datetime
 from discord import File
@@ -32,7 +32,7 @@ async def _register_plot(valor: Valor):
         fig: plt.Figure = plt.figure()
         ax: plt.Axes = fig.add_subplot(7,1,(1,6))
         ax.set_ylabel("Player Online Count")
-        ax.set_xlabel("Hour (24 hour-format)")
+        ax.set_xlabel("Hour (24 hour-format GMT/BST)")
         # plt.ylabel = "Player Count"
         schema = "https://" if os.getenv("USESSL") == "true" else "http://"
         # print(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{guild_name}/{start}/{end}")
@@ -129,6 +129,10 @@ async def _register_plot(valor: Valor):
     #     await ctx.send(embed=ErrorEmbed("Command failed :/. Make sure to surround guild names with quotes"))
     #     print(error)
     
+    @plot.command()
+    async def tag(ctx: Context, guild_name = "AVO", start = None, end= None):
+        return await guild(ctx, guild_name_from_tag(guild_name), start, end) 
+
     @valor.help_override.command()
     async def plot(ctx: Context):
         await LongTextEmbed.send_message(valor, ctx, "Plot", desc, color=0xFF00)
