@@ -91,16 +91,14 @@ async def _register_plot(valor: Valor):
         # hacky way to do this
         newax.plot([x[:x.find('-')] for x in xvalues], [1]*len(xvalues), alpha=0)
         # newax.tick_params(axis='x', rotation=90)
-        ax.xaxis.set_major_locator(MaxNLocator(20)) 
+        ax.xaxis.set_major_locator(MaxNLocator(min(len(xvalues), 20))) 
         skip = 1
         # for i, label in enumerate(ax.get_xticklabels()):
         #     if not i % skip:
         #         label.set_visible(False)
         labels = [item.get_text() for item in ax.get_xticklabels()]
-        for i in range(len(labels)):
-            if i >= len(xvalues):
-                break
-            labels[i] = int(xvalues[i][xvalues[i].find('-')+1:]) + 5 # the server is hosted in EST. This for UTC. os tz doesn't affect
+        for i in range(len(labels)-1):
+            labels[i+1] = int(xvalues[i][xvalues[i].find('-')+1:])
         ax.set_xticklabels(labels)
 
         for tick in ax.xaxis.get_major_ticks():
