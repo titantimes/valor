@@ -21,7 +21,9 @@ def sinusoid_regress(x, y) -> Tuple[int, int, int, int]:
         return stdev*math.sin(avg_period*x-c)+avg
 
     def r_squared(model, c):
-        error = sum((model(x[i], c)-y[i])**2 for i in range(len(x)))
+        tss = sum((y[i] - c)**2 for i in range(len(x)))
+        error = 1-sum((y[i]-model(x[i], c))**2 for i in range(len(x)))/tss
         return error
+    # print(r_squared(model, min(candidate_ps, key = lambda c: abs(1-r_squared(model, c)))))
     # a*sin(bx-c)+d
-    return stdev, avg_period, max(candidate_ps, key = lambda c: r_squared(model, c)), avg
+    return stdev, avg_period, min(candidate_ps, key = lambda c: abs(1-r_squared(model, c))), avg
