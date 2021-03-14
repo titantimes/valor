@@ -82,7 +82,7 @@ async def _register_plot(valor: Valor):
             model_x = range(xtimes[0], xtimes[-1], 3600)
             model_values = [model(x) for x in model_x]
             model_x_date = [datetime.fromtimestamp(x).strftime("%-d/%m/%y-%H") for x in model_x]
-            template = f"\n{solved[0]}*sin({freq}*t-{solved[2]})+{solved[3]}"
+            template = f"\n{round(solved[0], 3)}*sin({round(freq, 7)}*t-{round(solved[2], 3)})+{round(solved[3], 3)}"
             content += template
             # print(model_x_date)
             ax.plot(model_x, model_values, 'g--')
