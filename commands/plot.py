@@ -55,15 +55,16 @@ async def _register_plot(valor: Valor):
         yvalues = [res["data"][str(old_xvalues[0])]]
         for i in range(1, len(old_xvalues)):
             # fill in the gaps in time
-            fill = (old_xvalues[i]-old_xvalues[i-1])//3600
-            if fill > 2:
+            fill_float = (old_xvalues[i]-old_xvalues[i-1])/3600
+            fill = int(fill_float)
+            if fill_float > 1.5:
                 xvalues.extend(
-                    [datetime.fromtimestamp(old_xvalues[i-1]+j*3600).strftime("%-d/%m/%y-%H")
-                        for j in range(1, fill)]
+                    [datetime.fromtimestamp(old_xvalues[i-1]+(j+1)*3600).strftime("%-d/%m/%y-%H")
+                        for j in range(0, fill)]
                 )
-                xtimes.extend([old_xvalues[i-1]+j*3600
-                        for j in range(1, fill)])
-                yvalues.extend([0]*(fill-1))
+                xtimes.extend([old_xvalues[i-1]+(j+1)*3600
+                        for j in range(0, fill)])
+                yvalues.extend([0]*(fill))
             xtimes.append(old_xvalues[i])
             xvalues.append(datetime.fromtimestamp(old_xvalues[i]).strftime("%-d/%m/%y-%H"))
             yvalues.append(res["data"][str(old_xvalues[i])])
