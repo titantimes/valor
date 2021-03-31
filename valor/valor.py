@@ -33,6 +33,9 @@ class Valor(discord.ext.commands.Bot):
         with open("endpoints.json", 'r') as f:
             self.endpoints = json.load(f)
 
+        with open('assets/warcount119.json', 'r') as f:
+            self.warcount119 = json.load(f)
+
         super(Valor, self).__init__(*args, **kwargs, description=self.config["description"])
 
     def run(self):
