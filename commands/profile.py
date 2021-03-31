@@ -37,7 +37,7 @@ async def _register_profile(valor: Valor):
         if not uuid:
             await ctx.send(embed=ErrorEmbed(f"{username} isn't even in the guild."))
 
-        warcount = valor.warcount119[username]
+        warcount = valor.warcount119.get(username)
         wranking = get_war_rank(warcount)
         schema = "https://" if os.getenv("USESSL") == "true" else "http://"
         res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/Titans Valor/{username}").json()["data"]
