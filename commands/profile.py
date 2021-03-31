@@ -17,7 +17,7 @@ async def _register_profile(valor: Valor):
     
     fontsize = 50
     bar_fontsize = 20
-    bar_length = 354
+    bar_length = 348
     circle_fontsize = 20
     rank_fontsize = 30
     font = ImageFont.truetype("Ubuntu-R.ttf", fontsize)
