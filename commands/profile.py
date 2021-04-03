@@ -75,8 +75,7 @@ async def _register_profile(valor: Valor):
         draw.text((244, 364-circle_fontsize), "No medals lul", (0, 50, 80), font=circle_font)
         # get model
         if not os.path.exists(f"/tmp/{username}_model.png"):
-            nimbuh = "https://cdn.discordapp.com/attachments/706396113330241589/741842674180685905/morph-someones-face-using-photoshop-1.png"
-            model = requests.get(nimbuh if username == "Nimbuh" else model_base+uuid).content 
+            model = requests.get(model_base+uuid).content 
             with open(f"/tmp/{username}_model.png", "wb") as f:
                 f.write(model)
         model_img = Image.open(f"/tmp/{username}_model.png", 'r')
