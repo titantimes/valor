@@ -32,7 +32,8 @@ async def _register_plot(valor: Valor):
         end = int(time.time())
         start = int(time.time()) - 3600*24*7
         ignore_regression = False
-        if options[0] != '':
+
+        if options[0] != '' and not ("avg" in options or "average" in options):
             if len(options) > 0:
                 if options[0] == "start":
                     start = 0
@@ -42,6 +43,7 @@ async def _register_plot(valor: Valor):
                 end = int(datetime.strptime(options[1], "%d/%m/%y").timestamp())
             if len(options) > 2:
                 ignore_regression = options[2] == 'no'
+
         fig: plt.Figure = plt.figure()
         ax: plt.Axes = fig.add_subplot(7,1,(1,6))
         ax.set_ylabel("Player Online Count")
@@ -85,9 +87,15 @@ async def _register_plot(valor: Valor):
         
         sortable_timeseries = [(cumulative_xtimes[i], cumulative_yvalues[i]) for i in range(len(cumulative_xtimes))]
         sortable_timeseries.sort(key = lambda n: len(n[0]))
-        cumulative_yvalues = [sum(x[1][i] for x in sortable_timeseries) for i in range(len(sortable_timeseries[0][0]))]
-        cumulative_xtimes = sortable_timeseries[0][0]
         
+        
+        # do average values if specified
+        if "avg" in options or "average" in options:
+            cumulative_yvalues = [sum(x[1][i] for x in sortable_timeseries)/len(sortable_timeseries) for i in range(len(sortable_timeseries[0][0]))]
+        else:
+            cumulative_yvalues = [sum(x[1][i] for x in sortable_timeseries) for i in range(len(sortable_timeseries[0][0]))]
+        cumulative_xtimes = sortable_timeseries[0][0]
+
         ax.plot(cumulative_xtimes, cumulative_yvalues)
         try:
             solved = sinusoid_regress([x-cumulative_xtimes[0] for x in cumulative_xtimes], cumulative_yvalues)
