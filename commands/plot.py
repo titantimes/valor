@@ -23,10 +23,12 @@ async def _register_plot(valor: Valor):
         if not ctx.invoked_subcommand:
             await ctx.send(embed=choice_em)
     
+    # allows for multiple guilds delimited by commas
     @plot.command()
-    async def guild(ctx: Context, guild_name = "Avicia", options = ""):
+    async def guild(ctx: Context, unparsed_guild_names = "Avicia", options = ""):
+        guild_names = unparsed_guild_names.replace(', ', ',').split(',')
         options = options.split(' ')
-        print(options)
+        # print(options)
         end = int(time.time())
         start = int(time.time()) - 3600*24*7
         ignore_regression = False
@@ -47,40 +49,57 @@ async def _register_plot(valor: Valor):
         # plt.ylabel = "Player Count"
         schema = "https://" if os.getenv("USESSL") == "true" else "http://"
         # print(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{guild_name}/{start}/{end}")
-        res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{guild_name}/{start}/{end}").json()
-        old_xvalues = [*map(int, res["data"])]
-        # old_xvalues = sorted(old_xvalues)
-        xvalues = [datetime.fromtimestamp(old_xvalues[0]).strftime("%-d/%m/%y-%H")]
-        xtimes = [int(old_xvalues[0])]
-        yvalues = [res["data"][str(old_xvalues[0])]]
-        for i in range(1, len(old_xvalues)):
-            # fill in the gaps in time
-            fill_float = (old_xvalues[i]-old_xvalues[i-1])/3600
-            fill = int(fill_float)
-            if fill_float > 1.5:
-                xvalues.extend(
-                    [datetime.fromtimestamp(old_xvalues[i-1]+(j+1)*3600).strftime("%-d/%m/%y-%H")
-                        for j in range(0, fill)]
-                )
-                xtimes.extend([old_xvalues[i-1]+(j+1)*3600
-                        for j in range(0, fill)])
-                yvalues.extend([0]*(fill))
-            xtimes.append(old_xvalues[i])
-            xvalues.append(datetime.fromtimestamp(old_xvalues[i]).strftime("%-d/%m/%y-%H"))
-            yvalues.append(res["data"][str(old_xvalues[i])])
 
-        ax.plot(xtimes, yvalues)
+        cumulative_xvalues = []
+        cumulative_yvalues = []
+        cumulative_xtimes = []
+        # loop through each guild and get cumulative sum 
+
+        for name in guild_names:
+
+            res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{name}/{start}/{end}").json()
+            old_xvalues = [*map(int, res["data"])]
+            # old_xvalues = sorted(old_xvalues)
+            xvalues = [datetime.fromtimestamp(old_xvalues[0]).strftime("%-d/%m/%y-%H")]
+            xtimes = [int(old_xvalues[0])]
+            yvalues = [res["data"][str(old_xvalues[0])]]
+            for i in range(1, len(old_xvalues)):
+                # fill in the gaps in time
+                fill_float = (old_xvalues[i]-old_xvalues[i-1])/3600
+                fill = int(fill_float)
+                if fill_float > 1.5:
+                    xvalues.extend(
+                        [datetime.fromtimestamp(old_xvalues[i-1]+(j+1)*3600).strftime("%-d/%m/%y-%H")
+                            for j in range(0, fill)]
+                    )
+                    xtimes.extend([old_xvalues[i-1]+(j+1)*3600
+                            for j in range(0, fill)])
+                    yvalues.extend([0]*(fill))
+                xtimes.append(old_xvalues[i])
+                xvalues.append(datetime.fromtimestamp(old_xvalues[i]).strftime("%-d/%m/%y-%H"))
+                yvalues.append(res["data"][str(old_xvalues[i])])
+
+            cumulative_yvalues.append(yvalues)
+            cumulative_xvalues = xvalues
+            cumulative_xtimes.append(xtimes)
+        
+        sortable_timeseries = [(cumulative_xtimes[i], cumulative_yvalues[i]) for i in range(len(cumulative_xtimes))]
+        sortable_timeseries.sort(key = lambda n: len(n[0]))
+        cumulative_yvalues = [sum(x[1][i] for x in sortable_timeseries) for i in range(len(sortable_timeseries[0][0]))]
+        cumulative_xtimes = sortable_timeseries[0][0]
+        
+        ax.plot(cumulative_xtimes, cumulative_yvalues)
         try:
-            solved = sinusoid_regress([x-xtimes[0] for x in xtimes], yvalues)
+            solved = sinusoid_regress([x-cumulative_xtimes[0] for x in cumulative_xtimes], cumulative_yvalues)
         # runtime errors with numpy. This really never happens unless the guild was recently added
         except:
             solved = [0,0,0,0]
-        content = f"```Min: {min(yvalues)}\nMax: {max(yvalues)}\nMean: {solved[3]}"
+        content = f"```Min: {min(cumulative_yvalues)}\nMax: {max(cumulative_yvalues)}\nMean: {solved[3]}"
         if not ignore_regression:
 
             freq = 1/solved[1]*2*3.1415
             model = lambda t: solved[0]*math.sin(freq*t-solved[2])+solved[3]
-            model_x = range(xtimes[0], xtimes[-1], 3600)
+            model_x = range(cumulative_xtimes[0], cumulative_xtimes[-1], 3600)
             model_values = [model(x) for x in model_x]
             model_x_date = [datetime.fromtimestamp(x).strftime("%-d/%m/%y-%H") for x in model_x]
             template = f"\n{round(solved[0], 3)}*sin({round(freq, 7)}*t-{round(solved[2], 3)})+{round(solved[3], 3)}"
@@ -131,7 +150,7 @@ async def _register_plot(valor: Valor):
         fig.savefig("/tmp/valor_guild_plot.png")
         file = File("/tmp/valor_guild_plot.png", filename="plot.png")
         
-        await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {guild_name}", content, color=0xFF0000, 
+        await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {unparsed_guild_names}", content, color=0xFF0000, 
             file=file, 
             url="attachment://plot.png"
         )
@@ -147,8 +166,9 @@ async def _register_plot(valor: Valor):
     #     print(error)
     
     @plot.command()
-    async def tag(ctx: Context, guild_name = "AVO", options = ""):
-        return await guild(ctx, guild_name_from_tag(guild_name), options) 
+    async def tag(ctx: Context, guild_names = "AVO", options = ""):
+        guild_names = guild_names.replace(', ', ',').split(',')
+        return await guild(ctx, ', '.join(guild_name_from_tag(x) for x in guild_names), options) 
 
     @valor.help_override.command()
     async def plot(ctx: Context):
