@@ -33,16 +33,16 @@ async def _register_plot(valor: Valor):
         start = int(time.time()) - 3600*24*7
         ignore_regression = False
 
-        if options[0] != '' and not ("avg" in options or "average" in options):
-            if len(options) > 0:
-                if options[0] == "start":
+        if "range" in options:
+            if len(options) > 1:
+                if options[1] == "start":
                     start = 0
                 else:
-                    start = int(datetime.strptime(options[0], "%d/%m/%y").timestamp())
-            if len(options) > 1 and options[1] != "end":
+                    start = int(datetime.strptime(options[1], "%d/%m/%y").timestamp())
+            if len(options) > 2 and options[2] != "end":
                 end = int(datetime.strptime(options[1], "%d/%m/%y").timestamp())
-            if len(options) > 2:
-                ignore_regression = options[2] == 'no'
+            if len(options) > 3:
+                ignore_regression = options[3] == 'no'
 
         fig: plt.Figure = plt.figure()
         ax: plt.Axes = fig.add_subplot(7,1,(1,6))
@@ -56,10 +56,10 @@ async def _register_plot(valor: Valor):
         cumulative_yvalues = []
         cumulative_xtimes = []
         # loop through each guild and get cumulative sum 
-
+        all_or_captains = "captains" if "captains" in options else "guild"
         for name in guild_names:
 
-            res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/guild/{name}/{start}/{end}").json()
+            res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/{all_or_captains}/{name}/{start}/{end}").json()
             old_xvalues = [*map(int, res["data"])]
             # old_xvalues = sorted(old_xvalues)
             xvalues = [datetime.fromtimestamp(old_xvalues[0]).strftime("%-d/%m/%y-%H")]
