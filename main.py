@@ -18,6 +18,7 @@ time.tzset()
 logging.basicConfig(format='%(asctime)s %(message)s')
 logging.getLogger().setLevel(logging.INFO)
 logging.warning("Starting")
+
 valor = valor.Valor('-')
 
 loop = asyncio.get_event_loop()

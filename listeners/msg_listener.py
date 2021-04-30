@@ -2,12 +2,17 @@ from valor import Valor
 import discord
 from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed
 from sql import ValorSQL
+import time
 
 async def _register_msg_listiner(valor: Valor):
+    cooldown = {}
     @valor.event
     async def on_message(message: discord.Message):
         if "https://wynnbuilder.github.io/#" in message.content or \
             "https://hppeng-wynn.github.io/#" in message.content:
+            # Disable this feature. It's no longer wanted
+            return
+
             usr_conf = ValorSQL.get_user_config(message.author.id)
             if not usr_conf.get("wynnbuilder"):
                 return
@@ -22,4 +27,11 @@ async def _register_msg_listiner(valor: Valor):
             build = info(link)
             ctx = await valor.get_context(message)
             return await LongFieldEmbed.send_message(valor, ctx, "WynnBuilder build", build)
+        if len(message.content) and message.content[0] == '-':
+            now = time.time()
+            ctx = await valor.get_context(message)
+            if now-cooldown.get(message.author.id, 0) <= 2:
+                await ctx.send(embed=ErrorEmbed("Please don't spam commands :). The cooldown is 2 seconds"))
+            else:
+                cooldown[message.author.id] = now
         await valor.process_commands(message)

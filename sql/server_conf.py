@@ -68,6 +68,38 @@ class ValorSQL:
         cursor.close()
         return res
 
+    # all of the message reaction / vote polls
+
+    @classmethod
+    def create_react_msg(cls, msg_id, expire):
+        msg = cls._execute(f"INSERT INTO react_msg VALUES ({msg_id}, {expire})")
+        return msg
+    
+    @classmethod
+    def remove_react_msg(cls, msg_id):
+        res = cls._execute(f"DELETE FROM react_msg WHERE msg_id = {msg_id}")
+        return res
+
+    @classmethod
+    def create_react_reaction(cls, msg_id, reaction_id, action=''):
+        res = cls._execute(f"INSERT INTO react_msg_react VALUES ({msg_id}, {reaction_id}, 0, {repr(action)})")
+        return res
+    
+    @classmethod
+    def remove_react_reaction(cls, msg_id, reaction_id):
+        res = cls._execute(f"DELETE FROM react_msg_react WHERE msg_id = {msg_id} AND reaction_id = {reaction_id}")
+        return res
+    
+    @classmethod
+    def add_react_reaction(cls, msg_id, reaction_id):
+        res = cls._execute(f"UPDATE react_msg_react SET count=count+1 WHERE msg_id = {msg_id} AND reaction_id = {reaction_id}")
+        return res
+
+    @classmethod
+    def get_all_react_msg(cls) -> bool:
+        res = cls._execute(f"SELECT * FROM react_msg")
+        return res
+
     # @classmethod
     # def _reconnect(cls):
     #     print("ValorSQL: Reconnecting to db")
