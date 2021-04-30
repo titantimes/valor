@@ -8,6 +8,7 @@ from .plot import _register_plot
 from .activity import _register_activity
 from .profile import _register_profile
 from .coin import _register_coin
+from .ticket import _register_ticket
 from valor import Valor
 
 async def register_all(valor: Valor):
@@ -24,3 +25,4 @@ async def register_all(valor: Valor):
     await _register_activity(valor)
     await _register_profile(valor)
     await _register_coin(valor)
+    await _register_ticket(valor)
