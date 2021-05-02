@@ -89,6 +89,18 @@ class ValorSQL:
     def remove_react_reaction(cls, msg_id, reaction_id):
         res = cls._execute(f"DELETE FROM react_msg_react WHERE msg_id = {msg_id} AND reaction_id = {reaction_id}")
         return res
+
+    @classmethod
+    def get_react_msg_reactions_all(cls, msg_id):
+        # gets all reactions of a reaction msg
+        res = cls._execute(f"SELECT * FROM react_msg_react WHERE msg_id = {msg_id}")
+        return res
+
+    @classmethod
+    def get_react_msg_reaction(cls, msg_id, reaction_id):
+        # gets reaction row of a specific reaction to a reaction msg 
+        res = cls._execute(f"SELECT * FROM react_msg_react WHERE msg_id = {msg_id} AND reaction_id = {reaction_id}")
+        return res
     
     @classmethod
     def add_react_reaction(cls, msg_id, reaction_id):

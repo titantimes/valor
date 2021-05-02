@@ -41,3 +41,5 @@ class ReactionEmbed(discord.Embed):
         for react_id in em.reactions:
             await msg.add_reaction(react_id if len(react_id) == 1 else valor.get_emoji(int(react_id)))
 
+        return msg
+

@@ -60,16 +60,23 @@ async def _register_plot(valor: Valor):
         for name in guild_names:
 
             res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/{all_or_captains}/{name}/{start}/{end}").json()
-            old_xvalues = [*map(int, res["data"])]
+            
+            for k in [*res["data"].keys()]:
+                # replace all keys in res with the floor'd values to nearest hour in seconds
+                res["data"][int(k)//3600*3600] = res["data"][k]
+                del res["data"][k]
+
+            old_xvalues = [*res["data"].keys()]
+
             # old_xvalues = sorted(old_xvalues)
             xvalues = [datetime.fromtimestamp(old_xvalues[0]).strftime("%-d/%m/%y-%H")]
             xtimes = [int(old_xvalues[0])]
-            yvalues = [res["data"][str(old_xvalues[0])]]
+            yvalues = [res["data"][old_xvalues[0]]]
             for i in range(1, len(old_xvalues)):
                 # fill in the gaps in time
-                fill_float = (old_xvalues[i]-old_xvalues[i-1])/3600
-                fill = int(fill_float)
-                if fill_float > 1.5:
+                fill_float = (old_xvalues[i]-old_xvalues[i-1])
+                fill = fill_float//3600
+                if fill_float > 3600:
                     xvalues.extend(
                         [datetime.fromtimestamp(old_xvalues[i-1]+(j+1)*3600).strftime("%-d/%m/%y-%H")
                             for j in range(0, fill)]
@@ -79,7 +86,7 @@ async def _register_plot(valor: Valor):
                     yvalues.extend([0]*(fill))
                 xtimes.append(old_xvalues[i])
                 xvalues.append(datetime.fromtimestamp(old_xvalues[i]).strftime("%-d/%m/%y-%H"))
-                yvalues.append(res["data"][str(old_xvalues[i])])
+                yvalues.append(res["data"][old_xvalues[i]])
 
             cumulative_yvalues.append(yvalues)
             cumulative_xvalues = xvalues

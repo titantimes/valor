@@ -28,16 +28,16 @@ async def _register_ticket(valor: Valor):
             else:
                 reactions.append(c.split(":")[-1][:-1])
 
-        await ReactionEmbed.send_message(valor, ctx, title, message, color=0xBBBBFF, reactions=reactions)
+        msg = await ReactionEmbed.send_message(valor, ctx, title, message, color=0xBBBBFF, reactions=reactions)
         expire = int(time.time()+expire_sec)
-        valor.reaction_msg_ids[ctx.message.id] = expire
-        ValorSQL.create_react_msg(ctx.message.id, expire)
+        valor.reaction_msg_ids[msg.id] = expire
+        ValorSQL.create_react_msg(msg.id, expire)
 
         for emoji in reactions:
             if len(emoji) == 1:
                 emoji = ord(emoji)
 
-            ValorSQL.create_react_reaction(ctx.message.id, int(emoji))
+            ValorSQL.create_react_reaction(msg.id, int(emoji))
 
     @ticket.error
     async def err(ctx, error):
