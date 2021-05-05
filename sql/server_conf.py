@@ -111,6 +111,27 @@ class ValorSQL:
     def get_all_react_msg(cls) -> bool:
         res = cls._execute(f"SELECT * FROM react_msg")
         return res
+    
+    @classmethod
+    def get_server_config(cls, server_id: int):
+        res = cls._execute(f"SELECT * FROM server_config WHERE server_id = {server_id} LIMIT 1")
+        return res
+
+    @classmethod 
+    def server_config_update_app_id(cls, server_id: int, app_group_id: int):
+        check = cls.get_server_config(server_id)
+        if not len(check):
+            cls._execute(f"INSERT INTO server_config VALUES ({server_id}, {app_group_id}, 0, '', 0)")
+        else:
+            cls._execute(f"UPDATE server_config SET app_group_id = {app_group_id} WHERE server_id = {server_id}")
+
+    @classmethod
+    def server_config_set_app_cnt(cls, server_id: int, cnt: int):
+        check = cls.get_server_config(server_id)
+        if not len(check):
+            raise Exception(f"Server {server_id} has no config set")
+        else:
+            cls._execute(f"UPDATE server_config SET app_count = {cnt} WHERE server_id = {server_id}")
 
     # @classmethod
     # def _reconnect(cls):
