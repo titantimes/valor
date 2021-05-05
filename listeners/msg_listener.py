@@ -3,7 +3,10 @@ import discord
 from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed
 from sql import ValorSQL
 import time
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 async def _register_msg_listiner(valor: Valor):
     cooldown = {}
     @valor.event
@@ -34,4 +37,12 @@ async def _register_msg_listiner(valor: Valor):
                 await ctx.send(embed=ErrorEmbed("Please don't spam commands :). The cooldown is 2 seconds"))
             else:
                 cooldown[message.author.id] = now
+
+        # for application processing
+        if message.author.id != int(os.environ["SELFID"]) and message.channel.name.startswith("app"):
+            config = ValorSQL.get_server_config(message.guild.id)[0]
+            if message.channel.category_id == config[1]:
+                ctx = await valor.get_context(message)
+                msg = await ctx.send(embed=LongTextEmbed("Click the green checkmark below to submit", "Send your application again if you messed up.", color=0xFF44))
+                await msg.add_reaction('✅')
         await valor.process_commands(message)

@@ -21,7 +21,7 @@ class ErrorEmbed(discord.Embed):
         self.set_footer(text="Scream at Andrew or Cal if something should be working")
 
 class LongTextEmbed(discord.Embed):
-    def __init__(self, title: str, content, **kwargs):
+    def __init__(self, title: str, content, limit=3000, **kwargs):
         if isinstance(content, str):
             self.content = content.split('\n')
         self.page = 1
@@ -31,7 +31,7 @@ class LongTextEmbed(discord.Embed):
         self.total_pages = int(math.ceil(len(self.content)/(lp[1]-lp[0])))
         self.line_pairs = []
         for i in range(self.total_pages):
-            lp = LongTextEmbed.find_linepair(self.content, line_idx)
+            lp = LongTextEmbed.find_linepair(self.content, line_idx, limit)
             self.line_pairs.append(lp)
             line_idx = lp[1]
 
