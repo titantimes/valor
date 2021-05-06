@@ -40,7 +40,10 @@ class LongTextEmbed(discord.Embed):
             description = '\n'.join(self.content[self.line_pairs[0][0]:self.line_pairs[0][1]]),
             **kwargs
         )
-        self.set_footer(text="Page 1 of {}".format(self.total_pages))
+        if not kwargs.get("footer"):
+            self.set_footer(text="Page 1 of {}".format(self.total_pages))
+        else:
+            self.set_footer(text=kwargs["footer"])
 
     def forward_page(self):
         if self.page == self.total_pages:

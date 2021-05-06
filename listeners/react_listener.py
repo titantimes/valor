@@ -44,14 +44,35 @@ async def _register_react_listener(valor: Valor):
                 ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[3], color=0xFFAA))
 
-        # reaction to the green checkmark
+        # reaction to the green checkmark or thumbs up
         if payload.user_id != int(os.environ["SELFID"]):
-            config = ValorSQL.get_server_config(payload.guild_id)
-            if not len(config):
-                return
-            print("awef")
-            config = config[0]
-            if rxn_chn.category_id == config[1]:
-                msg = rxn_chn.get_partial_message(payload.message_id)
-                await msg.delete()
+            if str(payload.emoji) == '✅':
+                config = ValorSQL.get_server_config(payload.guild_id)
+                if not len(config):
+                    return
+                config = config[0]
+                if rxn_chn.category_id == config[1]:
+                    msg = await rxn_chn.fetch_message(payload.message_id)
+                    app_msg_id = int(msg.embeds[0].footer.text.split(' - ')[1])
+
+                    await msg.edit(embed=LongTextEmbed("Submitted Application!", "Your application is currently under review.\nWe'll get back to you soon.", color=0xFF00))
+                    await msg.channel.set_permissions(payload.member, send_messages=False, read_messages=True)
+                    await msg.add_reaction('👍')
+
+                    vote_chn = valor.get_channel(config[4])
+                    
+                    app_msg = await rxn_chn.fetch_message(app_msg_id)
+                    message_format = "`Application #%d` - <@%d>\n" \
+                                     "```%s```"
+
+                    await vote_chn.send(message_format % (int(rxn_chn.name.split('-')[1]), app_msg.author.id, app_msg.content))
+
+            elif str(payload.emoji) == '👍':
+                config = ValorSQL.get_server_config(payload.guild_id)
+                if not len(config):
+                    return
+                config = config[0]
+
+                if rxn_chn.category_id == config[1] and payload.member.guild_permissions.administrator:
+                    await rxn_chn.delete()
 
