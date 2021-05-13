@@ -22,6 +22,7 @@ async def _register_ticket(valor: Valor):
     
     @ticket.command()
     async def create(ctx: Context, title: str, message: str, emotes: str, expire_sec: int = 1576800000):
+        return # dead code
         reactions = []
         for c in emotes.strip().replace(", ", ",").split(","):
             if len(c) == 1:
@@ -42,6 +43,7 @@ async def _register_ticket(valor: Valor):
     
     @ticket.command()
     async def app(ctx: Context, title: str, message: str, emotes: str, chn_group: int, expire_sec: int = 1576800000):
+        return # dead code
         reactions = []
         for c in emotes.strip().replace(", ", ",").split(","):
             if len(c) == 1:
