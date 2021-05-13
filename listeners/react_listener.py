@@ -60,7 +60,6 @@ async def _register_react_listener(valor: Valor):
                     await msg.add_reaction('👍')
 
                     vote_chn = valor.get_channel(config[4])
-                    
                     app_msg = await rxn_chn.fetch_message(app_msg_id)
                     message_format = "`Application #%d` - <@%d>\n" \
                                      "```%s```"
