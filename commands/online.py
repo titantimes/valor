@@ -41,6 +41,7 @@ async def _register_online(valor: Valor):
                 if not k in grouped:
                     grouped[k] = []
                 grouped[k].append((p, k, rank))
+                grouped[k].sort(key=lambda x: rank_order[x[2]])
             grouped = [x[1] for x in sorted(grouped.items(), key=lambda v: len(v[1]), reverse=True)]
             return await LongTextEmbed.send_message(valor, ctx, f"Members of {guild} online ({len(online_rn)})", '```' +
                 '-'*17+'+'+'-'*7+'+'+'-'*12+'\n'+
