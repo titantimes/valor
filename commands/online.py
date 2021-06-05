@@ -42,9 +42,10 @@ async def _register_online(valor: Valor):
                     grouped[k] = []
                 grouped[k].append((p, k, rank))
             grouped = [x[1] for x in sorted(grouped.items(), key=lambda v: len(v[1]), reverse=True)]
-            return await ctx.send(('```'+'%38s' % f"Members of {guild} online\n") +
+            return await LongTextEmbed.send_message(valor, ctx, f"Members of {guild} online ({len(online_rn)})", '```' +
                 '-'*17+'+'+'-'*7+'+'+'-'*12+'\n'+
-                '\n'.join('\n'.join(('%16s | %5s | %10s' % x) for x in y)+'\n' for y in grouped) + '```'    
+                '\n'.join('\n'.join(('%16s | %5s | %10s' % x) for x in y)+'\n' for y in grouped) + '```',
+                color=0xa1ffe1    
             )
         online_rn.sort(key = lambda x: rank_order[x[2]])
         # escape any underscores and concat rank with world number
