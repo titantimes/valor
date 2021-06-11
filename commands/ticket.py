@@ -64,6 +64,16 @@ async def _register_ticket(valor: Valor):
 
         ValorSQL.server_config_update_app_id(msg.guild.id, chn_group)
 
+    # server specific :/
+    @ticket.command()
+    async def war_app(ctx: Context):
+        msg = await ReactionEmbed.send_message(valor, ctx, "Captain or Strategist Application", "Select ⚔ for a captain application.\n"  
+        "Select 🗺 for a strategist application.", color=0xBBBBFF, reactions=['⚔', '🗺'])
+        ValorSQL.create_react_msg(msg.id, int(time.time()+1576800000))
+        valor.reaction_msg_ids[msg.id] = int(time.time()+1576800000)
+        ValorSQL.create_react_reaction(msg.id, ord('⚔'), "captain")
+        ValorSQL.create_react_reaction(msg.id, ord('🗺'), "strategist")
+
     @ticket.error
     async def err(ctx, error):
         await ctx.send(embed=ErrorEmbed("Command failed :/ (Use quotes around the guild name if you haven't)"))

@@ -39,7 +39,8 @@ async def _register_msg_listiner(valor: Valor):
                 cooldown[message.author.id] = now
 
         # for application processing
-        if message.author.id != int(os.environ["SELFID"]) and message.channel.name.startswith("app"):
+        if message.author.id != int(os.environ["SELFID"]) and (message.channel.name.startswith("app") or message.channel.name.startswith("cpt") or
+            message.channel.name.startswith("strat")):
             config = ValorSQL.get_server_config(message.guild.id)[0]
             if message.channel.category_id == config[1]:
                 ctx = await valor.get_context(message)
