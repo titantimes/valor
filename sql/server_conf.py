@@ -116,6 +116,11 @@ class ValorSQL:
     def get_server_config(cls, server_id: int):
         res = cls._execute(f"SELECT * FROM server_config WHERE server_id = {server_id} LIMIT 1")
         return res
+    
+    @classmethod
+    def get_all_configs(cls):
+        res = cls._execute(f"SELECT terr_track_id FROM server_config")
+        return res
 
     @classmethod 
     def server_config_update_app_id(cls, server_id: int, app_group_id: int):
