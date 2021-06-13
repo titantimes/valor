@@ -37,7 +37,7 @@ async def _register_terr_track(valor: Valor):
             c = await websockets.connect("ws://"+os.environ["REMOTE"]+os.environ["RMPORT"]+"/ws")
             try:
                 async for msg in c:
-                    parsed = json.loads(msg)
+                    msg = json.loads(msg)
                     if msg.get("defender") == "Titans Valor" and msg.get("territory") in terrs:
                         for cid in chn_ids:
                             chn = valor.get_channel(cid)
