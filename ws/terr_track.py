@@ -43,14 +43,14 @@ async def _register_terr_track(valor: Valor):
                             for cid in chn_ids:
                                 chn = valor.get_channel(cid)
                                 if chn and time.time()-last_pinged >= 3600*2:
-                                    await chn.send_message(embed=LongTextEmbed("Ping! We're under attack!", 
+                                    await chn.send(embed=LongTextEmbed("Ping! We're under attack!", 
                                     f"Attacker: **{action['attacker']}**\nTerritory: **{action['territory']}**",
                                     color=0xFF2222))
                                     last_pinged = time.time()
             except Exception as e:
-                await asyncio.sleep(30)
-                await c.close()
-                print("Reconnecting websocket")
+                # await asyncio.sleep(30)
+                # await c.close()
+                # print("Reconnecting websocket")
                 raise e
                 
     valor.loop.create_task(task())
