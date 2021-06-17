@@ -48,9 +48,9 @@ async def _register_terr_track(valor: Valor):
                                     color=0xFF2222))
                                     last_pinged = time.time()
             except Exception as e:
-                # await asyncio.sleep(30)
-                # await c.close()
-                # print("Reconnecting websocket")
+                await asyncio.sleep(30)
+                await c.close()
+                print("Reconnecting websocket")
                 raise e
                 
     valor.loop.create_task(task())
