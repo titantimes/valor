@@ -47,4 +47,10 @@ async def _register_msg_listiner(valor: Valor):
                 msg = await ctx.send(embed=LongTextEmbed("Click the green checkmark below to submit", "Send your application again if you messed up.\n**Your most recent message will be submitted**", color=0xFFFF, footer=f"Valor - {message.id}"))
                 await msg.add_reaction('✅')
                 
+        # server specific
+        if message.channel.id == 679447964665774101:
+            # sloppy heuristics
+            if message.content.count("\n") > 3:
+                await msg.add_reaction('✅')
+                await msg.add_reaction('❌')
         await valor.process_commands(message)
