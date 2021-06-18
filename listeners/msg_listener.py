@@ -51,6 +51,6 @@ async def _register_msg_listiner(valor: Valor):
         if message.channel.id == 679447964665774101:
             # sloppy heuristics
             if message.content.count("\n") > 3:
-                await msg.add_reaction('✅')
-                await msg.add_reaction('❌')
+                await message.add_reaction('✅')
+                await message.add_reaction('❌')
         await valor.process_commands(message)
