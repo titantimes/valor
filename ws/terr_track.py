@@ -25,7 +25,9 @@ async def _register_terr_track(valor: Valor):
         "Icy Descent",
         "Lusuco",
         "Twain Lake",
-        "Twain Mansion"
+        "Twain Mansion",
+        "Sanctuary Bridge",
+        "Nether Plains Lower"
     }
 
     async def task():
@@ -42,10 +44,10 @@ async def _register_terr_track(valor: Valor):
                         if action.get("defender") == "Titans Valor" and action.get("territory") in terrs:
                             for cid in chn_ids:
                                 chn = valor.get_channel(cid)
-                                if chn and time.time()-last_pinged >= 3600*2:
-                                    await chn.send(embed=LongTextEmbed("Ping! We're under attack!", 
+                                if chn and time.time()-last_pinged >= 3600:
+                                    await chn.send("<@&683785435117256939>", embed=LongTextEmbed("We're under attack!", 
                                     f"Attacker: **{action['attacker']}**\nTerritory: **{action['territory']}**",
-                                    color=0xFF2222))
+                                    color=0xFF2222, footer="I'm sorry if this pings a billion times. Its cooldown is set to 1 hour now."))
                                     last_pinged = time.time()
             except Exception as e:
                 await asyncio.sleep(30)
