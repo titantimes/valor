@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import json
 import os
 import time
+import requests
 from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed
 
 load_dotenv()
@@ -45,7 +46,11 @@ async def _register_terr_track(valor: Valor):
                             for cid in chn_ids:
                                 chn = valor.get_channel(cid)
                                 if chn and time.time()-last_pinged >= 3600:
-                                    await chn.send("<@&683785435117256939>", embed=LongTextEmbed("We're under attack!", 
+                                    ping_msg = "3+ Strat+ online. Ping voided"
+                                    dat = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command=Titans%20Valor").json()["members"]
+                                    if sum(m["rank"] in {"STRATEGIST", "CHIEF", "OWNER"} for m in dat) < 3:
+                                        ping_msg = "<@&683785435117256939>"
+                                    await chn.send(ping_msg, embed=LongTextEmbed("We're under attack!", 
                                     f"Attacker: **{action['attacker']}**\nTerritory: **{action['territory']}**",
                                     color=0xFF2222, footer="I'm sorry if this pings a billion times. Its cooldown is set to 1 hour now."))
                                     last_pinged = time.time()
