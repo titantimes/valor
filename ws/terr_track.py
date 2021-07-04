@@ -42,7 +42,7 @@ async def _register_terr_track(valor: Valor):
                 async for msg in c:
                     msg = json.loads(msg)
                     for action in msg:
-                        if action.get("defender") == "Test Guild" and action.get("territory") in terrs:
+                        if action.get("defender") == "Titans Valor" and action.get("territory") in terrs:
                             for cid in chn_ids:
                                 chn = valor.get_channel(cid)
                                 if chn and time.time()-last_pinged >= 3600:
