@@ -42,13 +42,23 @@ async def _register_terr_track(valor: Valor):
                 async for msg in c:
                     msg = json.loads(msg)
                     for action in msg:
-                        if action.get("defender") == "Titans Valor" and action.get("territory") in terrs:
+                        if action.get("defender") == "Test Guild" and action.get("territory") in terrs:
                             for cid in chn_ids:
                                 chn = valor.get_channel(cid)
                                 if chn and time.time()-last_pinged >= 3600:
                                     ping_msg = "3+ Strat+ online. Ping voided"
                                     dat = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command=Titans%20Valor").json()["members"]
-                                    if sum(m["rank"] in {"STRATEGIST", "CHIEF", "OWNER"} for m in dat) < 3:
+                                    online_all = requests.get("https://api.wynncraft.com/public_api.php?action=onlinePlayers").json()
+                                    
+                                    online_guild = []
+                                    for k in online_all:
+                                        if k[:2] != "WC":
+                                            continue
+                                        online_guild += online_all[k]
+
+                                    online_guild = set(online_guild)
+                                    
+                                    if sum(m["rank"] in {"STRATEGIST", "CHIEF", "OWNER"} for m in dat if m["name"] in online_guild) < 3:
                                         ping_msg = "<@&683785435117256939>"
                                     await chn.send(ping_msg, embed=LongTextEmbed("We're under attack!", 
                                     f"Attacker: **{action['attacker']}**\nTerritory: **{action['territory']}**",
