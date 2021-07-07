@@ -6,6 +6,7 @@ import time
 from sql import ValorSQL
 from dotenv import load_dotenv
 import os
+import random
 
 load_dotenv()
 
@@ -49,9 +50,9 @@ async def _register_react_listener(valor: Valor):
                 category_id = config[1]
                 category = get(guild.categories, id=category_id)
 
-                # give the user a blind role so they don't cheat
-                role = guild.get_role(config[5])
-                await payload.member.add_roles(role)
+                # # give the user a blind role so they don't cheat
+                # role = guild.get_role(config[5])
+                # await payload.member.add_roles(role)
 
                 overwrites = {
                     guild.default_role: discord.PermissionOverwrite(read_messages=False),
@@ -69,9 +70,9 @@ async def _register_react_listener(valor: Valor):
                 category_id = config[1]
                 category = get(guild.categories, id=category_id)
 
-                # give the user a blind role so they don't cheat
-                role = guild.get_role(config[5])
-                await payload.member.add_roles(role)
+                # # give the user a blind role so they don't cheat
+                # role = guild.get_role(config[5])
+                # await payload.member.add_roles(role)
 
                 overwrites = {
                     guild.default_role: discord.PermissionOverwrite(read_messages=False),
@@ -82,7 +83,14 @@ async def _register_react_listener(valor: Valor):
 
                 chn = await guild.create_text_channel(f"strat-{config[2]+1}", overwrites=overwrites, category=category)
                 ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
-                await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[7], color=0xFFAA))
+                em = LongTextEmbed("Fill This Out!", config[7], color=0xFFAA)
+                em.set_image(url=random.choice([
+                    "https://cdn.discordapp.com/attachments/839378628546527262/862435564192006164/g5f0TYGCvlmuJUd2vA4Hq_jBNBg1LjBGJx3fdvcJ01m_KtPNJEvZNqTwUldyq8IiQCDmncrvGZ3ZP_-_NcrSCrZ83wtP5wvjjKFd.png",
+                    "https://cdn.discordapp.com/attachments/839378628546527262/862435597380616212/tI5DfvuT-IpBR9L4G4psMsb2GFP5eu174Kq-4I6115W6Yee86qURXO-Mao6XaqS0vlyRnxGtcI8LsXKDEK8KU2gNFBQ0ZkyiEtBH.png",
+                    "https://cdn.discordapp.com/attachments/839378628546527262/862435645376167986/8L0R12AENbjKd_ejmRTAZdm8iGj6wCFzdC5VTk5wyo4ZfDteiQFNtIyEbmVMSxfSvQr5tr7BNU-W8SZofL4kN1CYiVslv54g9s6f.png",
+                    "https://cdn.discordapp.com/attachments/839378628546527262/862435676411002880/coYXEeVjfFzooURtcNFkfnvIPCATxLjM-cX_T_OhFspP4qZ9ge2JbQZ1NysiJ6ejPj-uFGwCGArwueHpxGiZe0K7EEF0SW44pqMc.png"
+                ]))
+                await chn.send(f"Hey, <@{payload.member.id}>", embed = em)
         
         # reaction to the green checkmark or thumbs up
         if payload.user_id != int(os.environ["SELFID"]):
@@ -104,10 +112,10 @@ async def _register_react_listener(valor: Valor):
                     message_format = "`Application #%d` - <@%d>\n" \
                                      "```%s```"
 
-                    # remove the blinded role
-                    guild = valor.get_guild(payload.guild_id)
-                    role = guild.get_role(config[5])
-                    await payload.member.remove_roles(role)
+                    # # remove the blinded role
+                    # guild = valor.get_guild(payload.guild_id)
+                    # role = guild.get_role(config[5])
+                    # await payload.member.remove_roles(role)
 
                     await vote_chn.send(message_format % (int(rxn_chn.name.split('-')[1]), app_msg.author.id, app_msg.content))
 
