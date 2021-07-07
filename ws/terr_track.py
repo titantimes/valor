@@ -60,9 +60,9 @@ async def _register_terr_track(valor: Valor):
                                     
                                     if sum(m["rank"] in {"STRATEGIST", "CHIEF", "OWNER"} for m in dat if m["name"] in online_guild) < 3:
                                         ping_msg = "<@&683785435117256939>"
-                                    await chn.send(ping_msg, embed=LongTextEmbed("We're under attack!", 
-                                    f"Attacker: **{action['attacker']}**\nTerritory: **{action['territory']}**",
-                                    color=0xFF2222, footer="I'm sorry if this pings a billion times. Its cooldown is set to 1 hour now."))
+                                    #await chn.send(ping_msg, embed=LongTextEmbed("We're under attack!", 
+                                    #f"Attacker: **{action['attacker']}**\nTerritory: **{action['territory']}**",
+                                    #color=0xFF2222, footer="I'm sorry if this pings a billion times. Its cooldown is set to 1 hour now."))
                                     last_pinged = time.time()
             except Exception as e:
                 await asyncio.sleep(30)
