@@ -109,15 +109,15 @@ async def _register_react_listener(valor: Valor):
 
                     vote_chn = valor.get_channel(config[4])
                     app_msg = await rxn_chn.fetch_message(app_msg_id)
-                    message_format = "`Application #%d` - <@%d>\n" \
-                                     "```%s```"
 
                     # # remove the blinded role
                     # guild = valor.get_guild(payload.guild_id)
                     # role = guild.get_role(config[5])
                     # await payload.member.remove_roles(role)
 
-                    await vote_chn.send(message_format % (int(rxn_chn.name.split('-')[1]), app_msg.author.id, app_msg.content))
+                    message_format = "`Application #%d` - <@%d>\n" 
+                    await vote_chn.send(message_format % (int(rxn_chn.name.split('-')[1]), app_msg.author.id))
+                    await vote_chn.send("%s" % (app_msg.content))
 
             elif str(payload.emoji) == '👍':
                 config = ValorSQL.get_server_config(payload.guild_id)
