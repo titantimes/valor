@@ -12,23 +12,34 @@ from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed
 load_dotenv()
 async def _register_terr_track(valor: Valor):
     terrs = {
-        "Desolate Valley",
-        "Nesaak Transition",
-        "Nesaak Village",
-        "Nesaak Plains Upper North West",
-        "Nesaak Plains Mid North West",
-        "Nesaak Plains Lower North West",
-        "Nesaak Plains North East",
-        "Nesaak Plains South West",
-        "Nesaak Plains South East",
-        "Nesaak Bridge Transition",
-        "Great Bridge Nesaak",
-        "Icy Descent",
-        "Lusuco",
-        "Twain Lake",
-        "Twain Mansion",
-        "Sanctuary Bridge",
-        "Nether Plains Lower"
+        "Light Forest West Upper",
+        "Hobbit River",
+        "Light Peninsula",
+        "Volcano Upper",
+        "Lost Atoll",
+        "Pirate Town",
+        "Zhight Island",
+        "The Bear Zoo",
+        "Rooster Island",
+        "Durum Isles Lower",
+        "Durum Isles Center",
+        "Durum Isles East",
+        "Durum Isles Upper",
+        "Mage Island",
+        "Half Moon Island",
+        "Santa's Hideout",
+        "Icy Island",
+        "Dujgon Nation",
+        "Nodguj Nation",
+        "Regular Island",
+        "Dead Island South East",
+        "Dead Island North East",
+        "Dead Island North West",
+        "Dead Island South West",
+        "Maro Peaks",
+        "Tree Island",
+        "Skiens Island",
+        "Selchar"
     }
 
     async def task():
@@ -60,9 +71,9 @@ async def _register_terr_track(valor: Valor):
                                     
                                     if sum(m["rank"] in {"STRATEGIST", "CHIEF", "OWNER"} for m in dat if m["name"] in online_guild) < 3:
                                         ping_msg = "<@&683785435117256939>"
-                                    #await chn.send(ping_msg, embed=LongTextEmbed("We're under attack!", 
-                                    #f"Attacker: **{action['attacker']}**\nTerritory: **{action['territory']}**",
-                                    #color=0xFF2222, footer="I'm sorry if this pings a billion times. Its cooldown is set to 1 hour now."))
+                                    await chn.send(ping_msg, embed=LongTextEmbed("We're under attack!", 
+                                    f"Attacker: **{action['attacker']}**\nTerritory: **{action['territory']}**",
+                                    color=0xFF2222, footer="I'm sorry if this pings a billion times. Its cooldown is set to 1 hour now."))
                                     last_pinged = time.time()
             except Exception as e:
                 await asyncio.sleep(30)
