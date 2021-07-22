@@ -12,7 +12,6 @@ from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed
 load_dotenv()
 async def _register_terr_track(valor: Valor):
     terrs = {
-        "Light Forest West Upper",
         "Hobbit River",
         "Light Peninsula",
         "Volcano Upper",
