@@ -20,6 +20,9 @@ async def _register_plot(valor: Valor):
     choice_em = ErrorEmbed(f"Your options are `{repr(opts)}`")
     @valor.group()
     async def plot(ctx: Context):
+        roles = {x.id for x in ctx.author.roles}
+        if not 703018636301828246 in roles and not 733841716855046205 in roles:
+            return ctx.send(ErrorEmbed("Skill Issue"))
         if not ctx.invoked_subcommand:
             await ctx.send(embed=choice_em)
     
