@@ -28,4 +28,4 @@ async def _smp_loop(valor: Valor):
                 checked.add(m)
 
             await asyncio.sleep(60)
-    valor.loop.create_task(task())
+    # valor.loop.create_task(task())
