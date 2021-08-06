@@ -36,7 +36,6 @@ async def _register_profile(valor: Valor):
             if m["name"] == username:
                 uuid = m["uuid"].replace('-', '')
                 not_replaced_uuid = m["uuid"]
-                print(m["uuid"])
                 break
         if not uuid:
             await ctx.send(embed=ErrorEmbed(f"{username} isn't even in the guild."))
