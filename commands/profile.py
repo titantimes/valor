@@ -1,5 +1,6 @@
 import requests
 from valor import Valor
+from sql import ValorSQL
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, get_war_rank, get_xp_rank
 from discord.ext.commands import Context
 from datetime import datetime
@@ -30,18 +31,22 @@ async def _register_profile(valor: Valor):
         guild_data = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command=Titans%20Valor").json()
 
         uuid = ""
+        not_replaced_uuid = ""
         for m in guild_data["members"]:
             if m["name"] == username:
                 uuid = m["uuid"].replace('-', '')
+                not_replaced_uuid = m["uuid"]
+                print(m["uuid"])
                 break
         if not uuid:
             await ctx.send(embed=ErrorEmbed(f"{username} isn't even in the guild."))
 
         warcount = valor.warcount119.get(username, 0)
         wranking = get_war_rank(warcount)
-        schema = "https://" if os.getenv("USESSL") == "true" else "http://"
-        res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/Titans Valor/{username}").json().get("data", {"xp": 0})
-        gxp_contrib = res["xp"]
+        # schema = "https://" if os.getenv("USESSL") == "true" else "http://"
+        # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/Titans Valor/{username}").json().get("data", {"xp": 0})
+        res = ValorSQL._execute(f"SELECT * FROM user_total_xps WHERE uuid='{not_replaced_uuid}'")
+        gxp_contrib = res[0][1]
         xpranking = get_xp_rank(gxp_contrib)
 
         img: Image = Image.open("assets/profile.png")

@@ -1,6 +1,6 @@
 from typing import Tuple
 war_ranks = [0, 20, 200, 800, 2000, 2700, 3500, 5000]
-xp_ranks = [0, 10000, 1000000, 10000000, 500000000, 1000000000, 5000000000, 7000000000]
+xp_ranks = [10e6, 50e6, 500e6, 1e7, 2.5e7, 5e7, 10e7]
 numeral_map = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
 # returns (rank, next_count)
 def get_war_rank(warcnt: int) -> Tuple[int, int]:
