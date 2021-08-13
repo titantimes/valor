@@ -36,16 +36,15 @@ async def _register_plot(valor: Valor):
         start = int(time.time()) - 3600*24*7
         ignore_regression = False
 
-        if "range" in options:
-            if len(options) > 1:
-                if options[1] == "start":
-                    start = 0
-                else:
-                    start = int(datetime.strptime(options[1], "%d/%m/%y").timestamp())
-            if len(options) > 2 and options[2] != "end":
-                end = int(datetime.strptime(options[1], "%d/%m/%y").timestamp())
-            if len(options) > 3:
-                ignore_regression = options[3] == 'no'
+        if len(options) > 0:
+            if options[0] == "start":
+                start = 0
+            else:
+                start -= int(options[0][:-1])*3600*24
+        if len(options) > 1 and options[1] != "end":
+            end -= int(options[1][:-1])*3600*24 # int(datetime.strptime(options[1], "%d/%m/%y").timestamp())
+        if len(options) > 2:
+            ignore_regression = options[2] == 'no'
 
         fig: plt.Figure = plt.figure()
         ax: plt.Axes = fig.add_subplot(7,1,(1,6))
