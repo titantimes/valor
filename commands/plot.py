@@ -36,6 +36,9 @@ async def _register_plot(valor: Valor):
         start = int(time.time()) - 3600*24*7
         ignore_regression = False
 
+        # the horizontal lines that cal asked for
+        use_tm = False
+
         if options != ['']:
             if len(options) > 0:
                 if options[0] == "start":
@@ -45,7 +48,10 @@ async def _register_plot(valor: Valor):
             if len(options) > 1 and options[1] != "end":
                 end -= int(options[1][:-1])*3600*24 # int(datetime.strptime(options[1], "%d/%m/%y").timestamp())
             if len(options) > 2:
-                ignore_regression = options[2] == 'no'
+                if options[2] == "yes" or options[2] == "no":
+                    ignore_regression = options[2] == 'no'
+                else:
+                    use_tm = True
 
         fig: plt.Figure = plt.figure()
         ax: plt.Axes = fig.add_subplot(7,1,(1,6))
@@ -107,12 +113,15 @@ async def _register_plot(valor: Valor):
         cumulative_xtimes = sortable_timeseries[0][0]
 
         ax.plot(cumulative_xtimes, cumulative_yvalues)
+        if use_tm:
+            ax.vlines(x=cumulative_xtimes[::24], ymin=0, ymax=max(cumulative_yvalues), ls=':', color='b')
         try:
             solved = sinusoid_regress([x-cumulative_xtimes[0] for x in cumulative_xtimes], cumulative_yvalues)
         # runtime errors with numpy. This really never happens unless the guild was recently added
         except:
             solved = [0,0,0,0]
         content = f"```Min: {min(cumulative_yvalues)}\nMax: {max(cumulative_yvalues)}\nMean: {solved[3]}"
+
         if not ignore_regression:
 
             freq = 1/solved[1]*2*3.1415
