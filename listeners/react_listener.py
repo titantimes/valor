@@ -18,6 +18,7 @@ async def _register_react_listener(valor: Valor):
         rxn_chn = valor.get_channel(payload.channel_id)
         
         if payload.user_id != int(os.environ["SELFID"]) and valor.reaction_msg_ids.get(msg_id, 0) > int(time.time()):
+            rls = {r.id for r in payload.member.roles}
             emoji = str(payload.emoji)
             if len(emoji) == 1:
                 emoji = ord(emoji)
@@ -44,7 +45,7 @@ async def _register_react_listener(valor: Valor):
                 ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[3], color=0xFFAA))
             
-            elif res[-1] == 'captain':
+            elif res[-1] == 'captain' and 702995054574305351 in rls:
                 guild = valor.get_guild(payload.guild_id)
                 config = ValorSQL.get_server_config(payload.guild_id)[0]
                 category_id = config[1]
@@ -64,7 +65,7 @@ async def _register_react_listener(valor: Valor):
                 chn = await guild.create_text_channel(f"cpt-{config[2]+1}", overwrites=overwrites, category=category)
                 ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[6], color=0xFFAA))
-            elif res[-1] == 'strategist':
+            elif res[-1] == 'strategist' and (702992600835031082 in rls or 702995054574305351 in rls):
                 guild = valor.get_guild(payload.guild_id)
                 config = ValorSQL.get_server_config(payload.guild_id)[0]
                 category_id = config[1]
