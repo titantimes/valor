@@ -47,7 +47,7 @@ async def _register_terr_track(valor: Valor):
         last_pinged = 0
 
         while not valor.is_closed():
-            c = await websockets.connect("ws://"+os.environ["REMOTE"]+os.environ["RMPORT"]+"/ws")
+            c = await websockets.connect("ws://localhost:8080") # await websockets.connect("ws://"+os.environ["REMOTE"]+os.environ["RMPORT"]+"/ws")
             try:
                 async for msg in c:
                     msg = json.loads(msg)
