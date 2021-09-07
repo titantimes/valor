@@ -1,5 +1,6 @@
 import requests
 from valor import Valor
+from sql import ValorSQL
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress, guild_name_from_tag
 from discord.ext.commands import Context
 from datetime import datetime
@@ -18,13 +19,27 @@ async def _register_plot(valor: Valor):
     desc = "Plots data for you!"
     opts = ["guild", "player"]
     choice_em = ErrorEmbed(f"Your options are `{repr(opts)}`")
+    rnklut = {"RECRUIT": 0, "RECRUITER": 1, "CAPTAIN": 2, "STRATEGIST": 3, "CHIEF": 4, "OWNER": 5}
     @valor.group()
     async def plot(ctx: Context):
         roles = {x.id for x in ctx.author.roles}
-        if not 703018636301828246 in roles and not 733841716855046205 in roles:
-            return ctx.send(ErrorEmbed("Skill Issue"))
+        if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064:
+            return await ctx.send(ErrorEmbed("Skill Issue"))
         if not ctx.invoked_subcommand:
             await ctx.send(embed=choice_em)
+
+    # helper function
+    def fake_req(captains, name, start, end):
+        # raw sql query
+        res = ValorSQL._execute(f"SELECT * FROM activity_members WHERE guild = \"{name}\" AND timestamp >= {start} AND timestamp <= {end};")
+        ret = {}
+        members = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+name).json()["members"]
+        cpts = {m["name"] for m in members if rnklut[m["rank"]] >= rnklut["CAPTAIN"]}
+        for row in res:
+            if not row[2] in ret:
+                ret[row[2]] = 0
+            ret[row[2]] += (not captains or row[0] in cpts)
+        return ret
     
     # allows for multiple guilds delimited by commas
     @plot.command()
@@ -65,22 +80,22 @@ async def _register_plot(valor: Valor):
         cumulative_yvalues = []
         cumulative_xtimes = []
         # loop through each guild and get cumulative sum 
-        all_or_captains = "captains" if "captains" in options else "guild"
+        all_or_captains = "captains" in options
         for name in guild_names:
 
-            res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/{all_or_captains}/{name}/{start}/{end}").json()
+            res = fake_req(all_or_captains, name, start, end) # requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/{all_or_captains}/{name}/{start}/{end}").json()
             
-            for k in [*res["data"].keys()]:
+            for k in [*res.keys()]:
                 # replace all keys in res with the floor'd values to nearest hour in seconds
-                res["data"][int(k)//3600*3600] = res["data"][k]
-                del res["data"][k]
+                res[int(k)//3600*3600] = res[k]
+                del res[k]
 
-            old_xvalues = [*res["data"].keys()]
+            old_xvalues = [*res.keys()]
 
             # old_xvalues = sorted(old_xvalues)
             xvalues = [datetime.fromtimestamp(old_xvalues[0]).strftime("%-d/%m/%y-%H")]
             xtimes = [int(old_xvalues[0])]
-            yvalues = [res["data"][old_xvalues[0]]]
+            yvalues = [res[old_xvalues[0]]]
             for i in range(1, len(old_xvalues)):
                 # fill in the gaps in time
                 fill_float = (old_xvalues[i]-old_xvalues[i-1])
@@ -95,7 +110,7 @@ async def _register_plot(valor: Valor):
                     yvalues.extend([0]*(fill))
                 xtimes.append(old_xvalues[i])
                 xvalues.append(datetime.fromtimestamp(old_xvalues[i]).strftime("%-d/%m/%y-%H"))
-                yvalues.append(res["data"][old_xvalues[i]])
+                yvalues.append(res[old_xvalues[i]])
 
             cumulative_yvalues.append(yvalues)
             cumulative_xvalues = xvalues
@@ -141,7 +156,7 @@ async def _register_plot(valor: Valor):
         # ax.xaxis.set_major_formatter(mticker.FuncFormatter(tick_rename))
         
         # ax.tick_params(axis='x', rotation=40)
-        # plt.plot(res["data"].keys(), [res["data"][k] for k in res["data"]])
+        # plt.plot(res.keys(), [res[k] for k in res])
         # https://stackoverflow.com/questions/7761778/matplotlib-adding-second-axes-with-transparent-background
         # this is to just get it sorted with day
         newax = ax.twiny()
