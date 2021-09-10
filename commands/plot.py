@@ -197,6 +197,9 @@ async def _register_plot(valor: Valor):
             url="attachment://plot.png"
         )
 
+        fig.clear()
+        plt.close(fig)
+
     # @guild.error
     # async def guild_error(ctx, error):
     #     await ctx.send(embed=ErrorEmbed("Command failed :/. Make sure to surround guild names with quotes"))
