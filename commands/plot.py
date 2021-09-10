@@ -22,9 +22,6 @@ async def _register_plot(valor: Valor):
     rnklut = {"RECRUIT": 0, "RECRUITER": 1, "CAPTAIN": 2, "STRATEGIST": 3, "CHIEF": 4, "OWNER": 5}
     @valor.group()
     async def plot(ctx: Context):
-        roles = {x.id for x in ctx.author.roles}
-        if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064:
-            return await ctx.send(ErrorEmbed("Skill Issue"))
         if not ctx.invoked_subcommand:
             await ctx.send(embed=choice_em)
 
@@ -44,6 +41,9 @@ async def _register_plot(valor: Valor):
     # allows for multiple guilds delimited by commas
     @plot.command()
     async def guild(ctx: Context, unparsed_guild_names = "Avicia", options = ""):
+        roles = {x.id for x in ctx.author.roles}
+        if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064:
+            return await ctx.send(embed=ErrorEmbed("Skill Issue"))
         guild_names = unparsed_guild_names.replace(', ', ',').split(',')
         options = options.split(' ')
         # print(options)
