@@ -44,9 +44,10 @@ async def _register_gxp(valor: Valor):
             return await LongFieldEmbed.send_message(valor, ctx, f"GXP Contribs Over Specified Time", pair_data, color=0xF5b642)
             
 
-        res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/{guild}/{player}").json()["data"]
+        # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/{guild}/{player}").json()["data"]
+        res = ValorSQL._execute(f"SELECT * FROM user_total_xps")
         if isinstance(res, list):
-            mesg = [[k["name"], k["xp"]] for k in res]
+            mesg = [[k[0], k[1]] for k in res]
             mesg = sorted(mesg, key=lambda x: x[1], reverse=True)
             total = sum(x[1] for x in mesg)
             for x in mesg:
