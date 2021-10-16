@@ -17,7 +17,7 @@ async def _register_pm(valor: Valor):
     @valor.command()
     async def pm(ctx: Context, user: discord.Member):
         guild = ctx.guild
-        config = ValorSQL.get_server_config(guild.id)[0]
+        config = await ValorSQL.get_server_config(guild.id)[0]
         category_id = config[1]
         category = get(guild.categories, id=category_id)
         overwrites = {

@@ -24,14 +24,14 @@ async def _register_react_listener(valor: Valor):
                 emoji = ord(emoji)
             else:
                 emoji = int(emoji.split(":")[-1][:-1])
-            res = ValorSQL.get_react_msg_reaction(msg_id,  emoji)
+            res = await ValorSQL.get_react_msg_reaction(msg_id,  emoji)
             if not len(res):
                 return
             
             res = res[0]
             if res[-1] == 'app':
                 guild = valor.get_guild(payload.guild_id)
-                config = ValorSQL.get_server_config(payload.guild_id)[0]
+                config = await ValorSQL.get_server_config(payload.guild_id)[0]
                 category_id = config[1]
                 category = get(guild.categories, id=category_id)
                 overwrites = {
@@ -42,12 +42,12 @@ async def _register_react_listener(valor: Valor):
                 }
 
                 chn = await guild.create_text_channel(f"app-{config[2]+1}", overwrites=overwrites, category=category)
-                ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
+                await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[3], color=0xFFAA))
             
             elif res[-1] == 'captain' and 702995054574305351 in rls:
                 guild = valor.get_guild(payload.guild_id)
-                config = ValorSQL.get_server_config(payload.guild_id)[0]
+                config = await ValorSQL.get_server_config(payload.guild_id)[0]
                 category_id = config[1]
                 category = get(guild.categories, id=category_id)
 
@@ -63,11 +63,11 @@ async def _register_react_listener(valor: Valor):
                 }
 
                 chn = await guild.create_text_channel(f"cpt-{config[2]+1}", overwrites=overwrites, category=category)
-                ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
+                await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[6], color=0xFFAA))
             elif res[-1] == 'strategist' and (702992600835031082 in rls or 702995054574305351 in rls):
                 guild = valor.get_guild(payload.guild_id)
-                config = ValorSQL.get_server_config(payload.guild_id)[0]
+                config = await ValorSQL.get_server_config(payload.guild_id)[0]
                 category_id = config[1]
                 category = get(guild.categories, id=category_id)
 
@@ -83,7 +83,7 @@ async def _register_react_listener(valor: Valor):
                 }
 
                 chn = await guild.create_text_channel(f"strat-{config[2]+1}", overwrites=overwrites, category=category)
-                ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
+                await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 em = LongTextEmbed("Fill This Out!", config[7], color=0xFFAA)
                 em.set_image(url=random.choice([
                     "https://cdn.discordapp.com/attachments/839378628546527262/862435564192006164/g5f0TYGCvlmuJUd2vA4Hq_jBNBg1LjBGJx3fdvcJ01m_KtPNJEvZNqTwUldyq8IiQCDmncrvGZ3ZP_-_NcrSCrZ83wtP5wvjjKFd.png",
@@ -96,7 +96,7 @@ async def _register_react_listener(valor: Valor):
         # reaction to the green checkmark or thumbs up
         if payload.user_id != int(os.environ["SELFID"]):
             if str(payload.emoji) == '✅':
-                config = ValorSQL.get_server_config(payload.guild_id)
+                config = await ValorSQL.get_server_config(payload.guild_id)
                 if not len(config):
                     return
                 config = config[0]
@@ -121,7 +121,7 @@ async def _register_react_listener(valor: Valor):
                     await vote_chn.send("%s" % (app_msg.content))
 
             elif str(payload.emoji) == '👍':
-                config = ValorSQL.get_server_config(payload.guild_id)
+                config = await ValorSQL.get_server_config(payload.guild_id)
                 if not len(config):
                     return
                 config = config[0]

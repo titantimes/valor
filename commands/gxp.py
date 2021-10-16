@@ -32,7 +32,7 @@ async def _register_gxp(valor: Valor):
             now = int(time.time())
             t0 = now-to_seconds(player)
             t1 = now-to_seconds(arg2)
-            res = ValorSQL._execute(f"SELECT * FROM member_record_xps WHERE timestamp > {t0} AND timestamp < {t1}")
+            res = await ValorSQL._execute(f"SELECT * FROM member_record_xps WHERE timestamp > {t0} AND timestamp < {t1}")
             membermap = {}
             for m in res:
                 if not m[1] in membermap:
@@ -45,7 +45,7 @@ async def _register_gxp(valor: Valor):
             
 
         # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/{guild}/{player}").json()["data"]
-        res = ValorSQL._execute(f"SELECT * FROM user_total_xps")
+        res = await ValorSQL._execute(f"SELECT * FROM user_total_xps")
         if isinstance(res, list):
             mesg = [[k[0], k[1]] for k in res]
             mesg = sorted(mesg, key=lambda x: x[1], reverse=True)

@@ -44,7 +44,7 @@ async def _register_profile(valor: Valor):
         wranking = get_war_rank(warcount)
         # schema = "https://" if os.getenv("USESSL") == "true" else "http://"
         # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/Titans Valor/{username}").json().get("data", {"xp": 0})
-        res = ValorSQL._execute(f"SELECT * FROM user_total_xps WHERE uuid='{not_replaced_uuid}'")
+        res = await ValorSQL._execute(f"SELECT * FROM user_total_xps WHERE uuid='{not_replaced_uuid}'")
         gxp_contrib = res[0][1]
         xpranking = get_xp_rank(gxp_contrib)
 
