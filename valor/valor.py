@@ -2,6 +2,8 @@ import discord
 import os
 import json
 from sql import ValorSQL
+import asyncio
+import aiomysql
 
 class Valor(discord.ext.commands.Bot):
     """
@@ -36,11 +38,9 @@ class Valor(discord.ext.commands.Bot):
 
         with open('assets/warcount119.json', 'r') as f:
             self.warcount119 = json.load(f)
-        
-        # bot states
-        self.reaction_msg_ids = dict(ValorSQL.get_all_react_msg())
 
         super(Valor, self).__init__(*args, **kwargs, description=self.config["description"])
 
     def run(self):
+        self.reaction_msg_ids = dict(self.loop.run_until_complete(ValorSQL.get_all_react_msg()))
         super(Valor, self).run(self.BOT_TOKEN)

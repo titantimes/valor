@@ -26,9 +26,9 @@ async def _register_plot(valor: Valor):
             await ctx.send(embed=choice_em)
 
     # helper function
-    def fake_req(captains, name, start, end):
+    async def fake_req(captains, name, start, end):
         # raw sql query
-        res = ValorSQL._execute(f"SELECT * FROM activity_members WHERE guild = \"{name}\" AND timestamp >= {start} AND timestamp <= {end};")
+        res = await ValorSQL._execute(f"SELECT * FROM activity_members WHERE guild = \"{name}\" AND timestamp >= {start} AND timestamp <= {end};")
         ret = {}
         members = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+name).json()["members"]
         cpts = {m["name"] for m in members if rnklut[m["rank"]] >= rnklut["CAPTAIN"]}
@@ -83,7 +83,7 @@ async def _register_plot(valor: Valor):
         all_or_captains = "captains" in options
         for name in guild_names:
 
-            res = fake_req(all_or_captains, name, start, end) # requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/{all_or_captains}/{name}/{start}/{end}").json()
+            res = await fake_req(all_or_captains, name, start, end) # requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/activity/{all_or_captains}/{name}/{start}/{end}").json()
             
             for k in [*res.keys()]:
                 # replace all keys in res with the floor'd values to nearest hour in seconds

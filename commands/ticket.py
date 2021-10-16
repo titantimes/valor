@@ -33,7 +33,7 @@ async def _register_ticket(valor: Valor):
         msg = await ReactionEmbed.send_message(valor, ctx, title, message, color=0xBBBBFF, reactions=reactions)
         expire = int(time.time()+expire_sec)
         valor.reaction_msg_ids[msg.id] = expire
-        ValorSQL.create_react_msg(msg.id, expire)
+        await ValorSQL.create_react_msg(msg.id, expire)
 
         for emoji in reactions:
             if len(emoji) == 1:
@@ -54,7 +54,7 @@ async def _register_ticket(valor: Valor):
         msg = await ReactionEmbed.send_message(valor, ctx, title, message, color=0xBBBBFF, reactions=reactions)
         expire = int(time.time()+expire_sec)
         valor.reaction_msg_ids[msg.id] = expire
-        ValorSQL.create_react_msg(msg.id, expire)
+        await ValorSQL.create_react_msg(msg.id, expire)
 
         for emoji in reactions:
             if len(emoji) == 1:
@@ -62,17 +62,17 @@ async def _register_ticket(valor: Valor):
 
             ValorSQL.create_react_reaction(msg.id, int(emoji), "app")
 
-        ValorSQL.server_config_update_app_id(msg.guild.id, chn_group)
+        await ValorSQL.server_config_update_app_id(msg.guild.id, chn_group)
 
     # server specific :/
     @ticket.command()
     async def war_app(ctx: Context):
         msg = await ReactionEmbed.send_message(valor, ctx, "Captain or Strategist Application", "Select ⚔ for a captain application.\n"  
         "Select 🗺 for a strategist application.", color=0xBBBBFF, reactions=['⚔', '🗺'])
-        ValorSQL.create_react_msg(msg.id, int(time.time()+1576800000))
+        await ValorSQL.create_react_msg(msg.id, int(time.time()+1576800000))
         valor.reaction_msg_ids[msg.id] = int(time.time()+1576800000)
-        ValorSQL.create_react_reaction(msg.id, ord('⚔'), "captain")
-        ValorSQL.create_react_reaction(msg.id, ord('🗺'), "strategist")
+        await ValorSQL.create_react_reaction(msg.id, ord('⚔'), "captain")
+        await ValorSQL.create_react_reaction(msg.id, ord('🗺'), "strategist")
 
     @ticket.error
     async def err(ctx, error):

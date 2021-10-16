@@ -43,7 +43,7 @@ async def _register_terr_track(valor: Valor):
 
     async def task():
         await valor.wait_until_ready()
-        chn_ids = [m[0] for m in ValorSQL.get_all_configs()]
+        chn_ids = [m[0] for m in await ValorSQL.get_all_configs()]
         last_pinged = 0
 
         while not valor.is_closed():
