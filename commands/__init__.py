@@ -11,6 +11,7 @@ from .coin import _register_coin
 from .ticket import _register_ticket
 from .pm import _register_pm
 from .join import _register_join
+from .plot2 import _register_plot2
 from valor import Valor
 
 async def register_all(valor: Valor):
@@ -30,3 +31,4 @@ async def register_all(valor: Valor):
     await _register_ticket(valor)
     await _register_pm(valor)
     await _register_join(valor)
+    await _register_plot2(valor)
