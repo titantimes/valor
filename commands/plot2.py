@@ -134,12 +134,9 @@ Min: {min(a)}```"""
             footer = f"Query Took {end-start:.5}s - {data_pts:,} rows"
         )
 
-        fig.clear()
         fig.clf()
         plt.clf()
-        ax.clear()
-        plt.cla()
-        plt.close(fig)
+        plt.close('all')
 
     @valor.help_override.command()
     async def plot2(ctx: Context):
