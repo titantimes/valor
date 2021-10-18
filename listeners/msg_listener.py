@@ -41,7 +41,7 @@ async def _register_msg_listiner(valor: Valor):
         # for application processing
         if message.author.id != int(os.environ["SELFID"]) and (message.channel.name.startswith("app") or message.channel.name.startswith("cpt") or
             message.channel.name.startswith("strat")):
-            config = await ValorSQL.get_server_config(message.guild.id)[0]
+            config = (await ValorSQL.get_server_config(message.guild.id))[0]
             if message.channel.category_id == config[1]:
                 ctx = await valor.get_context(message)
                 msg = await ctx.send(embed=LongTextEmbed("Click the green checkmark below to submit", "Send your application again if you messed up.\n**Your most recent message will be submitted**", color=0xFFFF, footer=f"Valor - {message.id}"))
