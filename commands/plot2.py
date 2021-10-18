@@ -16,6 +16,7 @@ import math
 import random
 import argparse
 from matplotlib.ticker import MaxNLocator
+import gc
 
 load_dotenv()
 async def _register_plot2(valor: Valor):
@@ -137,6 +138,7 @@ Min: {min(a)}```"""
         fig.clf()
         plt.clf()
         plt.close('all')
+        gc.collect()
 
     @valor.help_override.command()
     async def plot2(ctx: Context):
