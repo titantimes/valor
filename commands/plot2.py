@@ -110,7 +110,7 @@ Min: {min(a)}```"""
             if opt.moving_average > 1:
                 a = np.convolve(a, np.ones(opt.moving_average)/opt.moving_average, mode="valid")
                 b = b[:len(b)-opt.moving_average+1]
-                
+
             if opt.smooth:
                 spline = make_interp_spline(b, a)
 
@@ -135,6 +135,10 @@ Min: {min(a)}```"""
         )
 
         fig.clear()
+        fig.clf()
+        plt.clf()
+        ax.clear()
+        plt.cla()
         plt.close(fig)
 
     @valor.help_override.command()
