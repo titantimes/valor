@@ -45,7 +45,7 @@ async def _register_react_listener(valor: Valor):
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[3], color=0xFFAA))
             
-            elif res[-1] == 'captain' and 702995054574305351 in rls:
+            elif res[-1] == 'captain' and 892886015017103360 in rls:
                 guild = valor.get_guild(payload.guild_id)
                 config = await ValorSQL.get_server_config(payload.guild_id)[0]
                 category_id = config[1]
@@ -65,7 +65,7 @@ async def _register_react_listener(valor: Valor):
                 chn = await guild.create_text_channel(f"cpt-{config[2]+1}", overwrites=overwrites, category=category)
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[6], color=0xFFAA))
-            elif res[-1] == 'strategist' and (702992600835031082 in rls or 702995054574305351 in rls):
+            elif res[-1] == 'strategist' and (892881748646559754 in rls):
                 guild = valor.get_guild(payload.guild_id)
                 config = await ValorSQL.get_server_config(payload.guild_id)[0]
                 category_id = config[1]
