@@ -31,7 +31,7 @@ async def _register_react_listener(valor: Valor):
             res = res[0]
             if res[-1] == 'app':
                 guild = valor.get_guild(payload.guild_id)
-                config = await ValorSQL.get_server_config(payload.guild_id)[0]
+                config = (await ValorSQL.get_server_config(payload.guild_id))[0]
                 category_id = config[1]
                 category = get(guild.categories, id=category_id)
                 overwrites = {
@@ -47,7 +47,7 @@ async def _register_react_listener(valor: Valor):
             
             elif res[-1] == 'captain' and 892886015017103360 in rls:
                 guild = valor.get_guild(payload.guild_id)
-                config = await ValorSQL.get_server_config(payload.guild_id)[0]
+                config = (await ValorSQL.get_server_config(payload.guild_id))[0]
                 category_id = config[1]
                 category = get(guild.categories, id=category_id)
 
