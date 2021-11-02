@@ -64,6 +64,7 @@ async def _register_plot2(valor: Valor):
         if opt.range:
             query += f" AND time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"
 
+        opt.guild = [*set(x.lower() for x in opt.guild)]
         for tag in opt.guild:
             guild = guild_name_from_tag(tag)
             res = await ValorSQL._execute(query % guild)
