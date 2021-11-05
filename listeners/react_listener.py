@@ -67,7 +67,7 @@ async def _register_react_listener(valor: Valor):
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[6], color=0xFFAA))
             elif res[-1] == 'strategist' and (892881748646559754 in rls):
                 guild = valor.get_guild(payload.guild_id)
-                config = await ValorSQL.get_server_config(payload.guild_id)[0]
+                config = (await ValorSQL.get_server_config(payload.guild_id))[0]
                 category_id = config[1]
                 category = get(guild.categories, id=category_id)
 
