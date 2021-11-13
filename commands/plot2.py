@@ -63,6 +63,8 @@ async def _register_plot2(valor: Valor):
             query += f" AND time%%{3600} >= {int(opt.resolution)*60}"
         if opt.range:
             query += f" AND time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"
+        else:
+            query += f" AND time >= {start-3600*24*7}"
 
         opt.guild = [*set(x.lower() for x in opt.guild)]
         for tag in opt.guild:
