@@ -22,8 +22,8 @@ async def _register_avg(valor: Valor):
     @valor.command()
     async def avg(ctx: Context, *options):
         roles = {x.id for x in ctx.author.roles}
-        if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064:
-            return await ctx.send(embed=ErrorEmbed("Skill Issue"))
+        # if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064:
+        #     return await ctx.send(embed=ErrorEmbed("Skill Issue"))
         
         try:
             opt = parser.parse_args(options)
