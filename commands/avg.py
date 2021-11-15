@@ -34,32 +34,31 @@ async def _register_avg(valor: Valor):
         start = time.time()
         data_pts = 0
 
-        query = f"SELECT * FROM `guild_member_count` WHERE guild=\"%s\""
-        if not opt.guild:
-            query = f"SELECT * FROM `guild_member_count` WHERE "
-        else:
-            query += " AND "
+        query = f"SELECT * FROM `guild_member_count` WHERE "
+        if opt.guild:
+            query += "("+' OR '.join("guild="+'"'+guild_name_from_tag(n)+'"' for n in opt.guild)+")"
+        
+        query += " AND "
 
         if opt.range:
             query += f"time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"
         else:
             query += f"time >= {start-3600*24*7}"
-
+        
         content = "```"
 
-        if not opt.guild:
-            guilds = {}
-            res = await ValorSQL._execute(query)
-            data_pts = len(res)
-            for x in res:
-                if not x[0] in guilds:
-                    guilds[x[0]] = [0, 0]
-                guilds[x[0]][0] += x[1]
-                guilds[x[0]][1] += 1
-            
-            sorted_rank = [(guilds[g][0]/guilds[g][1], g) for g in guilds]
-            sorted_rank.sort(reverse=True)
-            content += '\n'.join("%18s %6.3f" % (g, v) for v, g in sorted_rank)
+        guilds = {}
+        res = await ValorSQL._execute(query)
+        data_pts = len(res)
+        for x in res:
+            if not x[0] in guilds:
+                guilds[x[0]] = [0, 0]
+            guilds[x[0]][0] += x[1]
+            guilds[x[0]][1] += 1
+        
+        sorted_rank = [(guilds[g][0]/guilds[g][1], g) for g in guilds]
+        sorted_rank.sort(reverse=True)
+        content += '\n'.join("%18s %6.3f" % (g, v) for v, g in sorted_rank)
             
         end = time.time()
 
