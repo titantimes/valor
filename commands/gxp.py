@@ -14,21 +14,21 @@ async def _register_gxp(valor: Valor):
 
     @valor.group()
     async def gxp(ctx: Context, guild="Titans Valor", player="", arg2 = "", arg3 = ""):
-        schema = "https://" if os.getenv("USESSL") == "true" else "http://"
-        if guild == "h":
-            # player is arg1
-            t1 = int(time.time()) if not arg3 else int(datetime.strptime(arg3, "%d/%m/%y").timestamp())
-            t0 = int(datetime.strptime(arg2, "%d/%m/%y").timestamp()) if arg2 else 0
-            uuid = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{player}").json()["id"]
-            # add hyphens
-            uuid = '-'.join([uuid[:8],uuid[8:12],uuid[12:16],uuid[16:20],uuid[20:]])
-            res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/incxp/{uuid}/{t0}/{t1}").json()["data"]
-            # print(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/incxp/{uuid}/{t0}/{t1}")
-            total = sum(x[0] for x in res["values"])
-            content = f"From {arg2 if arg2 else '17/04/2021'} to {arg3 if arg3 else 'Now'}\nContributed: {total:,} GXP"
-            return await LongTextEmbed.send_message(valor, ctx, f"{player}'s XP Contributions Over Time", content, color=0xF5b642)
+        # schema = "https://" if os.getenv("USESSL") == "true" else "http://"
+        # if guild == "h":
+        #     # player is arg1
+        #     t1 = int(time.time()) if not arg3 else int(datetime.strptime(arg3, "%d/%m/%y").timestamp())
+        #     t0 = int(datetime.strptime(arg2, "%d/%m/%y").timestamp()) if arg2 else 0
+        #     uuid = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{player}").json()["id"]
+        #     # add hyphens
+        #     uuid = '-'.join([uuid[:8],uuid[8:12],uuid[12:16],uuid[16:20],uuid[20:]])
+        #     res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/incxp/{uuid}/{t0}/{t1}").json()["data"]
+        #     # print(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/incxp/{uuid}/{t0}/{t1}")
+        #     total = sum(x[0] for x in res["values"])
+        #     content = f"From {arg2 if arg2 else '17/04/2021'} to {arg3 if arg3 else 'Now'}\nContributed: {total:,} GXP"
+        #     return await LongTextEmbed.send_message(valor, ctx, f"{player}'s XP Contributions Over Time", content, color=0xF5b642)
         
-        elif guild == "frame":
+        if guild == "frame":
             now = int(time.time())
             t0 = now-to_seconds(player)
             t1 = now-to_seconds(arg2)
@@ -46,17 +46,24 @@ async def _register_gxp(valor: Valor):
 
         # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/{guild}/{player}").json()["data"]
         res = await ValorSQL._execute(f"SELECT * FROM user_total_xps")
-        if isinstance(res, list):
-            mesg = [[k[0], k[1]] for k in res]
-            mesg = sorted(mesg, key=lambda x: x[1], reverse=True)
-            total = sum(x[1] for x in mesg)
-            for x in mesg:
-                x[1] = f"{x[1]:,}"
-            await LongFieldEmbed.send_message(valor, ctx, f"{guild} XP Breakdown (Total: {total:,})", mesg)
+        # if isinstance(res, tuple):
+        mesg = [[k[0], k[1]] for k in res]
+        mesg = sorted(mesg, key=lambda x: x[1], reverse=True)
+        total = sum(x[1] for x in mesg)
+        for x in mesg:
+            x[1] = f"{x[1]:,}"
+        await LongFieldEmbed.send_message(valor, ctx, f"{guild} XP Breakdown (Total: {total:,})", mesg)
+        # else:
+        #     uuid = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{player}").json()["id"]
+        #     # add hyphens
+        #     uuid = '-'.join([uuid[:8],uuid[8:12],uuid[12:16],uuid[16:20],uuid[20:]])
+        #     for x in res:
+        #         if x[4] == uuid:
+        #             res = x
+        #             break
 
-        else:
-            mesg = f"**{int(res['xp']):,}**\nUpdates Every 30 Minutes"
-            await LongTextEmbed.send_message(valor, ctx, f"{player}'s XP Gain for {guild}", mesg, color=0xF5b642)
+        #     mesg = f"**{int(res[1]):,}**\nUpdates Every 30 Minutes"
+        #     await LongTextEmbed.send_message(valor, ctx, f"{player}'s XP Gain for {guild}", mesg, color=0xF5b642)
 
     @gxp.error
     async def gxp_error(ctx, error):
