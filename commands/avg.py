@@ -54,9 +54,10 @@ async def _register_avg(valor: Valor):
             guilds[x[0]][0] += x[1]
             guilds[x[0]][1] += 1
         
+        guild_name_spacing = len(max(guilds, key=len)) + 1
         sorted_rank = [(guilds[g][0]/guilds[g][1], g) for g in guilds]
         sorted_rank.sort(reverse=True)
-        content += '\n'.join("%18s %6.3f" % (g, v) for v, g in sorted_rank)
+        content += '\n'.join(f"%{guild_name_spacing}s %6.3f" % (g, v) for v, g in sorted_rank)
             
         end = time.time()
 
