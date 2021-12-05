@@ -25,7 +25,7 @@ async def _register_online(valor: Valor):
         if res.get("error"):
             return await ctx.send(embed=ErrorEmbed("Guild doesn't exist."))
 
-        members = {m["name"]: m["rank"] for m in res["members"]}
+        members = {m["name"]: m["rank"] for m in res["members"] if "name" in m}
         all_players = requests.get(valor.endpoints["online"]).json()
 
         del all_players["request"]
