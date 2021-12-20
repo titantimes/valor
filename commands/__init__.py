@@ -13,6 +13,7 @@ from .pm import _register_pm
 from .join import _register_join
 from .plot2 import _register_plot2
 from .avg import _register_avg
+from .link import _register_link
 from valor import Valor
 
 async def register_all(valor: Valor):
@@ -34,3 +35,4 @@ async def register_all(valor: Valor):
     await _register_join(valor)
     await _register_plot2(valor)
     await _register_avg(valor)
+    await _register_link(valor)
