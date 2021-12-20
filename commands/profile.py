@@ -1,4 +1,5 @@
 import requests
+import time
 from valor import Valor
 from sql import ValorSQL
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, get_war_rank, get_xp_rank
@@ -28,18 +29,6 @@ async def _register_profile(valor: Valor):
     model_base = "https://visage.surgeplay.com/bust/"
     @valor.command()
     async def profile(ctx: Context, username):
-        # guild_data = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command=Titans%20Valor").json()
-
-        # uuid = ""
-        # not_replaced_uuid = ""
-        # for m in guild_data["members"]:
-        #     if m["name"] == username:
-        #         uuid = m["uuid"].replace('-', '')
-        #         not_replaced_uuid = m["uuid"]
-        #         break
-        # if not uuid:
-        #     await ctx.send(embed=ErrorEmbed(f"{username} isn't even in the guild."))
-
         uuid = get_uuid(username)
 
         warcount = valor.warcount119.get(username, 0)
@@ -65,7 +54,10 @@ async def _register_profile(valor: Valor):
         draw.rectangle([241, 168, 241+bar_length*bar2_percent, 151], fill=(40, 200, 40))
         # bar 3
         draw.text((235, 200-bar_fontsize), "Coolness", (0, 0, 0), font=bar_font)
-        bar3_percent = 1-abs(strhash(username))/(0xFFFFFFFF)
+        
+        d7 = time.time()-3600*24*14
+        cnt_14d = len(await ValorSQL._execute(f"SELECT * FROM activity_members WHERE uuid='{uuid}' AND timestamp>={d7}"))
+        bar3_percent = min(cnt_14d/50, 1)
         
         draw.text((450, 200-bar_fontsize), f"{round(bar3_percent*100)}% Cool", (0, 0, 0), font=bar_font)
         draw.rectangle([241, 217, 241+bar_length*bar3_percent, 201], fill=(40, 40, 200))
