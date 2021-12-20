@@ -10,7 +10,7 @@ import os
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
-from util import strhash
+from util import strhash, get_uuid
 
 load_dotenv()
 async def _register_profile(valor: Valor):
@@ -28,24 +28,26 @@ async def _register_profile(valor: Valor):
     model_base = "https://visage.surgeplay.com/bust/"
     @valor.command()
     async def profile(ctx: Context, username):
-        guild_data = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command=Titans%20Valor").json()
+        # guild_data = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command=Titans%20Valor").json()
 
-        uuid = ""
-        not_replaced_uuid = ""
-        for m in guild_data["members"]:
-            if m["name"] == username:
-                uuid = m["uuid"].replace('-', '')
-                not_replaced_uuid = m["uuid"]
-                break
-        if not uuid:
-            await ctx.send(embed=ErrorEmbed(f"{username} isn't even in the guild."))
+        # uuid = ""
+        # not_replaced_uuid = ""
+        # for m in guild_data["members"]:
+        #     if m["name"] == username:
+        #         uuid = m["uuid"].replace('-', '')
+        #         not_replaced_uuid = m["uuid"]
+        #         break
+        # if not uuid:
+        #     await ctx.send(embed=ErrorEmbed(f"{username} isn't even in the guild."))
+
+        uuid = get_uuid(username)
 
         warcount = valor.warcount119.get(username, 0)
         wranking = get_war_rank(warcount)
         # schema = "https://" if os.getenv("USESSL") == "true" else "http://"
         # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/Titans Valor/{username}").json().get("data", {"xp": 0})
-        res = await ValorSQL._execute(f"SELECT * FROM user_total_xps WHERE uuid='{not_replaced_uuid}'")
-        gxp_contrib = res[0][1]
+        res = await ValorSQL._execute(f"SELECT * FROM user_total_xps WHERE uuid='{uuid}'")
+        gxp_contrib = res[0][1] if res else 0
         xpranking = get_xp_rank(gxp_contrib)
 
         img: Image = Image.open("assets/profile.png")
@@ -64,6 +66,7 @@ async def _register_profile(valor: Valor):
         # bar 3
         draw.text((235, 200-bar_fontsize), "Coolness", (0, 0, 0), font=bar_font)
         bar3_percent = 1-abs(strhash(username))/(0xFFFFFFFF)
+        
         draw.text((450, 200-bar_fontsize), f"{round(bar3_percent*100)}% Cool", (0, 0, 0), font=bar_font)
         draw.rectangle([241, 217, 241+bar_length*bar3_percent, 201], fill=(40, 40, 200))
         # circle 1
