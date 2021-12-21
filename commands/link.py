@@ -16,7 +16,7 @@ async def _register_link(valor: Valor):
     async def link(ctx: Context, user: discord.Member, username: str):
         if "-" in username:
             return await ctx.send(embed=ErrorEmbed("Invalid user name")) # lazy sanitation 
-        if not commands.common.role1(user):
+        if not commands.common.role1(ctx.author):
             return await ctx.send(embed=ErrorEmbed("No Permissions"))
 
         exist = await ValorSQL._execute(f"SELECT * FROM id_uuid WHERE discord_id={user.id} LIMIT 1")
