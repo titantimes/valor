@@ -31,7 +31,7 @@ async def _register_profile(valor: Valor):
     async def profile(ctx: Context, username):
         uuid = get_uuid(username)
 
-        warcount = valor.warcount119.get(username, 0)
+        warcount = valor.warcount119.get(username.lower(), 0)
         wranking = get_war_rank(warcount)
         # schema = "https://" if os.getenv("USESSL") == "true" else "http://"
         # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/Titans Valor/{username}").json().get("data", {"xp": 0})
