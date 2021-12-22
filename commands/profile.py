@@ -58,6 +58,7 @@ async def _register_profile(valor: Valor):
         
         d7 = time.time()-3600*24*14
         cnt_14d = len(await ValorSQL._execute(f"SELECT * FROM activity_members WHERE uuid='{uuid}' AND timestamp>={d7}"))
+        print(f"SELECT * FROM activity_members WHERE uuid='{uuid}' AND timestamp>={d7}")
         bar3_percent = min(cnt_14d/50, 1)
         
         draw.text((450, 200-bar_fontsize), f"{round(bar3_percent*100)}% Cool", (0, 0, 0), font=bar_font)

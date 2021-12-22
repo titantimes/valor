@@ -20,8 +20,7 @@ async def get_uuid(player: str):
         uuid = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{player}").json()["id"]
         await ValorSQL._execute(f"INSERT INTO uuid_name VALUES ('{uuid}', '{player}')")
     else:
-        uuid = exist[0][0]
-
+        return exist[0][0]
     return uuid[:8]+'-'+uuid[8:12]+'-'+uuid[12:16]+'-'+uuid[16:20]+'-'+uuid[20:]
 
 async def from_uuid(uuid: str):
