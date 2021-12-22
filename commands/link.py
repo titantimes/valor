@@ -7,7 +7,6 @@ import random
 from datetime import datetime
 import requests
 import commands.common
-from util import get_uuid
 
 async def _register_link(valor: Valor):
     desc = "Links Discord ID to Minecraft UUID"
@@ -20,7 +19,7 @@ async def _register_link(valor: Valor):
             return await ctx.send(embed=ErrorEmbed("No Permissions"))
 
         exist = await ValorSQL._execute(f"SELECT * FROM id_uuid WHERE discord_id={user.id} LIMIT 1")
-        uuid = get_uuid(username)
+        uuid = await commands.common.get_uuid(username)
         if exist:
             await ValorSQL._execute(f"UPDATE id_uuid SET uuid='{uuid}' WHERE discord_id={user.id}")
         else:

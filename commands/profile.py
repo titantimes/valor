@@ -11,7 +11,8 @@ import os
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
-from util import strhash, get_uuid
+from util import strhash
+from commands.common import get_uuid
 
 load_dotenv()
 async def _register_profile(valor: Valor):
@@ -29,7 +30,7 @@ async def _register_profile(valor: Valor):
     model_base = "https://visage.surgeplay.com/bust/"
     @valor.command()
     async def profile(ctx: Context, username):
-        uuid = get_uuid(username)
+        uuid = await get_uuid(username)
 
         warcount = valor.warcount119.get(username.lower(), 0)
         wranking = get_war_rank(warcount)
