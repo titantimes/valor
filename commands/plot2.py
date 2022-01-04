@@ -52,7 +52,7 @@ async def _register_plot2(valor: Valor):
         fig.set_figheight(10)
 
         ax = plt.gca()
-        ax.xaxis.set_major_formatter(xfmt)
+        # ax.xaxis.set_major_formatter(xfmt)
         plt.xticks(rotation=25)
 
         start = time.time()
@@ -145,4 +145,4 @@ Min: {min(a)}```"""
 
     @valor.help_override.command()
     async def plot2(ctx: Context):
-        await LongTextEmbed.send_message(valor, ctx, "Plot", desc, color=0xFF00)
+        await LongTextEmbed.send_message(valor, ctx, "Plot2", desc, color=0xFF00)
