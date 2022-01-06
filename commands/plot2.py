@@ -52,7 +52,7 @@ async def _register_plot2(valor: Valor):
         fig.set_figheight(10)
 
         ax = plt.gca()
-        # ax.xaxis.set_major_formatter(xfmt)
+        ax.xaxis.set_major_formatter(xfmt)
         plt.xticks(rotation=25)
 
         start = time.time()
@@ -65,6 +65,7 @@ async def _register_plot2(valor: Valor):
             query += f" AND time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"
         else:
             query += f" AND time >= {start-3600*24*7}"
+        query += " ORDER BY time ASC"
 
         opt.guild = [*set(x.lower() for x in opt.guild)]
         for tag in opt.guild:
