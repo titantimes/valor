@@ -1,5 +1,6 @@
 import requests
 from valor import Valor
+from mp import avg_process
 from sql import ValorSQL
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress, guild_name_from_tag
 from discord.ext.commands import Context
@@ -9,6 +10,7 @@ from dotenv import load_dotenv
 import numpy as np
 import time
 import argparse
+import gc
 
 load_dotenv()
 async def _register_avg(valor: Valor):
@@ -29,10 +31,8 @@ async def _register_avg(valor: Valor):
             opt = parser.parse_args(options)
         except:
             return await LongTextEmbed.send_message(valor, ctx, "Avg", parser.format_help().replace("main.py", "-avg"), color=0xFF00)
-        
 
         start = time.time()
-        data_pts = 0
 
         query = f"SELECT * FROM `guild_member_count` WHERE "
         if opt.guild:
@@ -42,31 +42,14 @@ async def _register_avg(valor: Valor):
             query += f"time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"
         else:
             query += f"time >= {start-3600*24*7}"
-        
-        content = "```"
 
-        guilds = {}
-        res = await ValorSQL._execute(query)
-        data_pts = len(res)
-        for x in res:
-            if not x[0] in guilds:
-                guilds[x[0]] = [0, 0]
-            guilds[x[0]][0] += x[1]
-            guilds[x[0]][1] += 1
-        
-        guild_name_spacing = len(max(guilds, key=len)) + 1
-        sorted_rank = [(guilds[g][0]/guilds[g][1], g) for g in guilds]
-        sorted_rank.sort(reverse=True)
-        content += '\n'.join(f"%{guild_name_spacing}s %6.3f" % (g, v) for v, g in sorted_rank)
-            
+        data_pts, content = await valor.loop.run_in_executor(valor.proc_pool, avg_process, valor.db_lock, query)
+
         end = time.time()
-
-        content += "\n```"
 
         await LongTextEmbed.send_message(valor, ctx, f"Guild Averages {opt.guild if opt.guild else 'ALL'}", content, color=0xFF0000, 
             footer = f"Query Took {end-start:.5}s - {data_pts:,} rows"
         )
-
 
     @valor.help_override.command()
     async def avg(ctx: Context):
