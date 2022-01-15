@@ -5,7 +5,6 @@ from sql import ValorSQL
 import asyncio
 import aiomysql
 import multiprocessing as mp
-from concurrent.futures import ProcessPoolExecutor
 
 class Valor(discord.ext.commands.Bot):
     """
@@ -28,7 +27,6 @@ class Valor(discord.ext.commands.Bot):
 
         manager = mp.Manager()
         self.db_lock = manager.Lock()
-        self.proc_pool = ProcessPoolExecutor(max_workers=4)
 
         # default configuration file is not found
         if not os.path.exists('config.json'):
