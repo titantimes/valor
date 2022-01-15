@@ -3,6 +3,7 @@
 # from mysql.connector import pooling
 import asyncio
 import aiomysql
+import mysql.connector
 import os
 from dotenv import load_dotenv
 import logging
@@ -24,6 +25,7 @@ class ValorSQL:
     last_connected = time.time()
     connection_live = 120 # 2 minute(s) per connection
     # conn = mysql.connector.connect(**_info)
+    conn = None
     pool = None
 
     @classmethod
@@ -59,6 +61,17 @@ class ValorSQL:
         res = await cls._execute("SHOW columns FROM user_config")
         cols = tuple(c[0] for c in res)
         await cls._execute(f"INSERT INTO user_config (user_id) VALUES ({userid})")
+    
+    @staticmethod
+    def execute_sync(query: str):
+        conn = mysql.connector.connect(**ValorSQL._info)
+        cursor = conn.cursor()
+        cursor.execute(query)
+        res = list(cursor.fetchall())
+        conn.commit()
+        cursor.close()
+
+        return res
 
     @classmethod
     async def _execute(cls, query: str):

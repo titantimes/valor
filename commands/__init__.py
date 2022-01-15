@@ -15,6 +15,7 @@ from .plot2 import _register_plot2
 from .avg import _register_avg
 from .link import _register_link
 from .leaderboad import _register_leaderboard
+from .map import _register_map
 from valor import Valor
 
 async def register_all(valor: Valor):
@@ -38,3 +39,4 @@ async def register_all(valor: Valor):
     await _register_avg(valor)
     await _register_link(valor)
     await _register_leaderboard(valor)
+    # await _register_map(valor)
