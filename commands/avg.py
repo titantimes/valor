@@ -5,6 +5,7 @@ from sql import ValorSQL
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress, guild_name_from_tag
 from discord.ext.commands import Context
 from datetime import datetime
+from concurrent.futures import ProcessPoolExecutor
 from discord import File
 from dotenv import load_dotenv
 import numpy as np
@@ -43,8 +44,10 @@ async def _register_avg(valor: Valor):
         else:
             query += f"time >= {start-3600*24*7}"
 
-        data_pts, content = await valor.loop.run_in_executor(valor.proc_pool, avg_process, valor.db_lock, query)
-
+        pool = ProcessPoolExecutor(max_workers=4)
+        data_pts, content = await valor.loop.run_in_executor(pool, avg_process, valor.db_lock, query)
+        pool.shutdown()
+        
         end = time.time()
 
         await LongTextEmbed.send_message(valor, ctx, f"Guild Averages {opt.guild if opt.guild else 'ALL'}", content, color=0xFF0000, 

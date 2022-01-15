@@ -4,6 +4,8 @@ from discord.ext.commands import Context
 from discord import File
 from dotenv import load_dotenv
 from mp import plot_process
+import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor
 import time
 import argparse
 
@@ -43,7 +45,9 @@ async def _register_plot2(valor: Valor):
             query += f" AND time >= {start-3600*24*7}"
         query += " ORDER BY time ASC"
 
-        data_pts, content = await valor.loop.run_in_executor(valor.proc_pool, plot_process, valor.db_lock, opt, query)
+        pool = ProcessPoolExecutor(max_workers=4)
+        data_pts, content = await valor.loop.run_in_executor(pool, plot_process, valor.db_lock, opt, query)
+        pool.shutdown()
         file = File("/tmp/valor_guild_plot.png", filename="plot.png")
         
         end = time.time()
