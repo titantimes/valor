@@ -21,10 +21,11 @@ class ErrorEmbed(discord.Embed):
         self.set_footer(text="Scream at Andrew or Cal if something should be working")
 
 class LongTextEmbed(discord.Embed):
-    def __init__(self, title: str, content, limit=3000, **kwargs):
+    def __init__(self, title: str, content, limit=3000, code_block=False, **kwargs):
         if isinstance(content, str):
             self.content = content.split('\n')
         self.page = 1
+        self.code_block = code_block
 
         line_idx = 0
         lp = LongTextEmbed.find_linepair(self.content, line_idx)
@@ -35,9 +36,13 @@ class LongTextEmbed(discord.Embed):
             self.line_pairs.append(lp)
             line_idx = lp[1]
 
+        description = '\n'.join(self.content[self.line_pairs[0][0]:self.line_pairs[0][1]])
+        if code_block:
+            description = '```'+description+'```'
+
         super(LongTextEmbed, self).__init__(
             title = title,
-            description = '\n'.join(self.content[self.line_pairs[0][0]:self.line_pairs[0][1]]),
+            description = description,
             **kwargs
         )
         if not kwargs.get("footer"):
@@ -51,6 +56,8 @@ class LongTextEmbed(discord.Embed):
         lp = self.line_pairs[self.page]
         self.page += 1
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
+        if self.code_block:
+            self.description = '```'+self.description+'```'
         self.set_footer(text="Page {} of {}".format(self.page, self.total_pages))
     
     def back_page(self):
@@ -59,6 +66,8 @@ class LongTextEmbed(discord.Embed):
         self.page -= 1
         lp = self.line_pairs[self.page-1]
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
+        if self.code_block:
+            self.description = '```'+self.description+'```'
         self.set_footer(text="Page {} of {}".format(self.page, self.total_pages))
 
     @staticmethod
