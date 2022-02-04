@@ -54,10 +54,14 @@ async def _register_react_listener(valor: Valor):
                 # # give the user a blind role so they don't cheat
                 # role = guild.get_role(config[5])
                 # await payload.member.add_roles(role)
+                
+                council_role = guild.get_role(702991927318020138)
 
                 overwrites = {
                     guild.default_role: discord.PermissionOverwrite(read_messages=False),
                     payload.member: discord.PermissionOverwrite(read_messages=True),
+                    council_role: discord.PermissionOverwrite(view_channel=True),
+                    council_role: discord.PermissionOverwrite(send_messages=True)
                     # payload.member: discord.PermissionOverwrite(view_channel=True),
                     # payload.member: discord.PermissionOverwrite(send_messages=True),
                 }
@@ -75,9 +79,13 @@ async def _register_react_listener(valor: Valor):
                 # role = guild.get_role(config[5])
                 # await payload.member.add_roles(role)
 
+                council_role = guild.get_role(702991927318020138)
+
                 overwrites = {
                     guild.default_role: discord.PermissionOverwrite(read_messages=False),
                     payload.member: discord.PermissionOverwrite(read_messages=True),
+                    council_role: discord.PermissionOverwrite(view_channel=True),
+                    council_role: discord.PermissionOverwrite(send_messages=True)
                     # payload.member: discord.PermissionOverwrite(view_channel=True),
                     # payload.member: discord.PermissionOverwrite(send_messages=True),
                 }
