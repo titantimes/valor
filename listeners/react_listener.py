@@ -60,8 +60,7 @@ async def _register_react_listener(valor: Valor):
                 overwrites = {
                     guild.default_role: discord.PermissionOverwrite(read_messages=False),
                     payload.member: discord.PermissionOverwrite(read_messages=True),
-                    council_role: discord.PermissionOverwrite(view_channel=True),
-                    council_role: discord.PermissionOverwrite(send_messages=True)
+                    council_role: discord.PermissionOverwrite(view_channel=True, send_messages=True),
                     # payload.member: discord.PermissionOverwrite(view_channel=True),
                     # payload.member: discord.PermissionOverwrite(send_messages=True),
                 }
@@ -84,8 +83,7 @@ async def _register_react_listener(valor: Valor):
                 overwrites = {
                     guild.default_role: discord.PermissionOverwrite(read_messages=False),
                     payload.member: discord.PermissionOverwrite(read_messages=True),
-                    council_role: discord.PermissionOverwrite(view_channel=True),
-                    council_role: discord.PermissionOverwrite(send_messages=True)
+                    council_role: discord.PermissionOverwrite(view_channel=True, send_messages=True),
                     # payload.member: discord.PermissionOverwrite(view_channel=True),
                     # payload.member: discord.PermissionOverwrite(send_messages=True),
                 }
