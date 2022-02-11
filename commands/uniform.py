@@ -62,18 +62,12 @@ async def _register_uniform(valor: Valor):
         elif opt.overlay:
 
             # Bad solution but it works
-            size1 = (64, 16)
-            pos1 = (0, 32)
-            size2 = (16, 16)
-            pos2 = (0, 48)
-            pos3 = (48, 48)
+            rect1 = Image.new("RGBA", (64, 16), (0, 0, 0, 0))
+            rect2 = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
 
-            rect1 = Image.new("RGBA", size1, (0, 0, 0, 0))
-            rect2 = Image.new("RGBA", size2, (0, 0, 0, 0))
-
-            player_skin.paste(rect1, pos1)
-            player_skin.paste(rect2, pos2)
-            player_skin.paste(rect2, pos3)
+            player_skin.paste(rect1, (0, 32))
+            player_skin.paste(rect2, (0, 48))
+            player_skin.paste(rect2, (48, 48))
 
             if opt.variant == "male":
                 uniform_skin = Image.open("assets/male-overlay.png").convert("RGBA")
