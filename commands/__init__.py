@@ -17,6 +17,8 @@ from .link import _register_link
 from .leaderboad import _register_leaderboard
 from .map import _register_map
 from .coolness import _register_coolness
+from .uniform import _register_uniform
+from .up import _register_up
 from valor import Valor
 
 async def register_all(valor: Valor):
@@ -41,4 +43,6 @@ async def register_all(valor: Valor):
     await _register_link(valor)
     await _register_leaderboard(valor)
     await _register_coolness(valor)
+    await _register_uniform(valor)
+    await _register_up(valor)
     # await _register_map(valor)
