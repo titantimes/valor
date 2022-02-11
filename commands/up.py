@@ -39,4 +39,4 @@ async def _register_up(valor: Valor):
 
     @valor.command()
     async def sp(ctx: Context):
-        return await up(ctx, ["-s", "soul_point"])
+        return await up(ctx, "-s", "soul_point")
