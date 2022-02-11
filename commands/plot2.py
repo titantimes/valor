@@ -18,6 +18,7 @@ async def _register_plot2(valor: Valor):
     parser = argparse.ArgumentParser(description='Plot2 command')
     parser.add_argument('-r', '--range', nargs=2)
     parser.add_argument('-g', '--guild', nargs='+')
+    parser.add_argument('-n', '--name', nargs='+')
     parser.add_argument('-s', '--split', action='store_true')
     parser.add_argument('-sm', '--smooth', action='store_true')
     parser.add_argument('-rs', '--resolution')
@@ -34,6 +35,10 @@ async def _register_plot2(valor: Valor):
         except:
             return await LongTextEmbed.send_message(valor, ctx, "Plot", parser.format_help().replace("main.py", "-plot2"), color=0xFF00)
         
+        opt.guild = [guild_name_from_tag(x.lower()) for x in opt.guild] if opt.guild else []
+        if opt.name:
+            opt.guild.extend(opt.name)
+
         start = time.time()
         
         query = f"SELECT * FROM `guild_member_count` WHERE guild=\"%s\""
