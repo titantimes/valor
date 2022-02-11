@@ -22,7 +22,7 @@ async def _register_up(valor: Valor):
         server_list = res.json()["servers"]
 
         for server in server_list:
-            server_list[server]["uptime"] = time.time() - round((server_list[server]["firstSeen"] / 1000) / 60)
+            server_list[server]["uptime"] = round((time.time() - (server_list[server]["firstSeen"] / 1000)) / 60)
             server_list[server]["soul_point"] = (-((-server_list[server]["uptime"]) // 20) * 20) - server_list[server]["uptime"]
             del server_list[server]["players"], server_list[server]["firstSeen"]
         
