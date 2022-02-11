@@ -23,11 +23,9 @@ def plot_process(lock, opt, query):
 
     data_pts = 0
 
-    opt.guild = [*set(x.lower() for x in opt.guild)]
-    for tag in opt.guild:
-        guild = guild_name_from_tag(tag)
+    for name in opt.guild:
         with lock:
-            res = ValorSQL.execute_sync(query % guild)
+            res = ValorSQL.execute_sync(query % name)
 
         if opt.split:
             b = np.array([x[2] for x in res])
