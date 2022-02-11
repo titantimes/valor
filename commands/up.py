@@ -36,3 +36,7 @@ async def _register_up(valor: Valor):
     @valor.help_override.command()
     async def up(ctx: Context):
         await LongTextEmbed.send_message(valor, ctx, "Up", desc, color=0xFF00)
+
+    @valor.command()
+    async def sp(ctx: Context):
+        return await up(ctx, ["-s", "soul_point"])
