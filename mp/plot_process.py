@@ -41,7 +41,7 @@ def plot_process(lock, opt, query):
                 b = np.linspace(b.min(), b.max(), 500)
                 a = spline(b)
 
-            plt.plot([datetime.fromtimestamp(x) for x in b], a, label=guild)
+            plt.plot([datetime.fromtimestamp(x) for x in b], a, label=opt.guild)
             plt.legend(loc="upper left")
 
         else:

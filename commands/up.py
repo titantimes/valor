@@ -33,10 +33,13 @@ async def _register_up(valor: Valor):
 
         await LongTextEmbed.send_message(valor, ctx, "Server List", content=table, color=0x03A9F4)      
     
+    non_help_up = up
+    @valor.command()
+    async def sp(ctx: Context):
+        return await non_help_up(ctx, "-s", "soul_point")
+
     @valor.help_override.command()
     async def up(ctx: Context):
         await LongTextEmbed.send_message(valor, ctx, "Up", desc, color=0xFF00)
 
-    @valor.command()
-    async def sp(ctx: Context):
-        return await up(ctx, "-s", "soul_point")
+    
