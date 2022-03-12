@@ -9,6 +9,9 @@ import os
 import random
 
 load_dotenv()
+TEST = os.getenv("TEST") == "TRUE"
+COUNCIL = int(os.getenv("COUNCILID"))
+CABVOTE = int(os.getenv("CABVOTEID"))
 
 async def _register_react_listener(valor: Valor):
     @valor.event
@@ -44,8 +47,69 @@ async def _register_react_listener(valor: Valor):
                 chn = await guild.create_text_channel(f"app-{config[2]+1}", overwrites=overwrites, category=category)
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[3], color=0xFFAA))
+
+            # 535609000193163274 guild role
+            elif res[-1] == "brilliance" and (535609000193163274 in rls or TEST):
+                guild = valor.get_guild(payload.guild_id)
+                config = (await ValorSQL.get_server_config(payload.guild_id))[0]
+                category_id = config[1]
+                category = get(guild.categories, id=category_id)
+
+                cabinet_vote_role = guild.get_role(CABVOTE)
+                council_role = guild.get_role(COUNCIL)
+
+                overwrites = {
+                    guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                    payload.member: discord.PermissionOverwrite(read_messages=True),
+                    council_role: discord.PermissionOverwrite(view_channel=True, send_messages=True),
+                    cabinet_vote_role: discord.PermissionOverwrite(view_channel=True, send_messages=True)
+                }
+
+                chn = await guild.create_text_channel(f"bril-{config[2]+1}", overwrites=overwrites, category=category)
+                await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
+                await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[9], color=0xFFAA))
             
-            elif res[-1] == 'captain' and 892886015017103360 in rls:
+            elif res[-1] == "spirit" and (535609000193163274 in rls or TEST):
+                guild = valor.get_guild(payload.guild_id)
+                config = (await ValorSQL.get_server_config(payload.guild_id))[0]
+                category_id = config[1]
+                category = get(guild.categories, id=category_id)
+
+                cabinet_vote_role = guild.get_role(CABVOTE)
+                council_role = guild.get_role(COUNCIL)
+
+                overwrites = {
+                    guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                    payload.member: discord.PermissionOverwrite(read_messages=True),
+                    council_role: discord.PermissionOverwrite(view_channel=True, send_messages=True),
+                    cabinet_vote_role: discord.PermissionOverwrite(view_channel=True, send_messages=True)
+                }
+
+                chn = await guild.create_text_channel(f"spir-{config[2]+1}", overwrites=overwrites, category=category)
+                await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
+                await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[10], color=0xFFAA))
+            
+            elif res[-1] == "fury" and (535609000193163274 in rls or TEST):
+                guild = valor.get_guild(payload.guild_id)
+                config = (await ValorSQL.get_server_config(payload.guild_id))[0]
+                category_id = config[1]
+                category = get(guild.categories, id=category_id)
+
+                cabinet_vote_role = guild.get_role(CABVOTE)
+                council_role = guild.get_role(COUNCIL)
+
+                overwrites = {
+                    guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                    payload.member: discord.PermissionOverwrite(read_messages=True),
+                    council_role: discord.PermissionOverwrite(view_channel=True, send_messages=True),
+                    cabinet_vote_role: discord.PermissionOverwrite(view_channel=True, send_messages=True)
+                }
+
+                chn = await guild.create_text_channel(f"fury-{config[2]+1}", overwrites=overwrites, category=category)
+                await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
+                await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[11], color=0xFFAA))
+
+            elif res[-1] == 'captain' and (892886015017103360 in rls or TEST):
                 guild = valor.get_guild(payload.guild_id)
                 config = (await ValorSQL.get_server_config(payload.guild_id))[0]
                 category_id = config[1]
@@ -54,8 +118,8 @@ async def _register_react_listener(valor: Valor):
                 # # give the user a blind role so they don't cheat
                 # role = guild.get_role(config[5])
                 # await payload.member.add_roles(role)
-                
-                council_role = guild.get_role(702991927318020138)
+
+                council_role = guild.get_role(COUNCIL)
 
                 overwrites = {
                     guild.default_role: discord.PermissionOverwrite(read_messages=False),
@@ -78,7 +142,7 @@ async def _register_react_listener(valor: Valor):
                 # role = guild.get_role(config[5])
                 # await payload.member.add_roles(role)
 
-                council_role = guild.get_role(702991927318020138)
+                council_role = guild.get_role(COUNCIL)
 
                 overwrites = {
                     guild.default_role: discord.PermissionOverwrite(read_messages=False),
