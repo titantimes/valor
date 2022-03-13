@@ -163,6 +163,7 @@ async def _register_react_listener(valor: Valor):
                 ]))
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = em)
         
+        cabinets = {"bril", "spir", "fury"}
         # reaction to the green checkmark or thumbs up
         if payload.user_id != int(os.environ["SELFID"]):
             if str(payload.emoji) == '✅':
@@ -178,7 +179,10 @@ async def _register_react_listener(valor: Valor):
                     await msg.channel.set_permissions(payload.member, send_messages=False, read_messages=True)
                     await msg.add_reaction('👍')
 
-                    vote_chn = valor.get_channel(config[4])
+                    if msg.channel.name.split('-')[0] in cabinets:
+                        vote_chn = valor.get_channel(config[12])
+                    else:
+                        vote_chn = valor.get_channel(config[4])
                     app_msg = await rxn_chn.fetch_message(app_msg_id)
 
                     # # remove the blinded role
