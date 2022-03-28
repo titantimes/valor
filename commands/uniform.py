@@ -58,7 +58,7 @@ async def _register_uniform(valor: Valor):
 
             final_skin.putdata(new_skin_data)
 
-        elif not opt.colour:
+        elif not opt.skincolour:
 
             if player_skin.height == 32:
 
