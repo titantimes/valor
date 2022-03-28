@@ -1,3 +1,4 @@
+from tkinter import E
 from util.valor_message import LongTextEmbed
 from valor import Valor
 from discord.ext.commands import Context
@@ -16,7 +17,6 @@ async def _register_uniform(valor: Valor):
     parser.add_argument("-c", "--skincolour", type=str) # colour smh
     parser.add_argument("-v", "--variant", type=str.lower, default="male", choices=["male", "female"])
 #    parser.add_argument("-at", "--autodetect", action='store_true') # to implement (autodetect skin colour)
-    parser.add_argument("-o", "--overlay", action='store_true')
 
     @valor.command()
     async def uniform(ctx: Context, *args):
@@ -35,7 +35,7 @@ async def _register_uniform(valor: Valor):
 
         player_skin = Image.open(requests.get(skindata["textures"]["SKIN"]["url"], stream=True).raw)
 
-        if not opt.overlay:
+        if opt.colour:
 
             try:
                 skincolour = ImageColor.getrgb(opt.skincolour)
@@ -59,7 +59,23 @@ async def _register_uniform(valor: Valor):
 
             final_skin.putdata(new_skin_data)
 
-        elif opt.overlay:
+        elif not opt.colour:
+
+            if player_skin.height == 32:
+
+                leg = player_skin.crop((0, 16, 16, 32))
+                arm = player_skin.crop((40, 16, 56, 32))
+                body = player_skin.crop((16, 16, 40, 32))
+                head = player_skin.crop((0, 0, 64, 16))
+
+                player_skin = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+
+                player_skin.paste(leg, (16, 48))
+                player_skin.paste(leg, (0, 16))
+                player_skin.paste(arm, (40, 16))
+                player_skin.paste(arm, (32, 48))
+                player_skin.paste(body, (16, 16))
+                player_skin.paste(head, (0, 0))
 
             # Bad solution but it works
             rect1 = Image.new("RGBA", (64, 16), (0, 0, 0, 0))
