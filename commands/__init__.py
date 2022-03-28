@@ -14,7 +14,7 @@ from .join import _register_join
 from .plot2 import _register_plot2
 from .avg import _register_avg
 from .link import _register_link
-from .leaderboad import _register_leaderboard
+from .leaderboard import _register_leaderboard
 from .map import _register_map
 from .coolness import _register_coolness
 from .uniform import _register_uniform

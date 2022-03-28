@@ -12,7 +12,6 @@ class Valor(discord.ext.commands.Bot):
     """
 
     def __init__(self, *args, **kwargs):
-
         self.BOT_TOKEN = os.environ["BOT_TOKEN"]
         # this is used to override the help command and then register the help subcommands for other commands
         self.help_override = None
