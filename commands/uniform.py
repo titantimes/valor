@@ -34,7 +34,7 @@ async def _register_uniform(valor: Valor):
 
         player_skin = Image.open(requests.get(skindata["textures"]["SKIN"]["url"], stream=True).raw)
 
-        if opt.colour:
+        if opt.skincolour:
 
             try:
                 skincolour = ImageColor.getrgb(opt.skincolour)
