@@ -1,4 +1,3 @@
-from tkinter import E
 from util.valor_message import LongTextEmbed
 from valor import Valor
 from discord.ext.commands import Context
