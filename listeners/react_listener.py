@@ -65,7 +65,7 @@ async def _register_react_listener(valor: Valor):
                     cabinet_vote_role: discord.PermissionOverwrite(view_channel=True, send_messages=True)
                 }
 
-                chn = await guild.create_text_channel(f"bril-{config[2]+1}", overwrites=overwrites, category=category)
+                chn = await guild.create_text_channel(f"bril-{payload.member.id}", overwrites=overwrites, category=category)
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[9], color=0xFFAA))
             
@@ -85,7 +85,7 @@ async def _register_react_listener(valor: Valor):
                     cabinet_vote_role: discord.PermissionOverwrite(view_channel=True, send_messages=True)
                 }
 
-                chn = await guild.create_text_channel(f"spir-{config[2]+1}", overwrites=overwrites, category=category)
+                chn = await guild.create_text_channel(f"spir-{payload.member.id}", overwrites=overwrites, category=category)
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[10], color=0xFFAA))
             
@@ -105,7 +105,7 @@ async def _register_react_listener(valor: Valor):
                     cabinet_vote_role: discord.PermissionOverwrite(view_channel=True, send_messages=True)
                 }
 
-                chn = await guild.create_text_channel(f"fury-{config[2]+1}", overwrites=overwrites, category=category)
+                chn = await guild.create_text_channel(f"fury-{payload.member.id}", overwrites=overwrites, category=category)
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[11], color=0xFFAA))
 
