@@ -19,6 +19,7 @@ from .map import _register_map
 from .coolness import _register_coolness
 from .uniform import _register_uniform
 from .up import _register_up
+from .glist import _register_glist
 from valor import Valor
 
 async def register_all(valor: Valor):
@@ -45,4 +46,5 @@ async def register_all(valor: Valor):
     await _register_coolness(valor)
     await _register_uniform(valor)
     await _register_up(valor)
+    await _register_glist(valor)
     # await _register_map(valor)
