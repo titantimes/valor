@@ -42,7 +42,7 @@ async def _register_msg_listiner(valor: Valor):
         apps = {"app", "strat", "cpt", "spir", "bril", "fury"}
         if message.author.id != int(os.environ["SELFID"]) and (message.channel.name.split('-')[0] in apps):
             config = (await ValorSQL.get_server_config(message.guild.id))[0]
-            if message.channel.category_id == config[1] and message.author.id == int(message.channel.name.split('-')[1]):
+            if message.channel.category_id == config[1] and message.author.id == int(message.channel.topic):
                 ctx = await valor.get_context(message)
                 msg = await ctx.send(embed=LongTextEmbed("Click the green checkmark below to submit", "Send your application again if you messed up.\n**Your most recent message will be submitted**", color=0xFFFF, footer=f"Valor - {message.id}"))
                 await msg.add_reaction('✅')
