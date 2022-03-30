@@ -8,20 +8,26 @@ from datetime import datetime
 import requests
 import commands.common
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+TEST = os.getenv("TEST")=="TRUE"
 
 async def _register_glist(valor: Valor):
     desc = "Adds or Removes Guild from Guild List"
     
     @valor.group()
     async def glist(ctx: Context):
-        if not os.getenv("TEST") and not commands.common.role1(ctx.author):
-            return await ctx.send(embed=ErrorEmbed("No Permissions"))
+        if ctx.invoked_subcommand: return
+        exist = await ValorSQL._execute(f"SELECT * FROM guild_list")
+        content = '\n'.join(x[0] for x in exist)
+        await LongTextEmbed.send_message(valor, ctx, title="Guild List", content=content, color=0xFF10, code_block=True)
     
     @glist.command()
     async def add(ctx: Context, guild: str):
         if "-" in guild:
             return await ctx.send(embed=ErrorEmbed("Invalid guild name")) # lazy sanitation 
-        if not os.getenv("TEST") and not commands.common.role1(ctx.author):
+        if not commands.common.role1(ctx.author) and not TEST:
             return await ctx.send(embed=ErrorEmbed("No Permissions"))
 
         exist = await ValorSQL._execute(f"SELECT * FROM guild_list WHERE guild=\"{guild}\" LIMIT 1")
@@ -36,7 +42,7 @@ async def _register_glist(valor: Valor):
     async def remove(ctx: Context, guild: str):
         if "-" in guild:
             return await ctx.send(embed=ErrorEmbed("Invalid guild name")) # lazy sanitation 
-        if not os.getenv("TEST") and not commands.common.role1(ctx.author):
+        if not TEST and not commands.common.role1(ctx.author):
             return await ctx.send(embed=ErrorEmbed("No Permissions"))
         
         exist = await ValorSQL._execute(f"SELECT * FROM guild_list WHERE guild=\"{guild}\" LIMIT 1")
