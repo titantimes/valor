@@ -190,8 +190,8 @@ async def _register_react_listener(valor: Valor):
                     # role = guild.get_role(config[5])
                     # await payload.member.remove_roles(role)
 
-                    message_format = "`Application #%d` - <@%d>\n" 
-                    await vote_chn.send(message_format % (int(rxn_chn.name.split('-')[1]), app_msg.author.id))
+                    message_format = "`Application #%d - %s` - <@%d>\n" 
+                    await vote_chn.send(message_format % (int(rxn_chn.name.split('-')[1]), rxn_chn.name.split('-')[0], app_msg.author.id))
                     await vote_chn.send("%s" % (app_msg.content))
 
             elif str(payload.emoji) == '👍':
