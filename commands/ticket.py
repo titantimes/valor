@@ -86,15 +86,15 @@ async def _register_ticket(valor: Valor):
         roles = {x.id for x in ctx.author.roles}
         if not COUNCIL in roles and not TEST: return await ctx.send(embed=ErrorEmbed("Skill Issue"))
 
-        msg = await ReactionEmbed.send_message(valor, ctx, "Cabinets Brilliance/Spirit/Fury Application", 
+        msg = await ReactionEmbed.send_message(valor, ctx, "Cabinets Brilliance/Spirit", 
         "Select 🔧 for a Brilliance application.\n"  
-        "Select 🎉 for a Spirit application.\n"
-        "Select ⚔ for a Fury application", color=0xBBBBFF, reactions=['🔧', '🎉', '⚔'])
+        "Select 🎉 for a Spirit application.\n", color=0xBBBBFF, reactions=['🔧', '🎉'])
+        # "Select ⚔ for a Fury application", color=0xBBBBFF, reactions=['🔧', '🎉', '⚔'])
         await ValorSQL.create_react_msg(msg.id, int(time.time()+1576800000))
         valor.reaction_msg_ids[msg.id] = int(time.time()+1576800000)
         await ValorSQL.create_react_reaction(msg.id, ord('🔧'), "brilliance")
         await ValorSQL.create_react_reaction(msg.id, ord('🎉'), "spirit")
-        await ValorSQL.create_react_reaction(msg.id, ord('⚔'), "fury")
+        # await ValorSQL.create_react_reaction(msg.id, ord('⚔'), "fury")
 
     @ticket.error
     async def err(ctx, error):
