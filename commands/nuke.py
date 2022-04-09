@@ -9,8 +9,6 @@ from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, guild_name_from_tag
 import random
 from datetime import datetime
 import requests
-import discord
-discord.Intents.all()
 
 async def _register_nuke(valor: Valor):
     desc = "Entire guild changes"
