@@ -22,10 +22,11 @@ async def _register_nuke(valor: Valor):
             rls = {x.id for x in member.roles}
             name = member.display_name.split(" ")
             print(name)
+            name = name[0] if len(name) == 1 else name[1]
             if 892886015017103360 in rls:
-                await member.edit(nick="Sorcerer "+name[1])
+                await member.edit(nick="Sorcerer "+name)
             elif 702996152982962197 in rls:
-                await member.edit(nick="Magi "+name[1])
+                await member.edit(nick="Magi "+name)
 
 
     @nuke.error
