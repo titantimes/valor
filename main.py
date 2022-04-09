@@ -25,7 +25,7 @@ logging.warning("Starting")
 
 loop = asyncio.get_event_loop()
 
-valor = valor.Valor('-')
+valor = valor.Valor('-', intents=discord.Intents.all())
 
 ValorSQL.pool = valor.loop.run_until_complete(aiomysql.create_pool(**ValorSQL._info, loop=valor.loop))
 
