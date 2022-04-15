@@ -24,12 +24,16 @@ async def _register_up(valor: Valor):
         for server in server_list:
             server_list[server]["uptime"] = round((time.time() - (server_list[server]["firstSeen"] / 1000)) / 60)
             server_list[server]["soul_point"] = (-((-server_list[server]["uptime"]) // 20) * 20) - server_list[server]["uptime"]
-            del server_list[server]["players"], server_list[server]["firstSeen"]
+            del server_list[server]["firstSeen"]
         
         sorted_server_list = sorted(server_list, key=lambda x: server_list[x][f"{opt.sort}"])
 
         # very stupid line
-        table = "```\n%5s %12s %20s\n" % ("World", "Uptime", "Time until next SP") +'\n'.join("%5s %12s %20s" % (server, f"{server_list[server]['uptime'] // 60} h {server_list[server]['uptime'] % 60} m", f"{server_list[server]['soul_point']} m") for server in sorted_server_list)+"\n```"
+        table = "```\n%5s %12s %7s %20s\n" % ("World", "Uptime", "Players", "Time until next SP") +'\n'.join("%5s %12s %7s %20s" % 
+            (server, 
+                f"{server_list[server]['uptime'] // 60} h {server_list[server]['uptime'] % 60} m", 
+                f"{len(server_list[server]['players'])}/40",
+                f"{server_list[server]['soul_point']} m") for server in sorted_server_list)+"\n```"
 
         await LongTextEmbed.send_message(valor, ctx, "Server List", content=table, color=0x03A9F4)      
     
