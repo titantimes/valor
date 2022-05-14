@@ -83,7 +83,7 @@ async def _register_alliance(valor: Valor):
         if opt.sort == "total":
             res = sorted(res, key=lambda x: totals[x[0]], reverse=True)
         else:
-            res = sorted(res, key=lambda x: sort_choice_map[opt.sort], reverse=True)
+            res = sorted(res, key=lambda x: x[sort_choice_map[opt.sort]], reverse=True)
         
         delta_time = time.time()-start
         
