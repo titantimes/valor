@@ -22,6 +22,7 @@ from .up import _register_up
 from .glist import _register_glist
 from .nuke import _register_nuke
 from .alliance import _register_alliance
+from .ffa import _register_ffa
 from valor import Valor
 
 async def register_all(valor: Valor):
@@ -51,4 +52,5 @@ async def register_all(valor: Valor):
     await _register_glist(valor)
     await _register_nuke(valor)
     await _register_alliance(valor)
+    await _register_ffa(valor)
     # await _register_map(valor)
