@@ -43,7 +43,7 @@ async def _register_ffa(valor: Valor):
         if not commands.common.role1(ctx.author, allow={536068288606896128}) and not TEST:
             return await ctx.send(embed=ErrorEmbed("No Permissions. (you need military role)"))
     
-        await ctx.send("<@&89288538174432053>", 
+        await ctx.send("<@&892885381744320532>", 
             embed=LongTextEmbed(title="Healer Ping", content="Healer needed", color=0xFF8888))
     
 
