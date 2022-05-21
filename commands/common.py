@@ -37,7 +37,7 @@ async def guild_name_from_tag(tag: str) -> str:
     if not len(guilds):
         return "N/A"
     
-    if guilds[0][2] == guilds[1][2]:
+    if len(guilds) >= 2 and guilds[0][2] == guilds[1][2]:
         revisions = []
 
         for g, tag, _ in guilds:
