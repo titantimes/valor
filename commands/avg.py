@@ -38,8 +38,7 @@ async def _register_avg(valor: Valor):
 
         query = f"SELECT * FROM `guild_member_count` WHERE "
         if opt.guild:
-            print(await guild_name_from_tag("ANO"))
-            query += "("+' OR '.join("guild="+'"'+(await guild_name_from_tag(n))+'"' for n in opt.guild)+")" + " AND "
+            query += "("+' OR '.join(["guild="+'"'+(await guild_name_from_tag(n))+'"' for n in opt.guild])+")" + " AND "
 
         if opt.range:
             query += f"time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"
