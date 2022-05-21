@@ -2,7 +2,8 @@ import requests
 from valor import Valor
 from mp import avg_process
 from sql import ValorSQL
-from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress, guild_name_from_tag
+from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress
+from commands.common import guild_name_from_tag
 from discord.ext.commands import Context
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor
@@ -37,7 +38,8 @@ async def _register_avg(valor: Valor):
 
         query = f"SELECT * FROM `guild_member_count` WHERE "
         if opt.guild:
-            query += "("+' OR '.join("guild="+'"'+guild_name_from_tag(n)+'"' for n in opt.guild)+")" + " AND "
+            print(await guild_name_from_tag("ANO"))
+            query += "("+' OR '.join("guild="+'"'+(await guild_name_from_tag(n))+'"' for n in opt.guild)+")" + " AND "
 
         if opt.range:
             query += f"time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"

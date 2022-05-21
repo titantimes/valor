@@ -11,7 +11,6 @@ async def get_discord_id(uuid):
         return False
     return res[0][0]
 
-
 async def get_uuid(player: str):
     if "-" in player: return False
     exist = await ValorSQL._execute(f"SELECT * FROM uuid_name WHERE name='{player}' LIMIT 1")
@@ -31,3 +30,29 @@ async def from_uuid(uuid: str):
     else:
         name = exist[0][1]
     return name
+
+async def guild_name_from_tag(tag: str) -> str:
+    guilds = await ValorSQL._execute(f"SELECT * FROM guild_tag_name WHERE LOWER(tag)='{tag.lower()}' ORDER BY priority DESC")
+    
+    if not len(guilds):
+        return "N/A"
+    
+    if len(guilds) == 1:
+        return guilds[0][0]
+    
+    if guilds[0][2] == guilds[1][2]:
+        revisions = []
+
+        for g, tag, _ in guilds:
+            res = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+g).json()
+            n_members = len(res["members"])
+            revisions.append(f"('{g}','{tag}',{n_members})")
+
+        await ValorSQL._execute(f"REPLACE INTO guild_tag_name VALUES " + ','.join(revisions))
+        revisions.sort(key=lambda x: x[2], reverse=True)
+        
+        return revisions[0][0]
+    
+async def g_tag(tag: str) -> str:
+    return await guild_name_from_tag(tag)
+    
