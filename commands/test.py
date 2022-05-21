@@ -9,15 +9,11 @@ async def _register_test(valor: Valor):
     @valor.group()
     async def test(ctx: Context):
         if not ctx.invoked_subcommand:
-            await LongTextEmbed.send_message(valor, ctx, "test", '\n'.join(
-                ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for x in range(100)) for _ in range(random.randrange(100))))
+            await LongTextEmbed.send_message(valor, ctx, "test", "it's just a normal command. What else can I say?")
     
     @test.command()
     async def fields(ctx: Context):
-        content = [*zip(
-            [''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for x in range(1, 50)) for _ in range(random.randrange(1, 200))],
-            [''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for x in range(1, 50)) for _ in range(random.randrange(1, 200))]
-        )]
+        content = [("this", "no longer does anything funny")]
 
         await LongFieldEmbed.send_message(valor, ctx, "Field Test", content)
 
