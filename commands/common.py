@@ -37,9 +37,6 @@ async def guild_name_from_tag(tag: str) -> str:
     if not len(guilds):
         return "N/A"
     
-    if len(guilds) == 1:
-        return guilds[0][0]
-    
     if guilds[0][2] == guilds[1][2]:
         revisions = []
 
@@ -52,6 +49,8 @@ async def guild_name_from_tag(tag: str) -> str:
         revisions.sort(key=lambda x: x[2], reverse=True)
         
         return revisions[0][0]
+    
+    return guilds[0][0]
     
 async def g_tag(tag: str) -> str:
     return await guild_name_from_tag(tag)
