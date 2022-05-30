@@ -14,36 +14,36 @@ async def _register_ffa(valor: Valor):
     desc = "Pings ffa role"
     
     @valor.command()
-    async def ffa(ctx: Context):
+    async def ffa(ctx: Context, msg=""):
         if not commands.common.role1(ctx.author, allow={536068288606896128}) and not TEST:
             return await ctx.send(embed=ErrorEmbed("No Permissions. (you need military role)"))
     
-        await ctx.send("<@&892884695199666187>", 
+        await ctx.send(f"<@&892884695199666187> {msg}", 
             embed=LongTextEmbed(title="FFA Ping", content="<insert whatever the ffa copypasta is rn> to War!!! \nI'm using some insane algorithm to predict that Aiza is pinging this at 3am", color=0xFF8888))
     
     # other war pings
     @valor.command()
-    async def dps(ctx: Context):
+    async def dps(ctx: Context, msg=""):
         if not commands.common.role1(ctx.author, allow={536068288606896128}) and not TEST:
             return await ctx.send(embed=ErrorEmbed("No Permissions. (you need military role)"))
     
-        await ctx.send("<@&892885182300954624>", 
+        await ctx.send(f"<@&892885182300954624> {msg}", 
             embed=LongTextEmbed(title="DPS Ping", content="DPS (damage per second) needed", color=0xFF8888))
     
     @valor.command()
-    async def guardian(ctx: Context):
+    async def guardian(ctx: Context, msg=""):
         if not commands.common.role1(ctx.author, allow={536068288606896128}) and not TEST:
             return await ctx.send(embed=ErrorEmbed("No Permissions. (you need military role)"))
     
-        await ctx.send("<@&892884953996591164>", 
+        await ctx.send(f"<@&892884953996591164> {msg}", 
             embed=LongTextEmbed(title="Guardian Ping", content="Guardian needed", color=0xFF8888))
     
     @valor.command()
-    async def healer(ctx: Context):
+    async def healer(ctx: Context, msg=""):
         if not commands.common.role1(ctx.author, allow={536068288606896128}) and not TEST:
             return await ctx.send(embed=ErrorEmbed("No Permissions. (you need military role)"))
     
-        await ctx.send("<@&892885381744320532>", 
+        await ctx.send(f"<@&892885381744320532> {msg}", 
             embed=LongTextEmbed(title="Healer Ping", content="Healer needed", color=0xFF8888))
     
 
