@@ -29,7 +29,7 @@ async def _register_activity(valor: Valor):
             data = await asyncio.gather(*[query_task(sess, uuid) for uuid in members])
         content = sorted([[pair[0], pair[1].days*24*3600 + pair[1].seconds] for pair in data], key = lambda x: -x[1])
         content = [(pair[0].replace('_', '\_'), f"{round(pair[1]/3600/24, 2)} days") for pair in content]
-        await LongFieldEmbed.send_message(valor, ctx, f"Player Last Join of {guild}", content)
+        await LongFieldEmbed.send_message(valor, ctx, f"Player Last Join of {guild} ({len(members)})", content)
     @valor.help_override.command()
     async def activity(ctx: Context):
         await LongTextEmbed.send_message(valor, ctx, "Activity", desc, color=0xFF00)
