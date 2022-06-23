@@ -45,7 +45,7 @@ async def _register_coolness(valor: Valor):
             count[row[0]] += 1
 
         board = sorted([*count.items()], key=lambda x: x[1], reverse=True)
-        table = '\n'.join("[%24s] %18s %5d%%" % (name_to_guild[name], name, count*2) for name, count in board)
+        table = '\n'.join("[%24s] %18s %5d%%" % (name_to_guild[name], name, count) for name, count in board)
         await LongTextEmbed.send_message(valor, ctx, "Leaderboard of Coolness", content=table, code_block=True, color=0x11FFBB,
             footer=f"Query took {end-start:.5}s - {len(res):,} rows"
         )
