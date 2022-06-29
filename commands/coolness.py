@@ -15,6 +15,7 @@ async def _register_coolness(valor: Valor):
     parser.add_argument('-r', '--range', nargs=2)
     parser.add_argument('-g', '--guild', nargs='+')
     parser.add_argument('-b', '--backwards', action='store_true')
+    parser.add_argument('-t', '--threshold', type=int, default=-1)
 
     @valor.command()
     async def coolness(ctx: Context, *options):
@@ -55,6 +56,18 @@ async def _register_coolness(valor: Valor):
             count[row[0]] += 1
 
         board = sorted([*count.items()], key=lambda x: x[1], reverse=not opt.backwards)
+
+        # wow actually using a leetcode trick, let alone binary search in practice
+        # will end up making a splice copy anyways which involves same complexity as a linear search
+        # but leaving this here in case I think of an optimization
+        if opt.threshold != -1:
+            left = 0; mid = 0; right = len(board)-1
+            while left <= right:
+                mid = left + (right-left)//2
+                if board[mid][1] > opt.threshold+.5: right = mid-1
+                else: left = mid+1
+            board = board[:mid]
+
         table = '\n'.join("[%24s] %18s %5d%%" % (name_to_guild[name], name, count) for name, count in board)
         await LongTextEmbed.send_message(valor, ctx, "Leaderboard of Coolness", content=table, code_block=True, color=0x11FFBB,
             footer=f"Query took {end-start:.5}s - {len(res):,} rows"
