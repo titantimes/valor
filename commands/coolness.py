@@ -14,6 +14,7 @@ async def _register_coolness(valor: Valor):
     parser = argparse.ArgumentParser(description='Coolness command')
     parser.add_argument('-r', '--range', nargs=2)
     parser.add_argument('-g', '--guild', nargs='+')
+    parser.add_argument('-b', '--backwards', action='store_true')
 
     @valor.command()
     async def coolness(ctx: Context, *options):
@@ -44,7 +45,7 @@ async def _register_coolness(valor: Valor):
                 name_to_guild[row[0]] = g_name
             count[row[0]] += 1
 
-        board = sorted([*count.items()], key=lambda x: x[1], reverse=True)
+        board = sorted([*count.items()], key=lambda x: x[1], reverse=not opt.backwards)
         table = '\n'.join("[%24s] %18s %5d%%" % (name_to_guild[name], name, count) for name, count in board)
         await LongTextEmbed.send_message(valor, ctx, "Leaderboard of Coolness", content=table, code_block=True, color=0x11FFBB,
             footer=f"Query took {end-start:.5}s - {len(res):,} rows"
