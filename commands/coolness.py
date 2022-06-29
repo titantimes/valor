@@ -36,9 +36,18 @@ async def _register_coolness(valor: Valor):
         count = {}
         name_to_guild = {}
         guild_names = set(guild_name_from_tag(x) for x in opt.guild)
+        guild_members = {g_name: {x["name"] 
+            for x in requests.get(f"https://api.wynncraft.com/public_api.php?action=guildStats&command={g_name}")
+                .json()["members"]} for g_name in guild_names}
+
+        for guild in guild_members:
+            for member in guild_members[guild]:
+                count[member] = 0
+                name_to_guild[member] = guild
+
         for row in res:
             g_name = row[1]
-            if not g_name in guild_names:
+            if not g_name in guild_names or not row[0] in guild_members[g_name]:
                 continue
             if not row[0] in count:
                 count[row[0]] = 0
