@@ -13,6 +13,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from util import strhash
 from commands.common import get_uuid
+from pymongo import MongoClient
 
 load_dotenv()
 async def _register_profile(valor: Valor):
@@ -73,7 +74,20 @@ async def _register_profile(valor: Valor):
         draw.text((520, 270-circle_fontsize), "Cool", (20, 20, 180), font=circle_font)
         draw.text((520, 290-circle_fontsize), "X", (20, 20, 120), font=rank_font)
         # medals
-        draw.text((244, 364-circle_fontsize), "No medals lul", (0, 50, 80), font=circle_font)
+        client = MongoClient(os.getenv("MONGO_URI"))
+        collection = client.valor.player_awards
+        cursor = collection.find_one({"uuid": uuid})
+        print(cursor, len(cursor["awards"]))
+        if cursor is not None:
+            if len(cursor["awards"]) == 0:
+                draw.text((244, 357-circle_fontsize), "No medals lul", (0, 50, 80), font=circle_font)
+            else:
+                medals = cursor["awards"]
+                for i, medal in enumerate(medals):
+                    medal_img = Image.open(f"assets/medals/{medal}.png")
+                    img.paste(medal_img, (242+(40*i), 307), medal_img)
+        else:
+            draw.text((244, 357-circle_fontsize), "No medals lul", (0, 50, 80), font=circle_font)
         # get model
         if not os.path.exists(f"/tmp/{username}_model.png"):
             model = requests.get(model_base+uuid).content 
