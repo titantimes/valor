@@ -77,7 +77,7 @@ async def _register_profile(valor: Valor):
         client = MongoClient(os.getenv("MONGO_URI"))
         collection = client.valor.player_awards
         cursor = collection.find_one({"uuid": uuid})
-        print(cursor, len(cursor["awards"]))
+
         if cursor is not None:
             if len(cursor["awards"]) == 0:
                 draw.text((244, 357-circle_fontsize), "No medals lul", (0, 50, 80), font=circle_font)
