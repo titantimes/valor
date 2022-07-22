@@ -2,7 +2,6 @@
 Author: classAndrew
 Description: Removes all the roles from members except for a few members. Do not ever use command
 """
-from pyrsistent import discard
 from valor import Valor
 from discord.ext.commands import Context
 from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, guild_name_from_tag
