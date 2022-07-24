@@ -1,3 +1,7 @@
 discord.py
-mysql-connector-python
 python-dotenv
+aiomysql
+numpy
+matplotlib
+pymongo
+scipy
