@@ -17,16 +17,15 @@ async def _register_history(valor: Valor):
         content = "```ml\nGuild History of %s since April 2022\n---------------------------\n" % username
         join_guilds = await ValorSQL._execute(f"SELECT * FROM guild_join_log WHERE uuid='{uuid}' ORDER BY date DESC")
         if join_guilds:
-            len_g_name = max([len(x[3]) for x in join_guilds])
+            len_g_name = max(max([len(x[1]) for x in join_guilds]), len(join_guilds[0][3]))
             content += f'%{len_g_name+2}s\n' % join_guilds[0][3]
-            for i in range(1, len(join_guilds)):
-                _, _, _, joined, date = join_guilds[i]
-                if joined == "None": continue
-
-                old_rank = join_guilds[i-1][2]
+            
+            for i in range(len(join_guilds)):
+                _, old, old_rank, _, date = join_guilds[i]
                 
                 friendly_date = datetime.fromtimestamp(date).strftime("%d %b %Y %H:%M:%S.%f UTC")
-                content +=  f'%{len_g_name+2}s %12s  %s\n' % (joined, old_rank, friendly_date) 
+                if old_rank == "None": old_rank = ''
+                content +=  f'%{len_g_name+2}s %12s  %s\n' % (old, old_rank, friendly_date) 
         
         content += f"Query took {(time.time()-now):.5}s\n"
                 
