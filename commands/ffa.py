@@ -46,6 +46,13 @@ async def _register_ffa(valor: Valor):
         await ctx.send(f'''<@&892885381744320532> {" ".join(msg)}''', 
             embed=LongTextEmbed(title="Healer Ping", content="Healer needed", color=0xFF8888))
     
+    @valor.command()
+    async def trg(ctx: Context, *msg):
+        if not commands.common.role1(ctx.author, allow={536068288606896128}) and not TEST:
+            return await ctx.send(embed=ErrorEmbed("No Permissions. (you need military role)"))
+    
+        await ctx.send(f'''<@&683785435117256939> {" ".join(msg)}''', 
+            embed=LongTextEmbed(title="Healer Ping", content="Royal Guard Ping", color=0xFF8888))
 
     @valor.help_override.command()
     async def ffa(ctx: Context):
