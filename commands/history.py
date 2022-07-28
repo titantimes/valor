@@ -14,7 +14,7 @@ async def _register_history(valor: Valor):
         uuid = await get_uuid(username)
         now = time.time()
 
-        content = "```ml\nGuild History of %s since April 2022\n---------------------------\n" % username
+        content = "```ml\nGuild History of %s since April 2022 (dates are leave dates)\n---------------------------\n" % username
         join_guilds = await ValorSQL._execute(f"SELECT * FROM guild_join_log WHERE uuid='{uuid}' ORDER BY date DESC")
         if join_guilds:
             len_g_name = max(max([len(x[1]) for x in join_guilds]), len(join_guilds[0][3]))
