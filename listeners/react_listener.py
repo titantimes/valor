@@ -18,6 +18,7 @@ async def _register_react_listener(valor: Valor):
     async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
         # REQUIRES MEMBER INTENT TO BE ENABLED IN DISCORD SETTINGS
         msg_id = payload.message_id
+
         rxn_chn = valor.get_channel(payload.channel_id)
         
         if payload.user_id != int(os.environ["SELFID"]) and valor.reaction_msg_ids.get(msg_id, 0) > int(time.time()):
@@ -46,7 +47,7 @@ async def _register_react_listener(valor: Valor):
 
                 chn = await guild.create_text_channel(f"app-{config[2]+1}", overwrites=overwrites, category=category)
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
-                await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[3], color=0xFFAA))
+                await chn.send(f"Hey, <@{payload.user_id}>", embed = LongTextEmbed("Fill This Out!", config[3], color=0xFFAA))
 
             # 535609000193163274 guild role
             elif res[-1] == "brilliance" and (535609000193163274 in rls or TEST):
@@ -65,9 +66,9 @@ async def _register_react_listener(valor: Valor):
                     cabinet_vote_role: discord.PermissionOverwrite(view_channel=True, send_messages=True)
                 }
 
-                chn = await guild.create_text_channel(f"bril-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.member.id))
+                chn = await guild.create_text_channel(f"bril-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.user_id))
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
-                await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[9], color=0xFFAA))
+                await chn.send(f"Hey, <@{payload.user_id}>", embed = LongTextEmbed("Fill This Out!", config[9], color=0xFFAA))
             
             elif res[-1] == "spirit" and (535609000193163274 in rls or TEST):
                 guild = valor.get_guild(payload.guild_id)
@@ -85,9 +86,9 @@ async def _register_react_listener(valor: Valor):
                     cabinet_vote_role: discord.PermissionOverwrite(view_channel=True, send_messages=True)
                 }
 
-                chn = await guild.create_text_channel(f"spir-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.member.id))
+                chn = await guild.create_text_channel(f"spir-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.user_id))
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
-                await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[10], color=0xFFAA))
+                await chn.send(f"Hey, <@{payload.user_id}>", embed = LongTextEmbed("Fill This Out!", config[10], color=0xFFAA))
             
             elif res[-1] == "fury" and (535609000193163274 in rls or TEST):
                 guild = valor.get_guild(payload.guild_id)
@@ -105,9 +106,9 @@ async def _register_react_listener(valor: Valor):
                     cabinet_vote_role: discord.PermissionOverwrite(view_channel=True, send_messages=True)
                 }
 
-                chn = await guild.create_text_channel(f"fury-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.member.id))
+                chn = await guild.create_text_channel(f"fury-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.user_id))
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
-                await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[11], color=0xFFAA))
+                await chn.send(f"Hey, <@{payload.user_id}>", embed = LongTextEmbed("Fill This Out!", config[11], color=0xFFAA))
 
             elif res[-1] == 'captain' and (892886015017103360 in rls or TEST):
                 guild = valor.get_guild(payload.guild_id)
@@ -131,9 +132,9 @@ async def _register_react_listener(valor: Valor):
                     # payload.member: discord.PermissionOverwrite(send_messages=True),
                 }
 
-                chn = await guild.create_text_channel(f"cpt-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.member.id))
+                chn = await guild.create_text_channel(f"cpt-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.user_id))
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
-                await chn.send(f"Hey, <@{payload.member.id}>", embed = LongTextEmbed("Fill This Out!", config[6], color=0xFFAA))
+                await chn.send(f"Hey, <@{payload.user_id}>", embed = LongTextEmbed("Fill This Out!", config[6], color=0xFFAA))
             elif res[-1] == 'strategist' and (892881748646559754 in rls or TEST):
                 guild = valor.get_guild(payload.guild_id)
                 config = (await ValorSQL.get_server_config(payload.guild_id))[0]
@@ -156,7 +157,7 @@ async def _register_react_listener(valor: Valor):
                     # payload.member: discord.PermissionOverwrite(send_messages=True),
                 }
 
-                chn = await guild.create_text_channel(f"strat-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.member.id))
+                chn = await guild.create_text_channel(f"strat-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.user_id))
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 em = LongTextEmbed("Fill This Out!", config[7], color=0xFFAA)
                 em.set_image(url=random.choice([
@@ -165,7 +166,7 @@ async def _register_react_listener(valor: Valor):
                     "https://cdn.discordapp.com/attachments/839378628546527262/862435645376167986/8L0R12AENbjKd_ejmRTAZdm8iGj6wCFzdC5VTk5wyo4ZfDteiQFNtIyEbmVMSxfSvQr5tr7BNU-W8SZofL4kN1CYiVslv54g9s6f.png",
                     "https://cdn.discordapp.com/attachments/839378628546527262/862435676411002880/coYXEeVjfFzooURtcNFkfnvIPCATxLjM-cX_T_OhFspP4qZ9ge2JbQZ1NysiJ6ejPj-uFGwCGArwueHpxGiZe0K7EEF0SW44pqMc.png"
                 ]))
-                await chn.send(f"Hey, <@{payload.member.id}>", embed = em)
+                await chn.send(f"Hey, <@{payload.user_id}>", embed = em)
 
         cabinets = {"bril", "spir", "fury"}
         # reaction to the green checkmark or thumbs up
