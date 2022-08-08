@@ -78,7 +78,7 @@ async def _register_alliance(valor: Valor):
             ally_guilds = set(map(guild_name_from_tag, opt.guild)) & ally_guilds
 
         res = await ValorSQL._execute(f"SELECT * FROM ally_stats")
-        totals = {x[0]: sum(x[1:]) for x in res}
+        totals = {x[0]: sum(x[1:-1]) for x in res}
 
         if opt.sort == "total":
             res = sorted(res, key=lambda x: totals[x[0]], reverse=True)
@@ -88,13 +88,13 @@ async def _register_alliance(valor: Valor):
         delta_time = time.time()-start
         
         title = "Wars Tracked since Sat Apr 23 17:59:30 2022\n"
-        # 24 7 7 6 6 7
-        header = "Guild                   |   FFA   | Reclaim |  Help  |  Other  |  Total  \n"+\
-                 "------------------------+---------+---------+--------+---------+---------\n"
-        footer = "------------------------+---------+---------+--------+---------+---------\n"+\
+        # 24 7 7 11 6 7
+        header = "Guild                   |   FFA   | Reclaim |  Adj. Help  |  Other  |  Nom. Help  |  Total  \n"+\
+                 "------------------------+---------+---------+-------------+---------+-------------+---------\n"
+        footer = "------------------------+---------+---------+-------------+---------+-------------+---------\n"+\
                 f"Query took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
         
-        table_line = "%24s| %7d | %7d | %6d | %7d | %7d "
+        table_line = "%24s| %7d | %7d | %11d | %7d | %11d | %7d "
         body = '\n'.join(table_line % (*x, totals[x[0]]) for x in res if x[0] in ally_guilds)
 
         content = '```ml\n'+title+header+body+'\n'+footer+'\n```'
