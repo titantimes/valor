@@ -5,6 +5,7 @@ from discord.utils import get
 import time
 from sql import ValorSQL
 from dotenv import load_dotenv
+import json
 import os
 import random
 
@@ -14,6 +15,8 @@ COUNCIL = int(os.getenv("COUNCILID"))
 CABVOTE = int(os.getenv("CABVOTEID"))
 
 async def _register_react_listener(valor: Valor):
+    with open("assets/strat.json") as f:
+        strat_stages = json.load(f)
     @valor.event
     async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
         # REQUIRES MEMBER INTENT TO BE ENABLED IN DISCORD SETTINGS
@@ -157,15 +160,10 @@ async def _register_react_listener(valor: Valor):
                     # payload.member: discord.PermissionOverwrite(send_messages=True),
                 }
 
-                chn = await guild.create_text_channel(f"strat-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.user_id))
+                chn = await guild.create_text_channel(f"strat-{config[2]+1}", overwrites=overwrites, category=category, topic=f"{payload.user_id},1")
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
-                em = LongTextEmbed("Fill This Out!", config[7], color=0xFFAA)
-                em.set_image(url=random.choice([
-                    "https://cdn.discordapp.com/attachments/839378628546527262/862435564192006164/g5f0TYGCvlmuJUd2vA4Hq_jBNBg1LjBGJx3fdvcJ01m_KtPNJEvZNqTwUldyq8IiQCDmncrvGZ3ZP_-_NcrSCrZ83wtP5wvjjKFd.png",
-                    "https://cdn.discordapp.com/attachments/839378628546527262/862435597380616212/tI5DfvuT-IpBR9L4G4psMsb2GFP5eu174Kq-4I6115W6Yee86qURXO-Mao6XaqS0vlyRnxGtcI8LsXKDEK8KU2gNFBQ0ZkyiEtBH.png",
-                    "https://cdn.discordapp.com/attachments/839378628546527262/862435645376167986/8L0R12AENbjKd_ejmRTAZdm8iGj6wCFzdC5VTk5wyo4ZfDteiQFNtIyEbmVMSxfSvQr5tr7BNU-W8SZofL4kN1CYiVslv54g9s6f.png",
-                    "https://cdn.discordapp.com/attachments/839378628546527262/862435676411002880/coYXEeVjfFzooURtcNFkfnvIPCATxLjM-cX_T_OhFspP4qZ9ge2JbQZ1NysiJ6ejPj-uFGwCGArwueHpxGiZe0K7EEF0SW44pqMc.png"
-                ]))
+                em = LongTextEmbed("Section 1", strat_stages["1"], color=0xFFAA)
+
                 await chn.send(f"Hey, <@{payload.user_id}>", embed = em)
 
         cabinets = {"bril", "spir", "fury"}
@@ -179,12 +177,46 @@ async def _register_react_listener(valor: Valor):
                 if rxn_chn.category_id == config[1]:
                     msg = await rxn_chn.fetch_message(payload.message_id)
                     app_msg_id = int(msg.embeds[0].footer.text.split(' - ')[1])
+                    app_type = msg.channel.name.split('-')[0]
+                    
+                    if app_type == "strat":
+                        vote_chn = valor.get_channel(config[4])
+                        taker_id, stage = msg.channel.topic.split(',')
+                        message_format = f"`Strat App ({stage}/3) #%d - %s` - <@%s>\n" 
+                        app_msg = await rxn_chn.fetch_message(app_msg_id)
+                        
+                        await vote_chn.send(message_format % (int(rxn_chn.name.split('-')[1]), rxn_chn.name.split('-')[0], taker_id))
+                        await vote_chn.send("%s" % (app_msg.content))
+                        
+                        if stage == "1":
+                            await msg.edit(embed=LongTextEmbed(f"Submitted Strategist Stage ({stage}/3)", "Proceed to the next section.", color=0xFF00))
+                            # send section #2
+                            em = LongTextEmbed("Section 2", strat_stages["2"], color=0xFFAA)
+                            await rxn_chn.send("Fill this out", embed=em)
 
-                    await msg.edit(embed=LongTextEmbed("Submitted Application!", "Your application is currently under review.\nWe'll get back to you soon.", color=0xFF00))
+                        elif stage == "2":
+                            await msg.edit(embed=LongTextEmbed(f"Submitted Strategist Stage ({stage}/3)", "Proceed to the next section.", color=0xFF00))
+                            # send section #3
+                            rng = random.randrange(0, 9)
+                            em = LongTextEmbed("Section 3", strat_stages["3"].format(rng), color=0xFFAA)
+                            em.set_image(url=strat_stages["maps"][rng])
+                            await rxn_chn.send("Fill this out", embed=em)
+                            
+                        elif stage == "3":
+                            await msg.edit(embed=LongTextEmbed("Submitted Strategist Stage (3/3)", "You have finished the strategist test. It's under review now", color=0xFF00))
+                            await msg.channel.set_permissions(payload.member, send_messages=False, read_messages=True)
+                            await msg.add_reaction('👍')
+
+                        await msg.channel.edit(topic=f"{taker_id},{int(stage)+1}")
+                        return
+
+                    # CHECK STRAT STAGE FOR THIS
                     await msg.channel.set_permissions(payload.member, send_messages=False, read_messages=True)
+                    await msg.edit(embed=LongTextEmbed("Submitted Application!", "Your application is currently under review.\nWe'll get back to you soon.", color=0xFF00))
+
                     await msg.add_reaction('👍')
 
-                    if msg.channel.name.split('-')[0] in cabinets:
+                    if app_type in cabinets:
                         vote_chn = valor.get_channel(config[12])
                     else:
                         vote_chn = valor.get_channel(config[4])
