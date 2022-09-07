@@ -1,6 +1,7 @@
 from valor import Valor
 from discord.ext.commands import Context
-from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, guild_name_from_tag
+from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
+from .common import guild_name_from_tag
 from datetime import datetime
 from sql import ValorSQL
 import requests
@@ -50,7 +51,7 @@ async def _register_alliance(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, "Alliance List", list_parser.format_help().replace("main.py", "-alliance list"), color=0xFF00)
         
         res = await ValorSQL._execute(f"SELECT * FROM ally_claims")
-        interested = set(map(guild_name_from_tag, opt.guild)) if opt.guild else None
+        interested = set([await guild_name_from_tag(x) for x in opt.guild]) if opt.guild else None
 
         guild_claims = {}
         for guild, claim in res:
@@ -75,7 +76,7 @@ async def _register_alliance(valor: Valor):
         ally_guilds = {record[0] for record in res}
         
         if opt.guild:
-            ally_guilds = set(map(guild_name_from_tag, opt.guild)) & ally_guilds
+            ally_guilds = set([await guild_name_from_tag(x) for x in opt.guild]) & ally_guilds
 
         res = await ValorSQL._execute(f"SELECT * FROM ally_stats")
         totals = {x[0]: sum(x[1:-1]) for x in res}
@@ -118,7 +119,7 @@ async def _register_alliance(valor: Valor):
             tag = guild_dat.split('-')[0]
             encoded_list = guild_dat.split('=')[1]
             claims = [t_lookup[encoded_list[i:i+2]].lstrip() for i in range(0, len(encoded_list), 2)]
-            g_name = guild_name_from_tag(tag)
+            g_name = await guild_name_from_tag(tag)
             insert_values.extend(f"(\"{g_name if g_name else 'null'}\", \"{claim}\")" for claim in claims)
         
         await ValorSQL._execute(f"DELETE FROM ally_claims")

@@ -4,7 +4,7 @@ Description: Removes all the roles from members except for a few members. Do not
 """
 from valor import Valor
 from discord.ext.commands import Context
-from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, guild_name_from_tag
+from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
 import random
 from datetime import datetime
 import requests

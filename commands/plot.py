@@ -1,7 +1,8 @@
 import requests
 from valor import Valor
 from sql import ValorSQL
-from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress, guild_name_from_tag
+from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress
+from .common import  guild_name_from_tag
 from discord.ext.commands import Context
 from datetime import datetime
 from discord import File
@@ -213,7 +214,7 @@ async def _register_plot(valor: Valor):
     @plot.command()
     async def tag(ctx: Context, guild_names = "AVO", options = ""):
         guild_names = guild_names.replace(', ', ',').split(',')
-        return await guild(ctx, ', '.join(guild_name_from_tag(x) for x in guild_names), options) 
+        return await guild(ctx, ', '.join(await guild_name_from_tag(x) for x in guild_names), options) 
 
     @valor.help_override.command()
     async def plot(ctx: Context):

@@ -1,6 +1,7 @@
 from valor import Valor
 from discord.ext.commands import Context
-from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, guild_name_from_tag
+from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
+from .common import guild_name_from_tag
 import random
 from datetime import datetime
 import requests
@@ -36,7 +37,7 @@ async def _register_coolness(valor: Valor):
         
         count = {}
         name_to_guild = {}
-        guild_names = set(guild_name_from_tag(x) for x in opt.guild)
+        guild_names = set([await guild_name_from_tag(x) for x in opt.guild])
         guild_members = {g_name: {x["name"] 
             for x in requests.get(f"https://api.wynncraft.com/public_api.php?action=guildStats&command={g_name}")
                 .json()["members"]} for g_name in guild_names}
