@@ -1,5 +1,6 @@
 from valor import Valor
-from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress, guild_name_from_tag
+from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress
+from .common import  guild_name_from_tag
 from discord.ext.commands import Context
 from discord import File
 from dotenv import load_dotenv
@@ -35,7 +36,7 @@ async def _register_plot2(valor: Valor):
         except:
             return await LongTextEmbed.send_message(valor, ctx, "Plot", parser.format_help().replace("main.py", "-plot2"), color=0xFF00)
         
-        opt.guild = [guild_name_from_tag(x.lower()) for x in opt.guild] if opt.guild else []
+        opt.guild = [await guild_name_from_tag(x.lower()) for x in opt.guild] if opt.guild else []
         if opt.name:
             opt.guild.extend(opt.name)
 
