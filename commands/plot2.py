@@ -1,6 +1,6 @@
 from valor import Valor
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress
-from .common import  guild_name_from_tag
+from .common import  guild_name_from_tag, guild_names_from_tags
 from discord.ext.commands import Context
 from discord import File
 from dotenv import load_dotenv
@@ -36,7 +36,13 @@ async def _register_plot2(valor: Valor):
         except:
             return await LongTextEmbed.send_message(valor, ctx, "Plot", parser.format_help().replace("main.py", "-plot2"), color=0xFF00)
         
-        opt.guild = [await guild_name_from_tag(x.lower()) for x in opt.guild] if opt.guild else []
+        guild_names, unidentified = guild_names_from_tags(opt.guild)
+
+        if not guild_names:
+            return await LongTextEmbed.send_message(
+                valor, ctx, f"Plot2 Error", f"{unidentified} unknown", color=0xFF0000)
+
+        opt.guild = guild_names
         if opt.name:
             opt.guild.extend(opt.name)
 
@@ -58,7 +64,9 @@ async def _register_plot2(valor: Valor):
         
         end = time.time()
 
-        await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {opt.guild}", content, color=0xFF0000, 
+        unid_prefix = f"The following guilds are unidentified: {unidentified}\n" if unidentified else ""
+
+        await LongTextEmbed.send_message(valor, ctx, f"Guild Activity of {opt.guild}", unid_prefix+content, color=0xFF0000, 
             file=file, 
             url="attachment://plot.png",
             footer = f"Query Took {end-start:.5}s - {data_pts:,} rows"

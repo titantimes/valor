@@ -44,7 +44,6 @@ async def _register_alliance(valor: Valor):
     
     @alliance.command()
     async def list(ctx: Context, *options):
-
         try:
             opt = list_parser.parse_args(options)
         except:
