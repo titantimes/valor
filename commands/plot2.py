@@ -36,7 +36,7 @@ async def _register_plot2(valor: Valor):
         except:
             return await LongTextEmbed.send_message(valor, ctx, "Plot", parser.format_help().replace("main.py", "-plot2"), color=0xFF00)
         
-        guild_names, unidentified = guild_names_from_tags(opt.guild)
+        guild_names, unidentified = await guild_names_from_tags(opt.guild)
 
         if not guild_names:
             return await LongTextEmbed.send_message(

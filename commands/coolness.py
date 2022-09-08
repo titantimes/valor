@@ -38,7 +38,7 @@ async def _register_coolness(valor: Valor):
         count = {}
         name_to_guild = {}
 
-        guild_names, unidentified = guild_names_from_tags(opt.guild)
+        guild_names, unidentified = await guild_names_from_tags(opt.guild)
         guild_names = set(guild_names)
         if not guild_names:
             return await LongTextEmbed.send_message(
