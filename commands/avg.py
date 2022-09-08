@@ -37,13 +37,14 @@ async def _register_avg(valor: Valor):
         start = time.time()
 
         query = f"SELECT * FROM `guild_member_count` WHERE "
-        guild_names, unidentified = await guild_names_from_tags(opt.guild)
+        unidentified = []
         if opt.guild:
+            guild_names, unidentified = await guild_names_from_tags(opt.guild)
             query += "("+' OR '.join(["guild="+'"'+n+'"' for n in guild_names])+")" + " AND "
 
-        if not guild_names:
-            return await LongTextEmbed.send_message(
-                valor, ctx, f"Average Error", f"{unidentified} unknown", color=0xFF0000)
+            if not guild_names:
+                return await LongTextEmbed.send_message(
+                    valor, ctx, f"Average Error", f"{unidentified} unknown", color=0xFF0000)
 
         if opt.range:
             query += f"time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"
