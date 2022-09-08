@@ -1,7 +1,7 @@
 from valor import Valor
 from discord.ext.commands import Context
 from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
-from .common import guild_name_from_tag
+from .common import guild_name_from_tag, guild_names_from_tags
 import random
 from datetime import datetime
 import requests
@@ -37,7 +37,13 @@ async def _register_coolness(valor: Valor):
         
         count = {}
         name_to_guild = {}
-        guild_names = set([await guild_name_from_tag(x) for x in opt.guild])
+
+        guild_names, unidentified = guild_names_from_tags(opt.guild)
+        guild_names = set(guild_names)
+        if not guild_names:
+            return await LongTextEmbed.send_message(
+                valor, ctx, f"Coolness Error", f"{unidentified} unknown", color=0xFF0000)
+
         guild_members = {g_name: {x["name"] 
             for x in requests.get(f"https://api.wynncraft.com/public_api.php?action=guildStats&command={g_name}")
                 .json()["members"]} for g_name in guild_names}
@@ -69,8 +75,9 @@ async def _register_coolness(valor: Valor):
                 else: left = mid+1
             board = board[:mid]
 
+        unid_prefix = f"The following guilds are unidentified: {unidentified}\n" if unidentified else ""
         table = '\n'.join("[%24s] %18s %5d%%" % (name_to_guild[name], name, count) for name, count in board)
-        await LongTextEmbed.send_message(valor, ctx, "Leaderboard of Coolness", content=table, code_block=True, color=0x11FFBB,
+        await LongTextEmbed.send_message(valor, ctx, "Leaderboard of Coolness", content=unid_prefix+table, code_block=True, color=0x11FFBB,
             footer=f"Query took {end-start:.5}s - {len(res):,} rows"
         )
 
