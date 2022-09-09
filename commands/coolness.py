@@ -46,7 +46,7 @@ async def _register_coolness(valor: Valor):
 
         guild_members = {g_name: {x["name"] 
             for x in requests.get(f"https://api.wynncraft.com/public_api.php?action=guildStats&command={g_name}")
-                .json()["members"]} for g_name in guild_names}
+                .json().get("members", [])} for g_name in guild_names}
 
         for guild in guild_members:
             for member in guild_members[guild]:
