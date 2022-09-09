@@ -43,7 +43,7 @@ async def guild_name_from_tag(tag: str) -> str:
 
         for g, tag, _ in guilds:
             res = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+g).json()
-            n_members = len(res["members"])
+            n_members = len(res.get("members", []))
             revisions.append(f"('{g}','{tag}',{n_members})")
 
         await ValorSQL._execute(f"REPLACE INTO guild_tag_name VALUES " + ','.join(revisions))
