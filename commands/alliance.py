@@ -126,7 +126,6 @@ async def _register_alliance(valor: Valor):
         await LongTextEmbed.send_message(valor, ctx, title="Alliance Update", content=f"Refreshed Alliance Claim List to Match {macro_key}", 
             color=0xFF30, code_block=True)
 
-
     @alliance.error
     async def cmd_error(ctx, error: Exception):
         await ctx.send(embed=ErrorEmbed())
