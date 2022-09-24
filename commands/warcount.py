@@ -38,18 +38,18 @@ async def _register_warcount(valor: Valor):
                 if not cursor: 
                     unidentified.append(cursor)
                     continue
-                player_data[name] = cursor["classes"]
+                player_data[name] = cursor.get("classes", {})
 
                 if not opt.classes: 
-                    listed_classes |= cursor["classes"].keys()
+                    listed_classes |= cursor.get("classes", {}).keys()
         else:
             cursor = collection.find({})
             for doc in cursor:
                 name = doc["name"]
                 opt.names.append(name)
-                player_data[name] = doc["classes"]
+                player_data[name] = doc.get("classes", {})
                 if not opt.classes: 
-                    listed_classes |= doc["classes"].keys()
+                    listed_classes |= doc.get("classes", {}).keys()
         
         listed_classes = list(listed_classes)
         for name in opt.names:
