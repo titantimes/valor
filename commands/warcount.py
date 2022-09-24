@@ -14,6 +14,8 @@ import argparse
 load_dotenv()
 async def _register_warcount(valor: Valor):
     desc = "Gets you the war count leaderboard."
+    clone_map = {"Hunter": "Archer", "Knight": "Warrior", "Dark Wizard": "Mage", "Ninja": "Assassin", "Skyseer": "Shaman"}
+    real_classes = clone_map.values()
     parser = argparse.ArgumentParser(description='Warcount Command')
     parser.add_argument('-n', '--names', nargs='+', default=[])
     parser.add_argument('-c', '--classes', nargs='+', default=[])
@@ -29,7 +31,7 @@ async def _register_warcount(valor: Valor):
         counts = []
         collection = mongo.client.valor.war_count
         player_data = {}
-        listed_classes = set() if not opt.classes else opt.classes
+        listed_classes = real_classes if not opt.classes else opt.classes
 
         if opt.names:
             for name in opt.names:
@@ -39,23 +41,23 @@ async def _register_warcount(valor: Valor):
                     unidentified.append(cursor)
                     continue
                 player_data[name] = cursor.get("classes", {})
-
-                if not opt.classes: 
-                    listed_classes |= cursor.get("classes", {}).keys()
         else:
             cursor = collection.find({})
             for doc in cursor:
                 name = doc["name"]
                 opt.names.append(name)
                 player_data[name] = doc.get("classes", {})
-                if not opt.classes: 
-                    listed_classes |= doc.get("classes", {}).keys()
         
         listed_classes = list(listed_classes)
+        class_index = {listed_classes[i].lower(): i for i in range(len(listed_classes))}
         for name in opt.names:
-            record = []
-            for c in listed_classes:
-                record.append(player_data[name].get(c, 0))
+            record = [0]*len(listed_classes)
+
+            for c in player_data[name]:
+                same_class = clone_map.get(c, c).lower()
+                if not same_class in class_index: continue
+                record[class_index[same_class]] = player_data[name].get(c, 0)
+
             counts.append([sum(record), *record, name])
         
         counts.sort(reverse=True)
