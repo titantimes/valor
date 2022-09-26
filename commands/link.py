@@ -30,8 +30,8 @@ async def _register_link(valor: Valor):
     
     @valor.command()
     async def link(ctx: Context, user: discord.Member, username: str):
-        # if not commands.common.role1(ctx.author):
-        #     return await ctx.send(embed=ErrorEmbed("No Permissions"))
+        if not commands.common.role1(ctx.author):
+            return await ctx.send(embed=ErrorEmbed("No Permissions"))
 
         uuid = await commands.common.get_uuid(username)
 
