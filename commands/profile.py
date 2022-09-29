@@ -2,6 +2,7 @@ import requests
 import time
 from valor import Valor
 from sql import ValorSQL
+import mongo
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, get_war_rank, get_xp_rank
 from discord.ext.commands import Context
 from datetime import datetime
@@ -13,7 +14,6 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from util import strhash
 from commands.common import get_uuid
-from pymongo import MongoClient
 
 load_dotenv()
 async def _register_profile(valor: Valor):
@@ -74,7 +74,7 @@ async def _register_profile(valor: Valor):
         draw.text((520, 270-circle_fontsize), "Cool", (20, 20, 180), font=circle_font)
         draw.text((520, 290-circle_fontsize), "X", (20, 20, 120), font=rank_font)
         # medals
-        client = MongoClient(os.getenv("MONGO_URI"))
+        client = mongo.client
         collection = client.valor.player_awards
         cursor = collection.find_one({"uuid": uuid})
 

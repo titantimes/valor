@@ -1,6 +1,7 @@
 from valor import Valor
 from discord.ext.commands import Context
-from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, guild_name_from_tag
+from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
+from .common import guild_name_from_tag
 import random
 import requests
 
@@ -18,7 +19,7 @@ async def _register_online(valor: Valor):
 
         if res.get("error"):
             # try using the tag instead
-            guild = guild_name_from_tag(guild)
+            guild = await guild_name_from_tag(guild)
 
         res = requests.get(valor.endpoints["guild"].format(guild)).json()
 
