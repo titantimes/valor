@@ -3,7 +3,7 @@ from valor import Valor
 from mp import avg_process
 from sql import ValorSQL
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress
-from commands.common import guild_name_from_tag
+from commands.common import guild_name_from_tag, guild_names_from_tags
 from discord.ext.commands import Context
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor
@@ -37,8 +37,14 @@ async def _register_avg(valor: Valor):
         start = time.time()
 
         query = f"SELECT * FROM `guild_member_count` WHERE "
+        unidentified = []
         if opt.guild:
-            query += "("+' OR '.join(["guild="+'"'+(await guild_name_from_tag(n))+'"' for n in opt.guild])+")" + " AND "
+            guild_names, unidentified = await guild_names_from_tags(opt.guild)
+            query += "("+' OR '.join(["guild="+'"'+n+'"' for n in guild_names])+")" + " AND "
+
+            if not guild_names:
+                return await LongTextEmbed.send_message(
+                    valor, ctx, f"Average Error", f"{unidentified} unknown", color=0xFF0000)
 
         if opt.range:
             query += f"time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"
@@ -51,7 +57,9 @@ async def _register_avg(valor: Valor):
         
         end = time.time()
 
-        await LongTextEmbed.send_message(valor, ctx, f"Guild Averages {opt.guild if opt.guild else 'ALL'}", content, color=0xFF0000, 
+        unid_prefix = f"The following guilds are unidentified: {unidentified}\n" if unidentified else ""
+
+        await LongTextEmbed.send_message(valor, ctx, f"Guild Averages {opt.guild if opt.guild else 'ALL'}", unid_prefix+content, color=0xFF0000, 
             footer = f"Query Took {end-start:.5}s - {data_pts:,} rows"
         )
 

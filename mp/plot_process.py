@@ -1,5 +1,4 @@
 from sql import ValorSQL
-from util import guild_name_from_tag
 import matplotlib.pyplot as plt
 import matplotlib.dates as md
 from scipy.interpolate import make_interp_spline
@@ -43,12 +42,11 @@ def plot_process(lock, opt, query):
 
             plt.plot([datetime.fromtimestamp(x) for x in b], a, label=name)
             plt.legend(loc="upper left")
-
         else:
             for i in range(len(res)):
                 if i >= len(a):
-                    a.append(0)
-                    b.append(res[i][2])
+                    a = np.append(a, 0)
+                    b = np.append(b, res[i][2])
                 a[i] += res[i][1]
 
             a = np.array(a)

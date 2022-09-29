@@ -1,4 +1,5 @@
 from sql import ValorSQL
+from typing import List, Tuple, MutableSet
 import requests
 
 def role1(usr, allow={892879299881869352, 702992600835031082, 702991927318020138}): # for setting uuid to id
@@ -42,7 +43,7 @@ async def guild_name_from_tag(tag: str) -> str:
 
         for g, tag, _ in guilds:
             res = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+g).json()
-            n_members = len(res["members"])
+            n_members = len(res.get("members", []))
             revisions.append(f"('{g}','{tag}',{n_members})")
 
         await ValorSQL._execute(f"REPLACE INTO guild_tag_name VALUES " + ','.join(revisions))
@@ -51,6 +52,17 @@ async def guild_name_from_tag(tag: str) -> str:
         return revisions[0][0]
     
     return guilds[0][0]
+
+# plural!
+async def guild_names_from_tags(tags: List[str]) -> Tuple[MutableSet[str], List[str]]:
+    unidentified = []
+    guild_names = []
+    guild_names_list = [await guild_name_from_tag(x) for x in tags]
+    for i in range(len(tags)):
+        if guild_names_list[i] == "N/A": unidentified.append(tags[i])
+        else: guild_names.append(guild_names_list[i])
+    
+    return guild_names, unidentified
     
 async def g_tag(tag: str) -> str:
     return await guild_name_from_tag(tag)
