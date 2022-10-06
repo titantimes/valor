@@ -27,49 +27,50 @@ async def _register_warcount(valor: Valor):
         except:
             return await LongTextEmbed.send_message(valor, ctx, "warcount", parser.format_help().replace("main.py", "-warcount"), color=0xFF00)
         
-        unidentified = []
         counts = []
         collection = mongo.client.valor.war_count
-        player_data = {}
         listed_classes = real_classes if not opt.classes else opt.classes
+        listed_classes_enumerated = {v.lower(): i+1 for i, v in enumerate(listed_classes)}
 
-        if opt.names:
-            for name in opt.names:
-                uuid = await get_uuid(name)
-                cursor = collection.find_one({"_id": uuid})
-                if not cursor: 
-                    unidentified.append(cursor)
-                    continue
-                player_data[name] = cursor.get("classes", {})
-        else:
-            cursor = collection.find({})
-            for doc in cursor:
-                name = doc["name"]
-                opt.names.append(name)
-                player_data[name] = doc.get("classes", {})
-        
-        listed_classes = list(listed_classes)
-        class_index = {listed_classes[i].lower(): i for i in range(len(listed_classes))}
-        for name in opt.names:
-            record = [0]*len(listed_classes)
+        names = {n: 0 for n in opt.names} if opt.names else "Anything"
 
-            for c in player_data[name]:
-                same_class = clone_map.get(c, c).lower()
-                if not same_class in class_index: continue
-                record[class_index[same_class]] = player_data[name].get(c, 0)
+        start = time.time()
+        for doc in collection.find():
+            if names != "Anything" and not doc.get("name") in names: continue
+            
+            if isinstance(names, dict): names[doc["name"]] = True # mark as identified
+            
+            classes = doc.get("classes")
+            if not classes: continue
 
-            counts.append([sum(record), *record, name])
-        
-        counts.sort(reverse=True)
+            # name #stuff... #total
+            record = [0]*(len(listed_classes)+2)
+            record[0] = doc["name"]
+
+            for c in classes:
+                real_c = clone_map.get(c, c).lower()
+                if real_c in listed_classes_enumerated:
+                    record[listed_classes_enumerated[real_c]] += classes[c]
+            
+            record[-1] = sum(record[1:-1])
+
+            counts.append(record)
+        delta_time = time.time()-start
+
+        counts.sort(reverse=True, key=lambda x: x[-1])
+        unidentified = [x for x in names if not names[x]] if isinstance(names, dict) else []
+
         unid_prefix = f"The following players are unidentified: {unidentified}\n" if unidentified else ""
-        len_name = max([len(x[-1]) for x in counts])
+        len_name = max([len(x[0]) for x in counts])
         len_class = max([len(x) for x in listed_classes])
         # name       |   c1   |   c2   |  total  
         format = f"%{len_name}s" + f" | %{len_class+1}s"*len(listed_classes) + " |  %s  "
         sep = "-"*len_name + ("-+-"+'-'*(len_class+1))*len(listed_classes) + "-+---------"
         header = format % ("Name", *listed_classes, "Total")
-        counts = [[x[-1], *x[1:-1], x[0]] for x in counts]
-        content = "```"+header+'\n'+sep+'\n'+'\n'.join(format % tuple(map(str, count)) for count in counts[:25])+"```"
+        footer = f"{sep}\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
+
+        content = "```\n"+header+'\n'+sep+'\n'+'\n'.join(format % tuple(map(str, count)) for count in counts[:25])+\
+            '\n'+footer+"```"
     
         await ctx.send(f"{unid_prefix}\n{content}")
 
