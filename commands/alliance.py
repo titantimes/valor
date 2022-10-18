@@ -25,7 +25,7 @@ async def _register_alliance(valor: Valor):
     stats_parser.add_argument('-g', '--guild', nargs='+')
     stats_parser.add_argument('-s', '--sort', choices=["ffa", "reclaim", "help", "other", "total"], default="total")
 
-    sort_choice_map = { "ffa": 1, "reclaim": 2, "help": 3, "other": 4 }
+    sort_choice_map = { "ffa": 1, "reclaim": 2, "help": 4, "other": 3 }
 
     @valor.group()
     async def alliance(ctx: Context):
@@ -77,7 +77,7 @@ async def _register_alliance(valor: Valor):
         if opt.guild:
             ally_guilds = set([await guild_name_from_tag(x) for x in opt.guild]) & ally_guilds
 
-        res = await ValorSQL._execute(f"SELECT * FROM ally_stats")
+        res = await ValorSQL._execute(f"SELECT guild,ffa,reclaim,other,help FROM ally_stats")
         totals = {x[0]: sum(x[1:-1]) for x in res}
 
         if opt.sort == "total":
@@ -89,12 +89,12 @@ async def _register_alliance(valor: Valor):
         
         title = "Wars Tracked since Sat Apr 23 17:59:30 2022\n"
         # 24 7 7 11 6 7
-        header = "Guild                   |   FFA   | Reclaim |  Adj. Help  |  Other  |  Nom. Help  |  Total  \n"+\
-                 "------------------------+---------+---------+-------------+---------+-------------+---------\n"
-        footer = "------------------------+---------+---------+-------------+---------+-------------+---------\n"+\
+        header = "Guild                   |   FFA   | Reclaim |  Other  |  Nom. Help  |  Total  \n"+\
+                 "------------------------+---------+---------+---------+-------------+-------------\n"
+        footer = "------------------------+---------+---------+---------+-------------+-------------\n"+\
                 f"Query took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
         
-        table_line = "%24s| %7d | %7d | %11d | %7d | %11d | %7d "
+        table_line = "%24s| %7d | %7d | %7d | %11d | %7d "
         body = '\n'.join(table_line % (*x, totals[x[0]]) for x in res if x[0] in ally_guilds)
 
         content = '```ml\n'+title+header+body+'\n'+footer+'\n```'
