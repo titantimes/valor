@@ -59,4 +59,4 @@ async def register_all(valor: Valor):
     await _register_info(valor)
     await _register_history(valor)
     await _register_warcount(valor)
-    # await _register_map(valor)
+    await _register_map(valor)
