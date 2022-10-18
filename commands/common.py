@@ -33,6 +33,8 @@ async def from_uuid(uuid: str):
     return name
 
 async def guild_name_from_tag(tag: str) -> str:
+    if "--" in tag or ";" in tag: return "N/A"
+    
     guilds = await ValorSQL._execute(f"SELECT * FROM guild_tag_name WHERE LOWER(tag)='{tag.lower()}' ORDER BY priority DESC")
     
     if not len(guilds):
