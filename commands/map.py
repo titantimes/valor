@@ -136,7 +136,8 @@ async def _register_map(valor: Valor):
             y1 -= y_lo_full
             col_str = terr_details[claim]["holder_color"][1:]
             if not col_str:
-                gu_color = zlib.crc32(guild.encode("utf8")) & 0xFFFFFF
+                holder_guild = terr_details[claim]["holder"][1:]
+                gu_color = zlib.crc32(holder_guild.encode("utf8")) & 0xFFFFFF
             else:
                 gu_color = int(col_str if col_str else "0", 16)
 
