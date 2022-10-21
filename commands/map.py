@@ -12,7 +12,7 @@ import argparse
 from PIL import Image, ImageDraw, ImageFont
 import time
 import zlib
-from .common import guild_name_from_tag
+from .common import guild_name_from_tag, guild_tag_from_name
 
 
 load_dotenv()
@@ -52,7 +52,11 @@ async def _register_map(valor: Valor):
             avo_terr_res = requests.get("https://www.avicia.ml/map/terralldata.json").json()
             last_avo_terr_res = time.time()
 
-        athena_terr_res = requests.get("https://athena.wynntils.com/cache/get/territoryList").json() 
+        athena_terr_res = requests.get("https://athena.wynntils.com/cache/get/territoryList").json()
+        Y_or_Z = "Z"     
+        if not athena_terr_res:
+            athena_terr_res = requests.get("https://api.wynncraft.com/public_api.php?action=territoryList").json()
+            Y_or_Z = "Y"
         interested_guild_tags = set(opt.guild)
         
         interest_guild_names = set([await guild_name_from_tag(x) for x in interested_guild_tags])
@@ -71,13 +75,13 @@ async def _register_map(valor: Valor):
 
         for terr in athena_terr_res["territories"]:
             x0 = athena_terr_res["territories"][terr]["location"]["startX"]
-            y0 = athena_terr_res["territories"][terr]["location"]["startZ"]
+            y0 = athena_terr_res["territories"][terr]["location"]["start"+Y_or_Z]
             x1 = athena_terr_res["territories"][terr]["location"]["endX"]
-            y1 = athena_terr_res["territories"][terr]["location"]["endZ"]
+            y1 = athena_terr_res["territories"][terr]["location"]["end"+Y_or_Z]
             terr_details[terr] = {
                 "holder": athena_terr_res["territories"][terr]["guild"],
-                "holder_color": athena_terr_res["territories"][terr]["guildColor"],
-                "holder_prefix": athena_terr_res["territories"][terr]["guildPrefix"],
+                "holder_color": athena_terr_res["territories"][terr].get("guildColor", ''),
+                "holder_prefix": athena_terr_res["territories"][terr].get("guildPrefix"),
                 "adj": avo_terr_res[terr]["Trading Routes"],
                 "x0": x0,
                 "y0": y0,
@@ -91,9 +95,9 @@ async def _register_map(valor: Valor):
                     if (terr, n) in edge_list_done or (n, terr) in edge_list_done: continue
                     edge_list_done.add((n, terr))
                     n_x0 = athena_terr_res["territories"][n]["location"]["startX"]
-                    n_y0 = athena_terr_res["territories"][n]["location"]["startZ"]
+                    n_y0 = athena_terr_res["territories"][n]["location"]["start"+Y_or_Z]
                     n_x1 = athena_terr_res["territories"][n]["location"]["endX"]
-                    n_y1 = athena_terr_res["territories"][n]["location"]["endZ"]
+                    n_y1 = athena_terr_res["territories"][n]["location"]["end"+Y_or_Z]
                     edge_list.append(((x0+x1)/2, (y0+y1)/2, (n_x0+n_x1)/2, (n_y0+n_y1)/2))
 
             if not terr_details[terr]["holder"] in interest_guild_names: continue
@@ -126,6 +130,8 @@ async def _register_map(valor: Valor):
             section_draw.line((x0, y0, x1, y1), width=3, fill=get_col_tuple(0xFFFFFF, 255))
         section = Image.alpha_composite(section, section_layer)
 
+        tag_to_guild = {}
+
         # draw boxes around terrs and stuff
         for guild, claim in res:
             x0, y0 = to_full_map_coord(terr_details[claim]["x0"], terr_details[claim]["y0"])
@@ -135,12 +141,18 @@ async def _register_map(valor: Valor):
             x1 -= x_lo_full
             y1 -= y_lo_full
             col_str = terr_details[claim]["holder_color"][1:]
+            holder_guild = terr_details[claim]["holder"]
+
             if not col_str:
-                gu_color = zlib.crc32(guild.encode("utf8"))
+                gu_color = zlib.crc32(holder_guild.encode("utf8")) & 0xFFFFFF
             else:
                 gu_color = int(col_str if col_str else "0", 16)
 
             holder_pfx = terr_details[claim]["holder_prefix"]
+            if not holder_pfx:
+                if not holder_guild in tag_to_guild:
+                    tag_to_guild[holder_guild] = await guild_tag_from_name(holder_guild)
+                holder_pfx = tag_to_guild[holder_guild]
 
             section_draw.rectangle((x0, y0, x1, y1), fill=get_col_tuple(gu_color, 64), outline=get_col_tuple(gu_color, 200), width=2)
             if terr_details[claim]["holder"] != claim_owner[claim]: # disputed terr
@@ -160,7 +172,9 @@ async def _register_map(valor: Valor):
         section.convert("RGB").save("/tmp/map_output.png")
         file = File("/tmp/map_output.png", filename="map.png")
 
-        await LongTextEmbed.send_message(valor, ctx, f"Map", "It's out of embed because discord confines img previews in embeds.\n Striped lines means enemy holds ally (includes FFAs)", color=0xFF0000, 
+        warn_athena_down = "Athena API is down (WynnAPI as fallback) Colors may be wrong.!!!\n\n" if Y_or_Z == "Y" else ""
+
+        await LongTextEmbed.send_message(valor, ctx, f"Map", warn_athena_down+"It's out of embed because discord confines img previews in embeds.\n Striped lines means enemy holds ally (includes FFAs)", color=0xFF0000, 
             file=file, 
             # url="attachment://map.jpg",
         )
