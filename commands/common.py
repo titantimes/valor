@@ -55,6 +55,29 @@ async def guild_name_from_tag(tag: str) -> str:
     
     return guilds[0][0]
 
+async def guild_tag_from_name(name: str) -> str:
+    if "--" in name or ";" in name: return "N/A"
+    
+    guilds = await ValorSQL._execute(f"SELECT * FROM guild_tag_name WHERE LOWER(guild)='{name.lower()}' ORDER BY priority DESC")
+    
+    if not len(guilds):
+        return "N/A"
+    
+    if len(guilds) >= 2 and guilds[0][2] == guilds[1][2]:
+        revisions = []
+
+        for g, tag, _ in guilds:
+            res = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+g).json()
+            n_members = len(res.get("members", []))
+            revisions.append(f"('{g}','{tag}',{n_members})")
+
+        await ValorSQL._execute(f"REPLACE INTO guild_tag_name VALUES " + ','.join(revisions))
+        revisions.sort(key=lambda x: x[2], reverse=True)
+        
+        return revisions[0][1]
+    
+    return guilds[0][1]
+
 # plural!
 async def guild_names_from_tags(tags: List[str]) -> Tuple[MutableSet[str], List[str]]:
     unidentified = []
