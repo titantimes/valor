@@ -69,7 +69,7 @@ async def _register_warcount(valor: Valor):
         header = format % ("Name", *listed_classes, "Total")
         footer = f"{sep}\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
 
-        content = "```\n"+header+'\n'+sep+'\n'+'\n'.join(format % tuple(map(str, count)) for count in counts[:25])+\
+        content = "```\n"+header+'\n'+sep+'\n'+'\n'.join(format % tuple(map(str, count)) for count in counts[:15])+\
             '\n'+footer+"```"
     
         await ctx.send(f"{unid_prefix}\n{content}")
