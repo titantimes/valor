@@ -24,7 +24,7 @@ logging.warning("Starting")
 
 async def main():
     import valor
-    
+
     loop = asyncio.get_event_loop()
 
     valor = valor.Valor('-', intents=discord.Intents.all())
@@ -36,6 +36,6 @@ async def main():
     loop.run_until_complete(ws.register_all(valor))
     # loop.run_until_complete(cron._smp_loop(valor))
 
-    valor.run()
+    await valor.run()
 
 asyncio.run(main())
