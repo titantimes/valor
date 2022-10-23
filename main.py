@@ -37,5 +37,3 @@ async def main():
         # loop.run_until_complete(cron._smp_loop(valor))
 
         valor.run()
-
-asyncio.run(main())
