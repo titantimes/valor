@@ -1,6 +1,7 @@
 import discord
 import os
 import json
+import valor
 from discord.ext.commands import Bot, Context
 import commands
 import listeners
@@ -22,20 +23,18 @@ logging.basicConfig(format='%(asctime)s %(message)s')
 logging.getLogger().setLevel(logging.INFO)
 logging.warning("Starting")
 
+loop = asyncio.get_event_loop()
+valor = valor.Valor('-', intents=discord.Intents.all())
+
 async def main():
-    import valor
+    async with valor:
+        ValorSQL.pool = valor.loop.run_until_complete(aiomysql.create_pool(**ValorSQL._info, loop=valor.loop))
 
-    loop = asyncio.get_event_loop()
+        loop.run_until_complete(commands.register_all(valor))
+        loop.run_until_complete(listeners.register_all(valor))
+        loop.run_until_complete(ws.register_all(valor))
+        # loop.run_until_complete(cron._smp_loop(valor))
 
-    valor = valor.Valor('-', intents=discord.Intents.all())
-
-    ValorSQL.pool = valor.loop.run_until_complete(aiomysql.create_pool(**ValorSQL._info, loop=valor.loop))
-
-    loop.run_until_complete(commands.register_all(valor))
-    loop.run_until_complete(listeners.register_all(valor))
-    loop.run_until_complete(ws.register_all(valor))
-    # loop.run_until_complete(cron._smp_loop(valor))
-
-    await valor.run()
+        await valor.run()
 
 asyncio.run(main())
