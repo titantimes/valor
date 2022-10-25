@@ -1,8 +1,8 @@
 import discord
 import os
 import json
-import valor
 from discord.ext.commands import Bot, Context
+import valor
 import commands
 import listeners
 import ws
