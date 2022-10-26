@@ -1,4 +1,4 @@
-import discord
+from discord.ext import commands
 import os
 import json
 from sql import ValorSQL
@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-class Valor(discord.ext.commands.Bot):
+class Valor(commands.Bot):
     """
     Subclass of discord.ext.commands.Bot class holding additional information
     """
