@@ -28,11 +28,11 @@ valor = valor.Valor('-', intents=discord.Intents.all())
 
 async def main():
     async with valor:
-        ValorSQL.pool = await valor.loop.run_until_complete(aiomysql.create_pool(**ValorSQL._info, loop=valor.loop))
+        ValorSQL.pool = aiomysql.create_pool(**ValorSQL._info, loop=valor.loop)
 
-        loop.run_until_complete(commands.register_all(valor))
-        loop.run_until_complete(listeners.register_all(valor))
-        loop.run_until_complete(ws.register_all(valor))
+        commands.register_all(valor)
+        listeners.register_all(valor)
+        ws.register_all(valor)
         # loop.run_until_complete(cron._smp_loop(valor))
 
         await valor.run()
