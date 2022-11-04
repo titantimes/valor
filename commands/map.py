@@ -72,6 +72,7 @@ async def _register_map(valor: Valor):
 
         edge_list = []
         edge_list_done = set()
+        terr_count = {}
 
         for terr in athena_terr_res["territories"]:
             x0 = athena_terr_res["territories"][terr]["location"]["startX"]
@@ -101,6 +102,8 @@ async def _register_map(valor: Valor):
                     edge_list.append(((x0+x1)/2, (y0+y1)/2, (n_x0+n_x1)/2, (n_y0+n_y1)/2))
 
             if not terr_details[terr]["holder"] in interest_guild_names: continue
+            terr_count[terr_details[terr]["holder"]] = terr_count.get(terr_details[terr]["holder"], 0)+1
+
             x_lo = min(x_lo, min(x0, x1))
             x_hi = max(x_hi, max(x0, x1))
             y_lo = min(y_lo, min(y0, y1))
@@ -115,6 +118,13 @@ async def _register_map(valor: Valor):
         y_lo_full = max(0, y_lo_full-50) # extend the boundaries
         x_hi_full = min(map_width, x_hi_full+50) # extend the boundaries
         y_hi_full = min(map_height, y_hi_full+50) # extend the boundaries
+    
+        if not sum(terr_count.values()):
+            return await LongTextEmbed.send_message(valor, ctx, f"Map", 
+                "None of the requested guilds control any territories.", color=0xFF0000)
+        
+        no_territories = [k for k in terr_count.keys() | interest_guild_names if not k in terr_count or terr_count[k] == 0]
+        no_territories_msg = f"The following control 0 territories: {no_territories}\n\n" if no_territories else ""
 
         section = main_map.crop((x_lo_full, y_lo_full, x_hi_full, y_hi_full))
         section_layer = Image.new("RGBA", section.size, (255, 255, 255, 0))
@@ -174,7 +184,7 @@ async def _register_map(valor: Valor):
 
         warn_athena_down = "Athena API is down (WynnAPI as fallback) Colors may be wrong.!!!\n\n" if Y_or_Z == "Y" else ""
 
-        await LongTextEmbed.send_message(valor, ctx, f"Map", warn_athena_down+"It's out of embed because discord confines img previews in embeds.\n Striped lines means enemy holds ally (includes FFAs)", color=0xFF0000, 
+        await LongTextEmbed.send_message(valor, ctx, f"Map", no_territories_msg+warn_athena_down+"It's out of embed because discord confines img previews in embeds.\n Striped lines means enemy holds ally (includes FFAs)", color=0xFF0000, 
             file=file, 
             # url="attachment://map.jpg",
         )
