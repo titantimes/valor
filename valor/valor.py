@@ -5,6 +5,9 @@ from sql import ValorSQL
 import asyncio
 import aiomysql
 import multiprocessing as mp
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Valor(discord.ext.commands.Bot):
     """
