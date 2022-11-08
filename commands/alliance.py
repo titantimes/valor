@@ -78,7 +78,7 @@ async def _register_alliance(valor: Valor):
             ally_guilds = set([await guild_name_from_tag(x) for x in opt.guild]) & ally_guilds
 
         res = await ValorSQL._execute(f"SELECT guild,ffa,reclaim,other,help FROM ally_stats")
-        totals = {x[0]: sum(x[1:-1]) for x in res}
+        totals = {x[0]: sum(x[1:]) for x in res}
 
         if opt.sort == "total":
             res = sorted(res, key=lambda x: totals[x[0]], reverse=True)
