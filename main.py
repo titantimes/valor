@@ -30,9 +30,9 @@ async def main():
     async with valor:
         ValorSQL.pool = aiomysql.create_pool(**ValorSQL._info, loop=valor.loop)
 
-        commands.register_all(valor)
-        listeners.register_all(valor)
-        ws.register_all(valor)
+        await commands.register_all(valor)
+        await listeners.register_all(valor)
+        await ws.register_all(valor)
         # loop.run_until_complete(cron._smp_loop(valor))
 
         await valor.run()
