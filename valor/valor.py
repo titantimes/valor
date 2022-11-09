@@ -51,4 +51,4 @@ class Valor(commands.Bot):
         
         async with super(Valor, self):
             self.reaction_msg_ids = dict(await ValorSQL.get_all_react_msg())
-            super(Valor, self).start(self.BOT_TOKEN)
+            await super(Valor, self).start(self.BOT_TOKEN)
