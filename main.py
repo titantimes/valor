@@ -28,7 +28,7 @@ valor = valor.Valor('-', intents=discord.Intents.all())
 
 async def main():
     async with valor:
-        ValorSQL.pool = aiomysql.create_pool(**ValorSQL._info, loop=valor.loop)
+        ValorSQL.pool = await aiomysql.create_pool(**ValorSQL._info, loop=valor.loop)
 
         await commands.register_all(valor)
         await listeners.register_all(valor)
