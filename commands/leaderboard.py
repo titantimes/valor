@@ -29,7 +29,7 @@ class LeaderboardSelect(Select):
 
         await interaction.response.edit_message(embed=embed, view=self.view)
         
-    async def get_leaderboard(stat):
+    async def get_leaderboard(self, stat):
         if stat == "raids":
             res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs DESC LIMIT 50")
         else:
