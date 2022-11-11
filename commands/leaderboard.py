@@ -60,14 +60,14 @@ class LeaderboardView(View):
         self.page -= 1
         if self.page < 0:
             self.page = 0
-        self.update()
+        await self.update()
     
     @discord.ui.button(emoji="➡️", row=1)
     async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.page += 1
         if self.page > self.max_page:
             self.page = self.max_page
-        self.update()
+        await self.update()
 
     async def update(self):
         self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
