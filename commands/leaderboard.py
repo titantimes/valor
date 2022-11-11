@@ -13,13 +13,7 @@ class LeaderboardSelect(Select):
     def __init__(self, options):
         super().__init__(options=options, row=0)
     
-    async def callback(self, interaction: discord.Interaction):
-        if interaction.user.id != self.view.ctx.author.id:
-            interaction.response.send_message("You can't use this select menu!", ephemeral=True)
-            return
-
-        interaction.response.send_message()
-        
+    async def callback(self, interaction: discord.Interaction):     
         table = await self.get_leaderboard(self.values[0])
 
         embed = discord.Embed(
@@ -63,10 +57,6 @@ class LeaderboardView(View):
     
     @discord.ui.button(emoji="⬅️", row=1)
     async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.ctx.author.id:
-            interaction.response.send_message("You can't use this button!", ephemeral=True)
-            return
-
         self.page -= 1
         if self.page < 0:
             self.page = 0
@@ -74,10 +64,6 @@ class LeaderboardView(View):
     
     @discord.ui.button(emoji="➡️", row=1)
     async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.id != self.ctx.author.id:
-            interaction.response.send_message("You can't use this button!", ephemeral=True)
-            return
-
         self.page += 1
         if self.page > self.max_page:
             self.page = self.max_page
