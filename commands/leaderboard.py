@@ -61,7 +61,7 @@ class LeaderboardView(View):
         self.add_item(self.select)
 
     
-    @discord.ui.button(emoji=":arrow_left:", row=1)
+    @discord.ui.button(emoji="⬅️", row=1)
     async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.ctx.author.id:
             interaction.response.send_message("You can't use this button!", ephemeral=True)
@@ -72,7 +72,7 @@ class LeaderboardView(View):
             self.page = 0
         self.update()
     
-    @discord.ui.button(emoji=":arrow_right:", row=1)
+    @discord.ui.button(emoji="➡️", row=1)
     async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.ctx.author.id:
             interaction.response.send_message("You can't use this button!", ephemeral=True)
