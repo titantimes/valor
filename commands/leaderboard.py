@@ -14,7 +14,7 @@ class LeaderboardSelect(Select):
         super().__init__(options=options, row=0)
     
     async def callback(self, interaction: discord.Interaction):     
-        table = await self.get_leaderboard(self.values[0])
+        table = await get_leaderboard(self.values[0])
 
         embed = discord.Embed(
             title=f"Leaderboard for {self.values[0]}",
@@ -22,20 +22,6 @@ class LeaderboardSelect(Select):
         )
 
         await interaction.response.edit_message(embed=embed, view=self.view)
-        
-    async def get_leaderboard(self, stat):
-        if stat == "raids":
-            res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs DESC LIMIT 50")
-        else:
-            res = await ValorSQL._execute(f"SELECT uuid_name.name, uuid_name.uuid, player_stats.{stat} FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY {stat} DESC LIMIT 50")
-        stats = []
-        for m in res:
-            if not m[0] and m[1]:
-                stats.append((await from_uuid(m[1]), m[2]))
-            else:
-                stats.append((m[0] if m[0] else "can't find name", m[2]))
-
-        return "```\n"+'\n'.join("%3d. %24s %5d" % (i+1, stats[i][0], stats[i][1]) for i in range(len(stats)))+"\n```"
 
 class LeaderboardView(View):
     def __init__(self, default, stat_set):
@@ -60,22 +46,36 @@ class LeaderboardView(View):
         self.page -= 1
         if self.page < 0:
             self.page = 0
-        await self.update()
+        await self.update(interaction)
     
     @discord.ui.button(emoji="➡️", row=1)
     async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.page += 1
         if self.page > self.max_page:
             self.page = self.max_page
-        await self.update()
+        await self.update(interaction)
 
-    async def update(self):
+    async def update(self, interaction: discord.Interaction):
         self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
         embed = discord.Embed(
             title=f"Leaderboard",
             description="Select a stat to view the leaderboard for the stat"
         )
-        await self.message.edit(embed=embed, view=self)
+        await interaction.response.edit_message(embed=embed, view=self)
+
+async def get_leaderboard(stat):
+    if stat == "raids":
+        res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs DESC LIMIT 50")
+    else:
+        res = await ValorSQL._execute(f"SELECT uuid_name.name, uuid_name.uuid, player_stats.{stat} FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY {stat} DESC LIMIT 50")
+    stats = []
+    for m in res:
+        if not m[0] and m[1]:
+            stats.append((await from_uuid(m[1]), m[2]))
+        else:
+            stats.append((m[0] if m[0] else "can't find name", m[2]))
+
+    return "```\n"+'\n'.join("%3d. %24s %5d" % (i+1, stats[i][0], stats[i][1]) for i in range(len(stats)))+"\n```"
 
 
 async def _register_leaderboard(valor: Valor):
@@ -90,7 +90,7 @@ async def _register_leaderboard(valor: Valor):
         
         view = LeaderboardView(stat, stat_set)
 
-        table = await view.select.get_leaderboard(stat)
+        table = await get_leaderboard(stat)
         
         embed = discord.Embed(
             title=f"Leaderboard for {stat}",
