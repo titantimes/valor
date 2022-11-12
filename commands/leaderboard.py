@@ -59,7 +59,7 @@ class LeaderboardView(View):
 
     async def update(self, interaction: discord.Interaction):
         self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
-        self.select.embed.set_footer(f"Selection page {self.page} | Use arrows keys to switch between pages.")
+        self.select.embed.set_footer(text=f"Selection page {self.page} | Use arrows keys to switch between pages.")
         await interaction.response.edit_message(embed=self.select.embed, view=self)
 
 async def get_leaderboard(stat):
@@ -96,7 +96,7 @@ async def _register_leaderboard(valor: Valor):
             description=table,
             color=0x11FFBB,
         )
-        view.select.embed.set_footer(f"Selection page {view.page} | Use arrows keys to switch between pages.")
+        view.select.embed.set_footer(text=f"Selection page {view.page} | Use arrows keys to switch between pages.")
 
         await ctx.send(embed=view.select.embed, view=view)
 
