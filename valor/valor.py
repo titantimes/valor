@@ -48,5 +48,6 @@ class Valor(commands.Bot):
         super(Valor, self).__init__(*args, **kwargs, description=self.config["description"])
 
     async def run(self):
-        self.reaction_msg_ids = dict(await ValorSQL.get_all_react_msg())
+        self.reaction_msg_ids = dict(await ValorSQL.get_all_react_msg())        
         await super(Valor, self).start(self.BOT_TOKEN)
+    

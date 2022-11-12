@@ -27,9 +27,13 @@ loop = asyncio.get_event_loop()
 valor = valor.Valor('-', intents=discord.Intents.all())
 
 async def main():
+    @valor.event
+    async def on_ready():
+        await valor.tree.sync()
+
     async with valor:
         ValorSQL.pool = await aiomysql.create_pool(**ValorSQL._info, loop=valor.loop)
-
+        
         await commands.register_all(valor)
         await listeners.register_all(valor)
         await ws.register_all(valor)
