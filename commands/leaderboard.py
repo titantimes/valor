@@ -16,10 +16,8 @@ class LeaderboardSelect(Select):
     async def callback(self, interaction: discord.Interaction):     
         table = await get_leaderboard(self.values[0])
 
-        self.embed = discord.Embed(
-            title=f"Leaderboard for {self.values[0]}",
-            description=table
-        )
+        self.embed.title = f"Leaderboard for {self.values[0]}"
+        self.embed.description = table
 
         await interaction.response.edit_message(embed=self.embed, view=self.view)
 
@@ -46,17 +44,22 @@ class LeaderboardView(View):
         self.page -= 1
         if self.page < 0:
             self.page = 0
-        await self.update(interaction)
+            await interaction.response.send_message("You are at the first page!", ephemeral=True)
+        else:
+            await self.update(interaction)
     
     @discord.ui.button(emoji="➡️", row=1)
     async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.page += 1
         if self.page > self.max_page:
             self.page = self.max_page
-        await self.update(interaction)
+            await interaction.response.send_message("You are at the last page!", ephemeral=True)
+        else:
+            await self.update(interaction)
 
     async def update(self, interaction: discord.Interaction):
         self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
+        self.select.embed.set_footer(f"Selection page {self.page} | Use arrows keys to switch between pages.")
         await interaction.response.edit_message(embed=self.select.embed, view=self)
 
 async def get_leaderboard(stat):
@@ -90,8 +93,11 @@ async def _register_leaderboard(valor: Valor):
         
         view.select.embed = discord.Embed(
             title=f"Leaderboard for {stat}",
-            description=table
+            description=table,
+            color=0x11FFBB,
         )
+        view.select.embed.set_footer(f"Selection page {view.page} | Use arrows keys to switch between pages.")
+
         await ctx.send(embed=view.select.embed, view=view)
 
     @leaderboard.error
