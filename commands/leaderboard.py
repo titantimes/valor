@@ -16,12 +16,12 @@ class LeaderboardSelect(Select):
     async def callback(self, interaction: discord.Interaction):     
         table = await get_leaderboard(self.values[0])
 
-        embed = discord.Embed(
+        self.embed = discord.Embed(
             title=f"Leaderboard for {self.values[0]}",
             description=table
         )
 
-        await interaction.response.edit_message(embed=embed, view=self.view)
+        await interaction.response.edit_message(embed=self.embed, view=self.view)
 
 class LeaderboardView(View):
     def __init__(self, default, stat_set):
@@ -57,11 +57,7 @@ class LeaderboardView(View):
 
     async def update(self, interaction: discord.Interaction):
         self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
-        embed = discord.Embed(
-            title=f"Leaderboard",
-            description="Select a stat to view the leaderboard for the stat"
-        )
-        await interaction.response.edit_message(embed=embed, view=self)
+        await interaction.response.edit_message(embed=self.select.embed, view=self)
 
 async def get_leaderboard(stat):
     if stat == "raids":
@@ -92,11 +88,11 @@ async def _register_leaderboard(valor: Valor):
 
         table = await get_leaderboard(stat)
         
-        embed = discord.Embed(
+        view.select.embed = discord.Embed(
             title=f"Leaderboard for {stat}",
             description=table
         )
-        await ctx.send(embed=embed, view=view)
+        await ctx.send(embed=view.select.embed, view=view)
 
     @leaderboard.error
     async def cmd_error(ctx, error: Exception):
