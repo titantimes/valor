@@ -11,7 +11,7 @@ from commands.common import get_uuid, from_uuid
 
 class LeaderboardSelect(Select):
     def __init__(self, options):
-        super().__init__(options=options, row=0)
+        super().__init__(options=options, placeholder="Select a stat to view its leaderboard.", row=0)
     
     async def callback(self, interaction: discord.Interaction):     
         table = await get_leaderboard(self.values[0])
@@ -33,8 +33,7 @@ class LeaderboardView(View):
             if default in sublist:
                 self.page = self.stats.index(sublist)
                 break
-        select_options = [discord.SelectOption(label=stat) for stat in self.stats[self.page] if stat != default]
-        select_options.append(discord.SelectOption(label=default, default=True))
+        select_options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
         self.select = LeaderboardSelect(options=select_options)
         self.add_item(self.select)
 
