@@ -24,21 +24,14 @@ logging.getLogger().setLevel(logging.INFO)
 logging.warning("Starting")
 
 loop = asyncio.get_event_loop()
+
 valor = valor.Valor('-', intents=discord.Intents.all())
 
-async def main():
-    @valor.event
-    async def on_ready():
-        await valor.tree.sync()
+ValorSQL.pool = valor.loop.run_until_complete(aiomysql.create_pool(**ValorSQL._info, loop=valor.loop))
 
-    async with valor:
-        ValorSQL.pool = await aiomysql.create_pool(**ValorSQL._info, loop=valor.loop)
-        
-        await commands.register_all(valor)
-        await listeners.register_all(valor)
-        await ws.register_all(valor)
-        # loop.run_until_complete(cron._smp_loop(valor))
+loop.run_until_complete(commands.register_all(valor))
+loop.run_until_complete(listeners.register_all(valor))
+loop.run_until_complete(ws.register_all(valor))
+# loop.run_until_complete(cron._smp_loop(valor))
 
-        await valor.run()
-
-asyncio.run(main())
+valor.run()
