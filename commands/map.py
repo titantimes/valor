@@ -57,7 +57,7 @@ async def _register_map(valor: Valor):
         if not athena_terr_res:
             athena_terr_res = requests.get("https://api.wynncraft.com/public_api.php?action=territoryList").json()
             Y_or_Z = "Y"
-        interested_guild_tags = set(opt.guild)
+        interested_guild_tags = set(opt.guild) if opt.guild else set()
         
         interest_guild_names = set([await guild_name_from_tag(x) for x in interested_guild_tags])
 
@@ -101,7 +101,7 @@ async def _register_map(valor: Valor):
                     n_y1 = athena_terr_res["territories"][n]["location"]["end"+Y_or_Z]
                     edge_list.append(((x0+x1)/2, (y0+y1)/2, (n_x0+n_x1)/2, (n_y0+n_y1)/2))
 
-            if not terr_details[terr]["holder"] in interest_guild_names: continue
+            if not terr_details[terr]["holder"] in interest_guild_names and opt.guild: continue
             terr_count[terr_details[terr]["holder"]] = terr_count.get(terr_details[terr]["holder"], 0)+1
 
             x_lo = min(x_lo, min(x0, x1))
