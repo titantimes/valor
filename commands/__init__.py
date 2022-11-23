@@ -27,7 +27,6 @@ from .info import _register_info
 from .history import _register_history
 from .warcount import _register_warcount
 from valor import Valor
-from discord.ext.commands.hybrid import HybridCommand
 
 async def register_all(valor: Valor):
     """
