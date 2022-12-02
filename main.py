@@ -13,6 +13,13 @@ from sql import ValorSQL
 import asyncio
 import aiomysql
 from dotenv import load_dotenv
+import multiprocessing
+import platform
+
+# this is supposedly "unsafe" on macos, but is the default on unix.
+# alternatively use forkserver (or spawn, which breaks because it's unfreezable) instead of fork
+if platform.mac_ver()[0]:
+    multiprocessing.set_start_method("fork")
 
 load_dotenv()
 # set to GMT time

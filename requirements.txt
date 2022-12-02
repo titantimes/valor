@@ -5,3 +5,6 @@ numpy
 matplotlib
 pymongo
 scipy
+mysql-connector-python
+requests
+websockets
