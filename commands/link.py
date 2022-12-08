@@ -28,18 +28,18 @@ async def _register_link(valor: Valor):
 
     #     await LongTextEmbed.send_message(valor, ctx, f"Linking UUID for {username}", f"{user.id} to {uuid}", color=0xFF10)
     
-    @valor.command()
-    async def link(ctx: Context, user: discord.Member, username: str):
-        if not commands.common.role1(ctx.author):
-            return await ctx.send(embed=ErrorEmbed("No Permissions"))
+    # @valor.command()
+    # async def link(ctx: Context, user: discord.Member, username: str):
+    #     if not commands.common.role1(ctx.author):
+    #         return await ctx.send(embed=ErrorEmbed("No Permissions"))
 
-        uuid = await commands.common.get_uuid(username)
+    #    uuid = await commands.common.get_uuid(username)
 
-        collection = mongo.client.valor.user_profile
-        record = {"discord_id": str(user.id), "uuid": uuid, "name": username}
-        collection.replace_one(record, record, upsert=True)
+    #    collection = mongo.client.valor.user_profile
+    #    record = {"discord_id": str(user.id), "uuid": uuid, "name": username}
+    #    collection.replace_one(record, record, upsert=True)
 
-        await LongTextEmbed.send_message(valor, ctx, f"Linking UUID for {username}", f"{user.id} to {uuid}", color=0xFF10)
+    #    await LongTextEmbed.send_message(valor, ctx, f"Linking UUID for {username}", f"{user.id} to {uuid}", color=0xFF10)
 
     @link.error
     async def cmd_error(ctx, error: Exception):
