@@ -12,21 +12,21 @@ import commands.common
 async def _register_link(valor: Valor):
     desc = "Links Discord ID to Minecraft UUID"
     
-    # @valor.command()
-    # async def link(ctx: Context, user: discord.Member, username: str):
-    #     if "-" in username:
-    #         return await ctx.send(embed=ErrorEmbed("Invalid user name")) # lazy sanitation 
-    #     if not commands.common.role1(ctx.author):
-    #         return await ctx.send(embed=ErrorEmbed("No Permissions"))
+    @valor.command()
+    async def link(ctx: Context, user: discord.Member, username: str):
+         if "-" in username:
+             return await ctx.send(embed=ErrorEmbed("Invalid user name")) # lazy sanitation 
+         if not commands.common.role1(ctx.author):
+             return await ctx.send(embed=ErrorEmbed("No Permissions"))
 
-    #     exist = await ValorSQL._execute(f"SELECT * FROM id_uuid WHERE discord_id={user.id} LIMIT 1")
-    #     uuid = await commands.common.get_uuid(username)
-    #     if exist:
-    #         await ValorSQL._execute(f"UPDATE id_uuid SET uuid='{uuid}' WHERE discord_id={user.id}")
-    #     else:
-    #         await ValorSQL._execute(f"INSERT INTO id_uuid VALUES ({user.id}, '{uuid}')")
+         exist = await ValorSQL._execute(f"SELECT * FROM id_uuid WHERE discord_id={user.id} LIMIT 1")
+         uuid = await commands.common.get_uuid(username)
+         if exist:
+             await ValorSQL._execute(f"UPDATE id_uuid SET uuid='{uuid}' WHERE discord_id={user.id}")
+         else:
+             await ValorSQL._execute(f"INSERT INTO id_uuid VALUES ({user.id}, '{uuid}')")
 
-    #     await LongTextEmbed.send_message(valor, ctx, f"Linking UUID for {username}", f"{user.id} to {uuid}", color=0xFF10)
+         await LongTextEmbed.send_message(valor, ctx, f"Linking UUID for {username}", f"{user.id} to {uuid}", color=0xFF10)
     
     # @valor.command()
     # async def link(ctx: Context, user: discord.Member, username: str):
