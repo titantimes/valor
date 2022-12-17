@@ -13,13 +13,17 @@ from PIL import Image, ImageDraw, ImageFont
 import time
 import zlib
 from .common import guild_name_from_tag, guild_tag_from_name
-
+import json
 
 load_dotenv()
+with open("assets/map_regions.json") as f:
+    map_regions = json.load(f)
+
 async def _register_map(valor: Valor):
     desc = "100 percent an Athena knockoff"
     parser = argparse.ArgumentParser(description='Map command')
     parser.add_argument('-g', '--guild', nargs='+')
+    parser.add_argument('-z', '--zones', nargs='+')
     parser.add_argument('-r', '--routes', action='store_true')
     main_map = Image.open("assets/main-map.png") # like 10MB ish
     font = ImageFont.truetype("Ubuntu-R.ttf", 16)
@@ -102,13 +106,22 @@ async def _register_map(valor: Valor):
                     edge_list.append(((x0+x1)/2, (y0+y1)/2, (n_x0+n_x1)/2, (n_y0+n_y1)/2))
 
             if not terr_details[terr]["holder"] in interest_guild_names and opt.guild: continue
+            
             terr_count[terr_details[terr]["holder"]] = terr_count.get(terr_details[terr]["holder"], 0)+1
-
+            if opt.zones:
+                outside_zone = 0
+                for z in opt.zones:
+                    zx1, zy1, zx2, zy2 = map_regions[z.lower()]
+                    zx1, zy1, zx2, zy2 = min(zx1, zx2), min(zy1, zy2), max(zx1, zx2), max(zx1, zx2) # just to make sure bot left to top right order
+                    if not (min(x0, x1) >= zx1 and min(x0, x1) <= zx2 and min(y0, y1) >= zy1 and min(y0, y1) <= zy2):
+                        outside_zone += 1
+                if outside_zone == len(opt.zones):
+                    continue
             x_lo = min(x_lo, min(x0, x1))
             x_hi = max(x_hi, max(x0, x1))
             y_lo = min(y_lo, min(y0, y1))
             y_hi = max(y_hi, max(y0, y1))
-
+  
         # map goes from left upper to right lower world coordinates
         # following vars are 
         x_lo_full, y_lo_full = to_full_map_coord(x_lo, y_lo)
