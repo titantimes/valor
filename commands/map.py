@@ -112,8 +112,8 @@ async def _register_map(valor: Valor):
                 outside_zone = 0
                 for z in opt.zones:
                     zx1, zy1, zx2, zy2 = map_regions[z.lower()]
-                    zx1, zy1, zx2, zy2 = min(zx1, zx2), min(zy1, zy2), max(zx1, zx2), max(zx1, zx2) # just to make sure bot left to top right order
-                    if not (min(x0, x1) >= zx1 and min(x0, x1) <= zx2 and min(y0, y1) >= zy1 and min(y0, y1) <= zy2):
+                    zx1, zy1, zx2, zy2 = min(zx1, zx2), min(zy1, zy2), max(zx1, zx2), max(zy1, zy2) # just to make sure bot left to top right order
+                    if not ((x0+x1)/2 >= zx1 and (x0+x1)/2 <= zx2 and (y0+y1)/2 >= zy1 and (y0+y1)/2 <= zy2):
                         outside_zone += 1
                 if outside_zone == len(opt.zones):
                     continue
