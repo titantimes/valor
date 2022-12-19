@@ -57,7 +57,11 @@ then military too if -m is applied"""
         else:
             await ValorSQL._execute(f"INSERT INTO id_uuid VALUES ({target_id}, '{uuid}')")
 
-        await ctx.guild.get_member(target_id).add_roles(*base_roles)
+        member = ctx.guild.get_member(target_id)
+        await member.add_roles(*base_roles)
+        await member.remove_roles(ctx.guild.get_role(1049773751572627568)) # remove the outsider role
+        await member.edit(nick="Magi " + username)
+
         resp_msg = f"Linking UUID for {username}", f"{target_id} to {uuid} and added roles."
 
         await LongTextEmbed.send_message(valor, ctx, resp_msg, color=0xFF10)
