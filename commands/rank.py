@@ -38,10 +38,11 @@ then military too if -m is applied"""
         if not opt.user:
             return await LongTextEmbed.send_message(valor, ctx, "rank", parser.format_help().replace("main.py", "-rank"), color=0xFF00)
         
-        base_roles = [ctx.guild.get_role(535609000193163274), ctx.guild.get_role(892878784380956712)] # Guild Role, Military Separator
+        guild = ctx.guild
+        base_roles = [guild.get_role(702996152982962197), guild.get_role(535609000193163274), guild.get_role(892878784380956712)] # first rank, Guild Role, Military Separator
         if opt.military:
-            base_roles.append(ctx.guild.get_role(536068288606896128)) # military role
-        base_roles.extend([ctx.guild.get_role(702775389751345182), ctx.guild.get_role(702774404492296253), ctx.guild.get_role(702766346416423013)]) # medals, reaction, extras separators
+            base_roles.append(guild.get_role(536068288606896128)) # military role
+        base_roles.extend([guild.get_role(702775389751345182), guild.get_role(702774404492296253), guild.get_role(702766346416423013)]) # medals, reaction, extras separators
 
         mention, username = opt.user
         target_id = int(mention[2:-1])
@@ -57,9 +58,9 @@ then military too if -m is applied"""
         else:
             await ValorSQL._execute(f"INSERT INTO id_uuid VALUES ({target_id}, '{uuid}')")
 
-        member = ctx.guild.get_member(target_id)
+        member = guild.get_member(target_id)
         await member.add_roles(*base_roles)
-        await member.remove_roles(ctx.guild.get_role(1049773751572627568)) # remove the outsider role
+        await member.remove_roles(guild.get_role(1049773751572627568)) # remove the outsider role
         await member.edit(nick="Magi " + username)
 
         resp_msg = f"Linking UUID for {username}", f"{target_id} to {uuid} and added roles."
