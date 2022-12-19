@@ -26,6 +26,7 @@ from .ffa import _register_ffa
 from .info import _register_info
 from .history import _register_history
 from .warcount import _register_warcount
+from .rank import _register_rank
 from valor import Valor
 
 async def register_all(valor: Valor):
@@ -60,3 +61,4 @@ async def register_all(valor: Valor):
     await _register_history(valor)
     await _register_warcount(valor)
     await _register_map(valor)
+    await _register_rank(valor)
