@@ -22,7 +22,7 @@ async def _register_wipe(valor: Valor):
 
     wipe_parser = argparse.ArgumentParser(description='Wipe Time Command')
     wipe_parser.add_argument('-g', '--guild', nargs='+', default=["ANO"])
-    wipe_parser.add_argument('-r', '--range', nargs='+', default=[7*24*3600, 0])
+    wipe_parser.add_argument('-r', '--range', nargs='+', default=[7*24, 0])
     wipe_parser.add_argument('-t', '--threshold', type=int, default=1)
     wipe_parser.add_argument('-m', '--minsec', type=int, default=120)
     wipe_parser.add_argument('-s', '--sort', choices=["ffa", "reclaim", "help", "other", "total"], default="total")
@@ -91,7 +91,7 @@ async def _register_wipe(valor: Valor):
         
         table_rows.sort(key=lambda x: x[1], reverse=True)
             
-        pre_header = "Wipe times given by hours\n"
+        pre_header = "Wipe times given by HOURS\n"
         header = "Guild                   | Wiped Time | Wiped # | Avg. \n"\
                  "------------------------+------------+---------+------\n"
         footer = "------------------------+------------+---------+------\n"
