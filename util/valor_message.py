@@ -21,7 +21,7 @@ class ErrorEmbed(discord.Embed):
         self.set_footer(text="Scream at Andrew or Cal if something should be working")
 
 class LongTextEmbed(discord.Embed):
-    def __init__(self, title: str, content, limit=3000, code_block=False, **kwargs):
+    def __init__(self, title: str, content, limit=3000, code_block=False, footer=None, **kwargs):
         if isinstance(content, str):
             self.content = content.split('\n')
         self.page = 1
@@ -45,10 +45,10 @@ class LongTextEmbed(discord.Embed):
             description = description,
             **kwargs
         )
-        if not kwargs.get("footer"):
+        if not footer:
             self.set_footer(text="Page 1 of {}".format(self.total_pages))
         else:
-            self.set_footer(text=kwargs["footer"])
+            self.set_footer(text=footer)
 
     def forward_page(self):
         if self.page == self.total_pages:
