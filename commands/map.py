@@ -13,13 +13,17 @@ from PIL import Image, ImageDraw, ImageFont
 import time
 import zlib
 from .common import guild_name_from_tag, guild_tag_from_name
-
+import json
 
 load_dotenv()
+with open("assets/map_regions.json") as f:
+    map_regions = json.load(f)
+
 async def _register_map(valor: Valor):
     desc = "100 percent an Athena knockoff"
     parser = argparse.ArgumentParser(description='Map command')
     parser.add_argument('-g', '--guild', nargs='+')
+    parser.add_argument('-z', '--zones', nargs='+')
     parser.add_argument('-r', '--routes', action='store_true')
     main_map = Image.open("assets/main-map.png") # like 10MB ish
     font = ImageFont.truetype("Ubuntu-R.ttf", 16)
@@ -57,7 +61,7 @@ async def _register_map(valor: Valor):
         if not athena_terr_res:
             athena_terr_res = requests.get("https://api.wynncraft.com/public_api.php?action=territoryList").json()
             Y_or_Z = "Y"
-        interested_guild_tags = set(opt.guild)
+        interested_guild_tags = set(opt.guild) if opt.guild else set()
         
         interest_guild_names = set([await guild_name_from_tag(x) for x in interested_guild_tags])
 
@@ -101,9 +105,18 @@ async def _register_map(valor: Valor):
                     n_y1 = athena_terr_res["territories"][n]["location"]["end"+Y_or_Z]
                     edge_list.append(((x0+x1)/2, (y0+y1)/2, (n_x0+n_x1)/2, (n_y0+n_y1)/2))
 
-            if not terr_details[terr]["holder"] in interest_guild_names: continue
-            terr_count[terr_details[terr]["holder"]] = terr_count.get(terr_details[terr]["holder"], 0)+1
+            if not terr_details[terr]["holder"] in interest_guild_names and opt.guild: continue
 
+            terr_count[terr_details[terr]["holder"]] = terr_count.get(terr_details[terr]["holder"], 0)+1
+            if opt.zones:
+                outside_zone = 0
+                for z in opt.zones:
+                    zx1, zy1, zx2, zy2 = map_regions[z.lower()]
+                    zx1, zy1, zx2, zy2 = min(zx1, zx2), min(zy1, zy2), max(zx1, zx2), max(zy1, zy2) # just to make sure bot left to top right order
+                    if not ((x0+x1)/2 >= zx1 and (x0+x1)/2 <= zx2 and (y0+y1)/2 >= zy1 and (y0+y1)/2 <= zy2):
+                        outside_zone += 1
+                if outside_zone == len(opt.zones):
+                    continue
             x_lo = min(x_lo, min(x0, x1))
             x_hi = max(x_hi, max(x0, x1))
             y_lo = min(y_lo, min(y0, y1))

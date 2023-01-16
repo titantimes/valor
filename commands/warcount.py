@@ -3,7 +3,7 @@ import time
 from valor import Valor
 from sql import ValorSQL
 import mongo
-from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, get_war_rank, get_xp_rank
+from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, LongTextTable, get_war_rank, get_xp_rank
 from discord.ext.commands import Context
 from datetime import datetime
 from dotenv import load_dotenv
@@ -16,11 +16,27 @@ async def _register_warcount(valor: Valor):
     desc = "Gets you the war count leaderboard."
     clone_map = {"Hunter": "Archer", "Knight": "Warrior", "Dark Wizard": "Mage", "Ninja": "Assassin", "Skyseer": "Shaman"}
     real_classes = clone_map.values()
-    season_times={8:[1663016400,1666569600],9:[1666983600,1672462800]} # ! idk the end time for season 9 so i put a big number
+    # season_times={8:[1663016400,1666569600],9:[1666983600,1672462800]} # ! idk the end time for season 9 so i put a big number
     parser = argparse.ArgumentParser(description='Warcount Command')
     parser.add_argument('-n', '--names', nargs='+', default=[])
     parser.add_argument('-c', '--classes', nargs='+', default=[])
-    parser.add_argument('-r', '--range', nargs='+', default=[])
+    parser.add_argument('-r', '--range', nargs='+', default=[2e9, 0])
+    parser.add_argument('-l', '--le', action="store_true")
+
+    def twelven_warcount_le(n): # this is 12n's amazing function.
+        result = 0
+        if n > 1000:
+            n = 1000
+        if n > 500:
+            result = 104
+        elif n > 250:
+            result = 56
+        elif n > 100:
+            result = 24
+        elif n > 50:
+            result = 8
+        result += n // 20
+        return result
     
     @valor.command()
     async def warcount(ctx: Context, *options):
@@ -29,12 +45,6 @@ async def _register_warcount(valor: Valor):
         except:
             return await LongTextEmbed.send_message(valor, ctx, "warcount", parser.format_help().replace("main.py", "-warcount"), color=0xFF00)
     
-        if not opt.range:
-            await ctx.send(warcount_nonrange(opt))
-        else:
-            await ctx.send(warcount_range(opt))
-    
-    def warcount_range(opt):
         counts = []
         collection = mongo.client.valor.war_entries
         listed_classes = real_classes if not opt.classes else opt.classes
@@ -66,7 +76,6 @@ async def _register_warcount(valor: Valor):
 
             uuid_to_wars[doc["uuid"]][count_idx] += 1
 
-
         delta_time = time.time()-start
 
         for uuid in uuid_to_wars:
@@ -79,67 +88,15 @@ async def _register_warcount(valor: Valor):
 
         unidentified = [x for x in names if not names[x]] if isinstance(names, dict) else []
         unid_prefix = f"The following players are unidentified: {unidentified}\n" if unidentified else ""
+        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
 
-        len_name = max([len(x[0]) for x in counts])
-        len_class = max([len(x) for x in listed_classes])
-        # name       |   c1   |   c2   |  total  
-        format = f"%{len_name}s" + f" | %{len_class+1}s"*len(listed_classes) + " |  %s  "
-        sep = "-"*len_name + ("-+-"+'-'*(len_class+1))*len(listed_classes) + "-+---------"
-        header = format % ("Name", *listed_classes, "Total")
-        footer = f"{sep}\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
+        header, unid_pref, rows, = [' '*14+"Name", *listed_classes, "Total"], unid_prefix, counts
+        if opt.le:
+            header.append("LE Reward")
+            for r in rows: # r ref
+                r.append(twelven_warcount_le(r[-1]))
 
-        content = "```\n"+header+'\n'+sep+'\n'+'\n'.join(format % tuple(map(str, count)) for count in counts[:15])+\
-            '\n'+footer+"```"
-        
-        return f"{unid_prefix}\n{content}"
-    
-    def warcount_nonrange(opt):
-        counts = []
-        collection = mongo.client.valor.war_count
-        listed_classes = real_classes if not opt.classes else opt.classes
-        listed_classes_enumerated = {v.lower(): i+1 for i, v in enumerate(listed_classes)}
-
-        names = {n: 0 for n in opt.names} if opt.names else "Anything"
-
-        start = time.time()
-        for doc in collection.find():
-            if names != "Anything" and not doc.get("name") in names: continue
-            
-            if isinstance(names, dict): names[doc["name"]] = True # mark as identified
-            
-            classes = doc.get("classes")
-            if not classes: continue
-
-            # name #stuff... #total
-            record = [0]*(len(listed_classes)+2)
-            record[0] = doc["name"]
-
-            for c in classes:
-                real_c = clone_map.get(c, c).lower()
-                if real_c in listed_classes_enumerated:
-                    record[listed_classes_enumerated[real_c]] += classes[c]
-            
-            record[-1] = sum(record[1:-1])
-
-            counts.append(record)
-        delta_time = time.time()-start
-
-        counts.sort(reverse=True, key=lambda x: x[-1])
-        unidentified = [x for x in names if not names[x]] if isinstance(names, dict) else []
-
-        unid_prefix = f"The following players are unidentified: {unidentified}\n" if unidentified else ""
-        len_name = max([len(x[0]) for x in counts])
-        len_class = max([len(x) for x in listed_classes])
-        # name       |   c1   |   c2   |  total  
-        format = f"%{len_name}s" + f" | %{len_class+1}s"*len(listed_classes) + " |  %s  "
-        sep = "-"*len_name + ("-+-"+'-'*(len_class+1))*len(listed_classes) + "-+---------"
-        header = format % ("Name", *listed_classes, "Total")
-        footer = f"{sep}\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
-
-        content = "```\n"+header+'\n'+sep+'\n'+'\n'.join(format % tuple(map(str, count)) for count in counts[:15])+\
-            '\n'+footer+"```"
-        
-        return f"{unid_prefix}\n{content}"
+        await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
 
     @valor.help_override.command()
     async def warcount(ctx: Context):

@@ -14,7 +14,7 @@ async def _register_coolness(valor: Valor):
     desc = "The leaderboard (but for coolness)"
     parser = argparse.ArgumentParser(description='Coolness command')
     parser.add_argument('-r', '--range', nargs=2)
-    parser.add_argument('-g', '--guild', nargs='+')
+    parser.add_argument('-g', '--guild', nargs='+', default=["ANO"])
     parser.add_argument('-b', '--backwards', action='store_true')
     parser.add_argument('-t', '--threshold', type=int, default=-1)
 
