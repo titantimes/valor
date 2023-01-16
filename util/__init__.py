@@ -1,4 +1,4 @@
-from .valor_message import ErrorEmbed, LongTextEmbed, HelpEmbed, LongFieldEmbed
+from .valor_message import ErrorEmbed, LongTextEmbed, HelpEmbed, LongFieldEmbed, LongTextMessage, LongTextTable
 from .wynnbuilder import info
 from .fast_sinu_regr import sinusoid_regress
 from .strutil import strhash

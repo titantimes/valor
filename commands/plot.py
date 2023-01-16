@@ -16,6 +16,8 @@ import random
 from matplotlib.ticker import MaxNLocator
 
 load_dotenv()
+TEST = os.getenv("TEST") == "TRUE"
+
 async def _register_plot(valor: Valor):
     desc = "Plots data for you!"
     opts = ["guild", "player"]
@@ -43,7 +45,7 @@ async def _register_plot(valor: Valor):
     @plot.command()
     async def guild(ctx: Context, unparsed_guild_names = "Avicia", options = ""):
         roles = {x.id for x in ctx.author.roles}
-        if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064:
+        if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064 and not TEST:
             return await ctx.send(embed=ErrorEmbed("Skill Issue"))
         guild_names = unparsed_guild_names.replace(', ', ',').split(',')
         options = options.split(' ')

@@ -1,6 +1,6 @@
 from valor import Valor
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_regress
-from .common import  guild_name_from_tag, guild_names_from_tags
+from .common import guild_name_from_tag, guild_names_from_tags
 from discord.ext.commands import Context
 from discord import File
 from dotenv import load_dotenv
@@ -9,8 +9,11 @@ import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
 import time
 import argparse
+import os
 
-load_dotenv()
+# load_dotenv()
+# TEST = os.getenv("TEST") == "TRUE"
+
 async def _register_plot2(valor: Valor):
     desc = "Plots data for you!"
     opts = ["tag"]
@@ -28,8 +31,8 @@ async def _register_plot2(valor: Valor):
     @valor.command()
     async def plot2(ctx: Context, *options):
         roles = {x.id for x in ctx.author.roles}
-        if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064:
-            return await ctx.send(embed=ErrorEmbed("Skill Issue"))
+        # if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064 and not TEST:
+        #     return await ctx.send(embed=ErrorEmbed("Skill Issue"))
         
         try:
             opt = parser.parse_args(options)

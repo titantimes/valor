@@ -4,10 +4,15 @@ from discord.ext.commands import Context
 from discord import File
 from util import ErrorEmbed
 from PIL import Image, ImageColor
+from dotenv import load_dotenv
 import argparse
 import requests
 import base64
 import ast
+import os
+
+load_dotenv()
+TEST = os.getenv("TEST") == "TRUE"
 
 async def _register_uniform(valor: Valor):
     desc = "Generates skin with ANO uniform based on the inserted username."
@@ -20,7 +25,7 @@ async def _register_uniform(valor: Valor):
     @valor.command()
     async def uniform(ctx: Context, *args):
         roles = {x.id for x in ctx.author.roles}
-        if not 535609000193163274 in roles:
+        if not 535609000193163274 in roles and not TEST:
             return await ctx.send(embed=ErrorEmbed("Skill Issue"))
                 
         try:

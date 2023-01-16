@@ -1,6 +1,6 @@
 from valor import Valor
 from discord.ext.commands import Context
-from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
+from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, discord_ansicolor
 from .common import guild_name_from_tag
 from datetime import datetime
 from sql import ValorSQL
@@ -10,6 +10,7 @@ import re
 import argparse
 import time
 import os
+import random
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,6 +27,9 @@ async def _register_alliance(valor: Valor):
     stats_parser.add_argument('-s', '--sort', choices=["ffa", "reclaim", "help", "other", "total"], default="total")
 
     sort_choice_map = { "ffa": 1, "reclaim": 2, "help": 4, "other": 3 }
+
+    with open("assets/all_I_want_for_xmas.txt", 'r') as f:
+        xmas = [x.split('\n') for x in f.read().split('\n\n')]
 
     @valor.group()
     async def alliance(ctx: Context):
@@ -87,17 +91,36 @@ async def _register_alliance(valor: Valor):
         
         delta_time = time.time()-start
         
-        title = "Wars Tracked since Sat Apr 23 17:59:30 2022\n"
+        title, ending = random.choice(xmas)
+        title += '\n'
         # 24 7 7 11 6 7
         header = "Guild                   |   FFA   | Reclaim |  Other  |  Nom. Help  |  Total  \n"+\
                  "------------------------+---------+---------+---------+-------------+-------------\n"
         footer = "------------------------+---------+---------+---------+-------------+-------------\n"+\
-                f"Query took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
+                ending + '\n' +\
+                f"Query took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}\n"
         
         table_line = "%24s| %7d | %7d | %7d | %11d | %7d "
         body = '\n'.join(table_line % (*x, totals[x[0]]) for x in res if x[0] in ally_guilds)
 
-        content = '```ml\n'+title+header+body+'\n'+footer+'\n```'
+        # content = '```ml\n'+title+header+body+'\n'+footer+'\n```'
+        content_body = title+header+body+'\n'+footer
+        new_content_body = []
+        cols = [discord_ansicolor.green, discord_ansicolor.red, discord_ansicolor.white]
+        i = 0
+        last_match = 0
+        for m in re.finditer(r'(.+?)\n', content_body):
+            w = m.group()
+            pos, end = m.span()
+            if last_match:
+                new_content_body.append(content_body[last_match:pos])
+            new_content_body.append(str(cols[i%3](w)))
+            last_match = end
+            i += 1
+        new_content_body.append(content_body[last_match:])
+        new_content_body = ''.join(new_content_body)
+
+        content = '```ansi\n'+new_content_body+'\n```'
         await ctx.send(content)
 
     @alliance.command()
