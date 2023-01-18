@@ -5,6 +5,9 @@ from sql import ValorSQL
 import asyncio
 import aiomysql
 import multiprocessing as mp
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Valor(discord.ext.commands.Bot):
     """
@@ -44,6 +47,6 @@ class Valor(discord.ext.commands.Bot):
 
         super(Valor, self).__init__(*args, **kwargs, description=self.config["description"])
 
-    def run(self):
-        self.reaction_msg_ids = dict(self.loop.run_until_complete(ValorSQL.get_all_react_msg()))
-        super(Valor, self).run(self.BOT_TOKEN)
+    async def run(self):
+        self.reaction_msg_ids = dict(await ValorSQL.get_all_react_msg())
+        await super(Valor, self).start(self.BOT_TOKEN)

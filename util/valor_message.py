@@ -49,7 +49,7 @@ class LongTextTable:
         self.page += 1
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
         self.description = '```'+self.header_str+'\n'+self.table_bar+'\n'+self.description+'\n'+self.table_bar+'\n'+self.opt_after+'```'
-    
+
     def back_page(self):
         if self.page == 1:
             return
@@ -57,7 +57,7 @@ class LongTextTable:
         lp = self.line_pairs[self.page-1]
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
         self.description = '```'+self.header_str+'\n'+self.table_bar+'\n'+self.description+'\n'+self.table_bar+'```'
-    
+
     @classmethod
     async def send_message(cls, valor: Valor, ctx: Context, header, content="", opt_after=""):
         msg_txt: cls = cls(header, content, opt_after)
@@ -112,7 +112,7 @@ class LongTextMessage:
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
         if self.code_block:
             self.description = '```'+self.description+'```'
-    
+
     def back_page(self):
         if self.page == 1:
             return
@@ -121,7 +121,7 @@ class LongTextMessage:
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
         if self.code_block:
             self.description = '```'+self.description+'```'
-    
+
     @classmethod
     async def send_message(cls, valor: Valor, ctx: Context, title: str, content="", **kwargs):
         msg_txt: cls = cls(title, content, **kwargs)
@@ -171,7 +171,7 @@ class LongTextMessage:
         return usr.id != SELF_ID and (str(rxn.emoji) == LEFT_PAGE_EMOJI or str(rxn.emoji) == RIGHT_PAGE_EMOJI)
 
 class LongTextEmbed(discord.Embed):
-    def __init__(self, title: str, content, limit=3000, code_block=False, **kwargs):
+    def __init__(self, title: str, content, limit=3000, code_block=False, footer=None, **kwargs):
         if isinstance(content, str):
             self.content = content.split('\n')
         self.page = 1
@@ -195,10 +195,10 @@ class LongTextEmbed(discord.Embed):
             description = description,
             **kwargs
         )
-        if not kwargs.get("footer"):
+        if not footer:
             self.set_footer(text="Page 1 of {}".format(self.total_pages))
         else:
-            self.set_footer(text=kwargs["footer"])
+            self.set_footer(text=footer)
 
     def forward_page(self):
         if self.page == self.total_pages:
