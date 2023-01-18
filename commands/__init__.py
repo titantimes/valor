@@ -29,6 +29,7 @@ from .warcount import _register_warcount
 from .rank import _register_rank
 from .wipe import _register_wipe
 from valor import Valor
+from discord.ext.commands.hybrid import HybridCommand
 
 async def register_all(valor: Valor):
     """
