@@ -1,5 +1,5 @@
 from typing import Tuple
-war_ranks = [0, 20, 200, 800, 2000, 2700, 3500, 5000]
+war_ranks = [0, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 20000]
 xp_ranks = [0, 25e6, 100e6, 250e6, 500e6, 1e9, 5e9, 10e9, 25e9, 50e9, 100e9]
 numeral_map = ["-", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
 # returns (rank, next_count)
