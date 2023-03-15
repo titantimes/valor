@@ -45,7 +45,12 @@ async def main():
         await listeners.register_all(valor)
         await ws.register_all(valor)
         # loop.run_until_complete(cron._smp_loop(valor))
-
-        await valor.run()
+        # loop.run_until_complete(cron.gxp_roles(valor))
+        
+        await asyncio.gather(
+            asyncio.ensure_future(valor.run()),
+            asyncio.ensure_future(cron.gxp_roles(valor))       
+        )
+        
 
 asyncio.run(main())
