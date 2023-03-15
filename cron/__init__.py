@@ -35,39 +35,41 @@ async def _smp_loop(valor: Valor):
 
 
 async def gxp_roles(valor: Valor):
+
+    await valor.wait_until_ready()
+
     guild = valor.get_guild(535603929598394389)
-    roles = [0,guild.get_role(1049771610950869044), guild.get_role(1049771738076041306), guild.get_role(1049771820301176832), guild.get_role(1049772313551319110), guild.get_role(1049772376893689927), guild.get_role(1049772389573070939), guild.get_role(1049772521664286841), guild.get_role(1049772658784485446), guild.get_role(1049772867107176548), guild.get_role(1049772907640926269)] 
-    # * this is so scuffed but idk how else to do it
+    # guild = valor.get_guild(886035924461432893) # test server
 
-    async def task():
-        await valor.wait_until_ready()
+    roles = [0,guild.get_role(1049771610950869044), guild.get_role(1049771738076041306), guild.get_role(1049771820301176832), guild.get_role(1049772313551319110), guild.get_role(1049772376893689927), guild.get_role(1049772389573070939), guild.get_role(1049772521664286841), guild.get_role(1049772658784485446), guild.get_role(1049772867107176548), guild.get_role(1049772907640926269)]
+    # test server roles 
+    # roles = [0, guild.get_role(1085380592620818564), guild.get_role(1085380626552729640), guild.get_role(1085380658391691284), guild.get_role(1085380670152527922), guild.get_role(1085380671268208710), guild.get_role(1085380672685879336), guild.get_role(1085380673407295569), guild.get_role(1085380674330050740), guild.get_role(1085380768039174154), guild.get_role(1085380768978718771)]
 
-        while not valor.is_closed():
-            user_xps_table = await ValorSQL._execute(f"SELECT * FROM user_total_xps")
-            user_ids = await ValorSQL._execute(f"SELECT * FROM id_uuid")
-            # * i decided to make these variables cus i figured it would be faster than querying the server a bunch and the tables arent that long
+    while not valor.is_closed():
+        user_xps_table = await ValorSQL._execute(f"SELECT * FROM user_total_xps")
+        user_ids = await ValorSQL._execute(f"SELECT * FROM id_uuid")
 
-            user_xps= {}
-            for row in user_xps_table: # * make a dictionary of uuid:xp
-                if row[4]:
-                    user_xps[row[4]] = row[1]
+        user_xps= {}
+        for row in user_xps_table: # * make a dictionary of uuid:xp
+            if row[4]:
+                user_xps[row[4]] = row[1]
+
+        for row in user_ids:
+            discord_id, uuid = row
+            xp = user_xps[uuid]
+            member = guild.get_member(discord_id)
+
+            if not member: # skip if member is not in discord anymore.
+                continue
+
+            member_roles = set(member.roles)
+            intersect = next(iter(member_roles.intersection(set(roles))))
+
+            xp_role=roles[profile_calc.get_xp_rank_index(xp)]
+
+            if intersect and intersect != xp_role:
+                await member.remove_roles(intersect)
+
+            await member.add_roles(xp_role)
     
-
-            for row in user_ids:
-                discord_id, uuid = row
-                xp = user_xps[uuid]
-                member = guild.get_member(discord_id)
-                member_roles = set(member.roles)
-                intersect = member_roles.intersection(set(roles))
-                xp_role=roles[profile_calc.get_xp_rank_index(xp)]
-                if intersect:
-                    await member.remove_roles(intersect)
-                await member.add_roles(xp_role)
-        
-            await asyncio.sleep(600)
-                
-                
-    # task1 = asyncio.create_task(task())
-    # await task1
-
-    
+        await asyncio.sleep(600)
