@@ -45,6 +45,9 @@ async def main():
         await listeners.register_all(valor)
         await ws.register_all(valor)
         # loop.run_until_complete(cron._smp_loop(valor))
+        # loop.run_until_complete(cron.gxp_roles(valor))
+
+        await cron.gxp_roles(valor)
 
         await valor.run()
 
