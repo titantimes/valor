@@ -46,9 +46,11 @@ async def main():
         await ws.register_all(valor)
         # loop.run_until_complete(cron._smp_loop(valor))
         # loop.run_until_complete(cron.gxp_roles(valor))
-
-        await cron.gxp_roles(valor)
-
-        await valor.run()
+        
+        await asyncio.gather(
+            asyncio.ensure_future(valor.run()),
+            asyncio.ensure_future(cron.gxp_roles(valor))       
+        )
+        
 
 asyncio.run(main())
