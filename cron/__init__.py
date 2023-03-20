@@ -35,7 +35,9 @@ async def _smp_loop(valor: Valor):
 
 
 async def gxp_roles(valor: Valor):
-
+    if os.environ["TEST"] == "TRUE":
+        return
+    
     await valor.wait_until_ready()
 
     guild = valor.get_guild(535603929598394389)
