@@ -65,7 +65,8 @@ async def gxp_roles(valor: Valor):
                 continue
 
             member_roles = set(member.roles)
-            intersect = next(iter(member_roles.intersection(set(roles))))
+            intersect = set(roles) & member_roles
+            if not intersect: continue
 
             xp_role=roles[profile_calc.get_xp_rank_index(xp)]
 
