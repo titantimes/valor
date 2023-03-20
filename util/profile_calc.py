@@ -11,8 +11,6 @@ def get_war_rank(warcnt: int) -> Tuple[int, int]:
         i += 1
     return numeral_map[i-1], war_ranks[min(i, len(war_ranks)-1)]
 
-
-
 def get_xp_rank(xp: int) -> Tuple[int, int]:
     i = 0
     while i < len(xp_ranks):
@@ -28,7 +26,7 @@ def get_xp_rank_index(xp: int):
         if xp < xp_ranks[i]:
             break
         i += 1
-    return i
+    return min(i, len(xp_ranks)-1)
 
 
 
