@@ -68,11 +68,7 @@ async def gxp_roles(valor: Valor):
             intersect = set(roles) & member_roles
             if not intersect: continue
 
-<<<<<<< HEAD
             intersect = [*intersect][0]
-=======
-            intersect = intersect[0]
->>>>>>> 0513ddbf43326295a059c396e2d1d10d56f132a5
 
             xp_role=roles[profile_calc.get_xp_rank_index(xp)]
 
