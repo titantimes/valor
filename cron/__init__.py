@@ -72,6 +72,7 @@ async def gxp_roles(valor: Valor):
             if intersect and intersect != xp_role:
                 await member.remove_roles([*intersect][0])
 
-            await member.add_roles(xp_role)
+            if xp_role: # snazz for whatever reason wants a 0 at the beginning of roles
+                await member.add_roles(xp_role)
     
         await asyncio.sleep(600)

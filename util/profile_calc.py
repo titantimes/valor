@@ -19,7 +19,6 @@ def get_xp_rank(xp: int) -> Tuple[int, int]:
         i += 1
     return numeral_map[i-1], xp_ranks[min(i, len(xp_ranks)-1)]
 
-
 def get_xp_rank_index(xp: int):
     i = 0
     while i < len(xp_ranks):
