@@ -32,8 +32,6 @@ async def _smp_loop(valor: Valor):
             await asyncio.sleep(60)
     # valor.loop.create_task(task())
 
-
-
 async def gxp_roles(valor: Valor):
     if os.environ["TEST"] == "TRUE":
         return
@@ -69,10 +67,51 @@ async def gxp_roles(valor: Valor):
 
             xp_role=roles[profile_calc.get_xp_rank_index(xp)-1]
 
+            if not xp_role in member.roles:
+                if intersect and intersect != xp_role:
+                    await member.remove_roles([*intersect][0])
+
+                if member.roles and xp_role: # snazz for whatever reason wants a 0 at the beginning of roles
+                    await member.add_roles(xp_role)
+        
+        await asyncio.sleep(600)
+
+async def seniority_roles(valor: Valor):
+    if os.environ["TEST"] == "TRUE":
+        return
+    
+    await valor.wait_until_ready()
+
+    guild = valor.get_guild(713926223075475458)
+
+    roles = [0,guild.get_role(1049771610950869044), ]
+
+    while not valor.is_closed():
+        user_xps_table = await ValorSQL._execute(f"SELECT * FROM user_total_xps")
+        user_ids = await ValorSQL._execute(f"SELECT * FROM id_uuid")
+
+        user_xps= {}
+        for row in user_xps_table: # * make a dictionary of uuid:xp
+            if row[4]:
+                user_xps[row[4]] = row[1]
+
+        for row in user_ids:
+            discord_id, uuid = row
+            xp = user_xps[uuid]
+            member = guild.get_member(discord_id)
+
+            if not member: # skip if member is not in discord anymore.
+                continue
+
+            member_roles = set(member.roles)
+            intersect = set(roles) & member_roles
+
+            xp_role=roles[profile_calc.get_xp_rank_index(xp)-1]
+
             if intersect and intersect != xp_role:
                 await member.remove_roles([*intersect][0])
 
             if xp_role: # snazz for whatever reason wants a 0 at the beginning of roles
                 await member.add_roles(xp_role)
     
-        await asyncio.sleep(600)
+        await asyncio.sleep(3600)
