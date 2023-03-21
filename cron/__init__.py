@@ -56,7 +56,7 @@ async def gxp_roles(valor: Valor):
 
         for row in user_ids:
             discord_id, uuid = row
-            xp = user_xps[uuid]
+            xp = user_xps.get(uuid, 0)
             member = guild.get_member(discord_id)
 
             if not member: # skip if member is not in discord anymore.
