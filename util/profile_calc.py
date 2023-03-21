@@ -25,7 +25,7 @@ def get_xp_rank_index(xp: int):
         if xp < xp_ranks[i]:
             break
         i += 1
-    return min(i, len(xp_ranks))
+    return i
 
 
 
