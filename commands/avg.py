@@ -47,7 +47,7 @@ async def _register_avg(valor: Valor):
                     valor, ctx, f"Average Error", f"{unidentified} unknown", color=0xFF0000)
 
         if opt.range:
-            query += f"time >= {start-3600*24*int(opt.range[0])} AND time <= {start-3600*24*int(opt.range[1])}"
+            query += f"time >= {start-3600*24*float(opt.range[0])} AND time <= {start-3600*24*float(opt.range[1])}"
         else:
             query += f"time >= {start-3600*24*7}"
 

@@ -16,7 +16,7 @@ async def _register_coolness(valor: Valor):
     parser.add_argument('-r', '--range', nargs=2)
     parser.add_argument('-g', '--guild', nargs='+', default=["ANO"])
     parser.add_argument('-b', '--backwards', action='store_true')
-    parser.add_argument('-t', '--threshold', type=int, default=-1)
+    parser.add_argument('-t', '--threshold', type=float, default=-1)
 
     @valor.command()
     async def coolness(ctx: Context, *options):
@@ -28,7 +28,7 @@ async def _register_coolness(valor: Valor):
         start = time.time()
         query = "SELECT name, guild FROM activity_members WHERE "
         if opt.range:
-            query += f" timestamp >= {start-3600*24*int(opt.range[0])} AND timestamp <= {start-3600*24*int(opt.range[1])}"
+            query += f" timestamp >= {start-3600*24*float(opt.range[0])} AND timestamp <= {start-3600*24*float(opt.range[1])}"
         else:
             query += f"  timestamp >= {start-3600*24*7}"
 

@@ -54,8 +54,8 @@ async def _register_warcount(valor: Valor):
         uuid_to_name = {}
         uuid_to_wars = {}
 
-        t0 = time.time()*1000-1000*3600*24*int(opt.range[0])
-        t1 = time.time()*1000-1000*3600*24*int(opt.range[1])
+        t0 = time.time()*1000-1000*3600*24*float(opt.range[0])
+        t1 = time.time()*1000-1000*3600*24*float(opt.range[1])
         start = time.time()
         for doc in collection.find({"_id": {"$gt": t0, "$lt": t1}}):
             if names != "Anything" and not doc["sender"].lower() in names: continue
