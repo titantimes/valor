@@ -37,7 +37,10 @@ async def _register_wipe(valor: Valor):
         g_names = {await guild_name_from_tag(tag) for tag in opt.guild}
         g_names_paren = [f"'{n}'" for n in g_names]
         left, right = start - float(opt.range[0])*24*3600, start - float(opt.range[1])*24*3600
-
+        left_count = int(opt.threshold[0])
+        right_count = int(opt.threshold[1])
+        left_count, right_count = (left_count, right_count) if left_count < right_count else (right_count, left_count)
+        
         res = await ValorSQL._execute(f"SELECT * FROM terr_count WHERE guild IN ({','.join(g_names_paren)}) AND time >= {left} AND time <= {right} ORDER BY time") # time, guild, count
 
         wipe_time = {}
@@ -51,10 +54,7 @@ async def _register_wipe(valor: Valor):
                 last_count[guild] = count
                 last_time[guild] = t_time
                 wipe_time[guild] += (t_time - left) / 3600 # left end of the data
-            
-            left_count = int(opt.threshold[0])
-            right_count = int(opt.threshold[1])
-            left_count, right_count = (left_count, right_count) if left_count < right_count else (right_count, left_count)
+
             if left_count <= count <= right_count and (t_time - last_time[guild]) >= opt.minsec+0.5:
                 wipe_time[guild] += (t_time - last_time[guild]) / 3600
                 if not guild in wiped_count:
