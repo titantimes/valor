@@ -20,6 +20,8 @@ async def _register_season(valor: Valor):
     parser.add_argument('-e', '--edit', type=str)  # season name
     parser.add_argument('-t', '--times', nargs=2, type=int)  # start, end. ideally timestamps
 
+    parser.add_argument('-r', '--remove', type=str)  # season name
+
     @valor.command()
     async def season(ctx: Context, *options):
         try:
@@ -43,7 +45,7 @@ async def _register_season(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, title=f"Guild Group of {opt.list}", content=content, color=0xFF10, code_block=True)
 
         elif opt.edit:
-            if "-" in opt.times:
+            if "-" in opt.edit:
                 return await ctx.send(embed=ErrorEmbed("Invalid input")) # lazy sanitation
             
             season_edit_query = f"REPLACE INTO season_list VALUES ('{opt.edit}', {opt.times[0]}, {opt.times[1]})"
@@ -55,6 +57,15 @@ async def _register_season(valor: Valor):
             content = f"Beginning: {start_str}\nEnding: {end_str}"
             return await LongTextEmbed.send_message(valor, ctx, title=f"Set Season Time for {opt.edit}", content=content, color=0xFF10, code_block=True)
         
+        elif opt.remove:
+            if "-" in opt.remove:
+                return await ctx.send(embed=ErrorEmbed("Invalid input")) # lazy sanitation
+        
+            season_remove_query = f"DELETE FROM season_list WHERE season_name='{opt.remove}'"
+            result = await ValorSQL._execute(season_remove_query)
+
+            return await LongTextEmbed.send_message(valor, ctx, title=f"Remove {opt.remove}", content="Removed this season", color=0xFF10, code_block=True)
+
         await LongTextEmbed.send_message(valor, ctx, "Season command", desc, color=0xFF00)
             
     @valor.help_override.command()
