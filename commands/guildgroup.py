@@ -19,7 +19,7 @@ async def _register_guildgroup(valor: Valor):
     parser.add_argument('-gr', '--groups', action="store_true") # no args
     parser.add_argument('-r', '--remove', type=str)  # delete entries with group name
 
-    parser.add_argument('-s', '--set', type=str) # single name for group name
+    parser.add_argument('-e', '--edit', type=str) # single name for group name
     parser.add_argument('-g', '--guild', nargs='+') # list of guild tags ["ano", "avo", "esi"] 
 
     @valor.command()
@@ -58,21 +58,24 @@ async def _register_guildgroup(valor: Valor):
             
             await LongTextEmbed.send_message(valor, ctx, title=f"Guild Group Delete", content=f"Removed {opt.remove}", color=0xFF10, code_block=True)
 
-        elif opt.set:
-            if "-" in opt.set:
+        elif opt.edit:
+            if "-" in opt.edit:
                 return await ctx.send(embed=ErrorEmbed("Invalid input")) # lazy sanitation
         
             if not opt.guild:
-                return await LongTextEmbed.send_message(valor, ctx, title=f"Needs list of guild names", content="See help prompt. ex: -guilgroup -s group_name -g ano esi avo", color=0xFF0010, code_block=True)
+                return await LongTextEmbed.send_message(valor, ctx, title=f"Needs list of guild names", content="See help prompt. ex: -guilgroup -e group_name -g ano esi avo", color=0xFF0010, code_block=True)
 
             # remove old guild group
-            guild_group_remove_query = f"DELETE FROM guild_group WHERE guild_group='{opt.set.lower()}'"
+            guild_group_remove_query = f"DELETE FROM guild_group WHERE guild_group='{opt.edit.lower()}'"
             result = await ValorSQL._execute(guild_group_remove_query)
 
             guild_names = [await guild_name_from_tag(x) for x in opt.guild]
 
-            guild_group_query = f"INSERT INTO guild_group VALUES " + ','.join(f"('{opt.set.lower()}', '{x}')" for x in guild_names)
+            guild_group_query = f"INSERT INTO guild_group VALUES " + ','.join(f"('{opt.edit.lower()}', '{x}')" for x in guild_names)
             result = await ValorSQL._execute(guild_group_query)
+
+            await LongTextEmbed.send_message(valor, ctx, title=f"Guild Group Edit", content=f"Created {opt.edit}\n"+'\n'.join(guild_names), color=0xFF10, code_block=True)
+
     
     @valor.help_override.command()
     async def guildgroup(ctx: Context):
