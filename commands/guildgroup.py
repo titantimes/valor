@@ -44,8 +44,6 @@ async def _register_guildgroup(valor: Valor):
                 await LongTextEmbed.send_message(valor, ctx, title=f"Guild Group of {opt.list}", content="Unknown group name", color=0xFF0010, code_block=True)
 
         elif opt.groups:
-            if "-" in opt.groups:
-                return await ctx.send(embed=ErrorEmbed("Invalid input")) # lazy sanitation
             guild_group_query = f"SELECT DISTINCT guild_group FROM guild_group"
             result = await ValorSQL._execute(guild_group_query)
             content = '\n'.join(x[0] for x in result)

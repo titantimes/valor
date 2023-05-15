@@ -1,4 +1,5 @@
 from sql import ValorSQL
+import time
 from typing import List, Tuple, MutableSet
 import requests
 
@@ -31,6 +32,26 @@ async def from_uuid(uuid: str):
     else:
         name = exist[0][1]
     return name
+
+async def get_range_from_season(season_name: str) -> Tuple[float, float]:
+    if '-' in season_name: return "N/A"
+
+    season_query = f"SELECT start_time, end_time FROM season_list WHERE season_name='{season_name}' LIMIT 1"
+    start_int, end_int = (await ValorSQL._execute(season_query))[0]
+    dt_now = time.time()
+    
+    start_diff = dt_now - start_int
+    end_diff = dt_now - end_int
+    return start_diff/3600/24, end_diff/3600/24
+
+async def get_guild_names_from_group(guild_group: str) -> List[str]:
+    if '-' in guild_group: return "N/A"
+
+    guild_group_query = f"SELECT guild FROM guild_group WHERE guild_group='{guild_group}'"
+    res = await ValorSQL._execute(guild_group_query)
+    g_names = {x[0] for x in res}
+
+    return g_names
 
 async def guild_name_from_tag(tag: str) -> str:
     if "--" in tag or ";" in tag: return "N/A"

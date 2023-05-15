@@ -1,7 +1,7 @@
 from valor import Valor
 from discord.ext.commands import Context
 from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, discord_ansicolor
-from .common import guild_name_from_tag
+from .common import guild_name_from_tag, get_range_from_season, get_guild_names_from_group
 from datetime import datetime
 from sql import ValorSQL
 import requests
@@ -22,6 +22,7 @@ async def _register_wipe(valor: Valor):
 
     wipe_parser = argparse.ArgumentParser(description='Wipe Time Command')
     wipe_parser.add_argument('-g', '--guild', nargs='+', default=["ANO"])
+    wipe_parser.add_argument('-gr', '--group', type=str) # single arg. group name
     wipe_parser.add_argument('-r', '--range', nargs='+', default=[7*24, 0])
     wipe_parser.add_argument('-t', '--threshold', nargs='+', default=[1, -10])
     wipe_parser.add_argument('-m', '--minsec', type=float, default=120)
@@ -34,9 +35,24 @@ async def _register_wipe(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, "Wipe Time command", wipe_parser.format_help().replace("main.py", "-wipe"), color=0xFF00)
 
         start = time.time()
-        g_names = {await guild_name_from_tag(tag) for tag in opt.guild}
+        if opt.group:
+            g_names = await get_guild_names_from_group(opt.group)
+        elif opt.guild:
+            g_names = {await guild_name_from_tag(tag) for tag in opt.guild}
+
         g_names_paren = [f"'{n}'" for n in g_names]
+        
+        # get left and right using season range
+        if isinstance(opt.range[0], str) and not opt.range[0].isdecimal():
+            res = await get_range_from_season(opt.range[0])
+            if res == "N/A":
+                return await ctx.send(embed=ErrorEmbed("Invalid season name input"))
+            
+            opt.range[0] = res[0]
+            opt.range.append(res[1])
+
         left, right = start - float(opt.range[0])*24*3600, start - float(opt.range[1])*24*3600
+
         left_count = int(opt.threshold[0])
         right_count = int(opt.threshold[1])
         left_count, right_count = (left_count, right_count) if left_count < right_count else (right_count, left_count)
