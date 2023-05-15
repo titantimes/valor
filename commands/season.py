@@ -42,7 +42,7 @@ async def _register_season(valor: Valor):
             ]
 
             content = tables.fmt(["Season", "Start", "End"], season_rows)
-            return await LongTextEmbed.send_message(valor, ctx, title=f"Guild Group of {opt.list}", content=content, color=0xFF10, code_block=True)
+            return await LongTextEmbed.send_message(valor, ctx, title=f"Season List", content=content, color=0xFF10, code_block=True)
 
         elif opt.edit:
             if "-" in opt.edit:
