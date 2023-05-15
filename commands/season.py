@@ -47,8 +47,8 @@ async def _register_season(valor: Valor):
                 return await ctx.send(embed=ErrorEmbed("Invalid input")) # lazy sanitation
             
             season_edit_query = f"REPLACE INTO season_list VALUES ('{opt.edit}', {opt.times[0]}, {opt.times[1]})"
-            start_str = datetime.fromtimestamp(opt.times[0]).strftime("%d-%m-%Y")
-            end_str = datetime.fromtimestamp(opt.times[1]).strftime("%d-%m-%Y")
+            start_str = datetime.fromtimestamp(opt.times[0]).ctime()
+            end_str = datetime.fromtimestamp(opt.times[1]).ctime()
 
             result = await ValorSQL._execute(season_edit_query)
 
