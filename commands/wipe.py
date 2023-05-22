@@ -1,7 +1,7 @@
 from valor import Valor
 from discord.ext.commands import Context
 from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, discord_ansicolor
-from .common import guild_name_from_tag, get_range_from_season, get_guild_names_from_group
+from .common import guild_name_from_tag, get_left_right, get_guild_names_from_group
 from datetime import datetime
 from sql import ValorSQL
 import requests
@@ -42,16 +42,10 @@ async def _register_wipe(valor: Valor):
 
         g_names_paren = [f"'{n}'" for n in g_names]
         
-        # get left and right using season range
-        if isinstance(opt.range[0], str) and not opt.range[0].isdecimal():
-            res = await get_range_from_season(opt.range[0])
-            if res == "N/A":
-                return await ctx.send(embed=ErrorEmbed("Invalid season name input"))
-            
-            opt.range[0] = res[0]
-            opt.range.append(res[1])
-
-        left, right = start - float(opt.range[0])*24*3600, start - float(opt.range[1])*24*3600
+        valid_range = await get_left_right(opt, start)
+        if valid_range == "N/A":
+            return await ctx.send(embed=ErrorEmbed("Invalid season name input"))
+        left, right = valid_range
 
         left_count = int(opt.threshold[0])
         right_count = int(opt.threshold[1])

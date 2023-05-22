@@ -37,12 +37,28 @@ async def get_range_from_season(season_name: str) -> Tuple[float, float]:
     if '-' in season_name: return "N/A"
 
     season_query = f"SELECT start_time, end_time FROM season_list WHERE season_name='{season_name}' LIMIT 1"
-    start_int, end_int = (await ValorSQL._execute(season_query))[0]
+    res = await ValorSQL._execute(season_query)
+    if not res:
+        return "N/A"
+    start_int, end_int = res[0]
     dt_now = time.time()
     
     start_diff = dt_now - start_int
     end_diff = dt_now - end_int
     return start_diff/3600/24, end_diff/3600/24
+
+async def get_left_right(opt, start):
+    # get left and right using season range
+    if isinstance(opt.range[0], str) and not opt.range[0].isdecimal():
+        res = await get_range_from_season(opt.range[0])
+        if res == "N/A":
+            return "N/A"
+        
+        opt.range[0] = res[0]
+        opt.range.append(res[1])
+
+    left, right = start - float(opt.range[0])*24*3600, start - float(opt.range[1])*24*3600
+    return left, right
 
 async def get_guild_names_from_group(guild_group: str) -> List[str]:
     if '-' in guild_group: return "N/A"

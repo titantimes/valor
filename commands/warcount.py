@@ -8,7 +8,7 @@ from discord.ext.commands import Context
 from datetime import datetime
 from dotenv import load_dotenv
 import os
-from commands.common import get_uuid
+from commands.common import get_uuid, get_left_right
 import argparse
 
 load_dotenv()
@@ -21,22 +21,6 @@ async def _register_warcount(valor: Valor):
     parser.add_argument('-n', '--names', nargs='+', default=[])
     parser.add_argument('-c', '--classes', nargs='+', default=[])
     parser.add_argument('-r', '--range', nargs='+', default=[2e9, 0])
-    parser.add_argument('-l', '--le', action="store_true")
-
-    def twelven_warcount_le(n): # this is 12n's amazing function.
-        result = 0
-        if n > 1000:
-            n = 1000
-        if n > 500:
-            result = 104
-        elif n > 250:
-            result = 56
-        elif n > 100:
-            result = 24
-        elif n > 50:
-            result = 8
-        result += n // 20
-        return result
 
     @valor.command()
     async def warcount(ctx: Context, *options):
@@ -54,19 +38,23 @@ async def _register_warcount(valor: Valor):
         uuid_to_name = {}
         uuid_to_wars = {}
 
-        t0 = time.time()*1000-1000*3600*24*float(opt.range[0])
-        t1 = time.time()*1000-1000*3600*24*float(opt.range[1])
         start = time.time()
-        for doc in collection.find({"_id": {"$gt": t0, "$lt": t1}}):
-            if names != "Anything" and not doc["sender"].lower() in names: continue
-            elif names != "Anything":
-                names[doc["sender"].lower()] = 1
-            uuid_to_name[doc["uuid"]] = doc["sender"]
-            if not doc["uuid"] in uuid_to_wars:
-                uuid_to_wars[doc["uuid"]] = [0]*(len(listed_classes)+2)
-                uuid_to_wars[doc["uuid"]][0] = "name"
+        valid_range = await get_left_right(opt, start)
+        if valid_range == "N/A":
+            return await ctx.send(embed=ErrorEmbed("Invalid season name input"))
+        left, right = valid_range
 
-            doc_class = doc.get("class_")
+        res = await ValorSQL._execute(f"SELECT time, name, uuid, class FROM war_attempts WHERE time>={left} and time<={right}")
+        for row in res:
+            if names != "Anything" and not row[1].lower() in names: continue
+            elif names != "Anything":
+                names[row[1].lower()] = 1
+            uuid_to_name[row[2]] = row[1]
+            if not row[2] in uuid_to_wars:
+                uuid_to_wars[row[2]] = [0]*(len(listed_classes)+2)
+                uuid_to_wars[row[2]][0] = "name"
+
+            doc_class = row[3]
             if not doc_class: continue
 
             real_class = clone_map.get(doc_class, doc_class).lower()
@@ -74,7 +62,7 @@ async def _register_warcount(valor: Valor):
             if count_idx == -1: # because bear keeps entering garbage values into fields
                 continue
 
-            uuid_to_wars[doc["uuid"]][count_idx] += 1
+            uuid_to_wars[row[2]][count_idx] += 1
 
         delta_time = time.time()-start
 
@@ -92,10 +80,6 @@ async def _register_warcount(valor: Valor):
         opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
 
         header, unid_pref, rows, = [' '*14+"Name", *listed_classes, "Total"], unid_prefix, counts
-        if opt.le:
-            header.append("LE Reward")
-            for r in rows: # r ref
-                r.append(twelven_warcount_le(r[-1]))
 
         await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
 
