@@ -48,12 +48,12 @@ async def _register_profile(valor: Valor):
         draw.text((235, 96-bar_fontsize), "1.19 War Count", (0, 0, 0), font=bar_font)
         draw.text((450, 96-bar_fontsize), f"{warcount}/{wranking[1]} Wars", (0, 0, 0), font=bar_font)
         bar1_percent = min(warcount/wranking[1], 1)
-        draw.rectangle([241, 113, 241+bar_length*bar1_percent, 96], fill=(200, 40, 40))
+        draw.rectangle([241, 96, 241+bar_length*bar1_percent, 113], fill=(200, 40, 40))
         # bar 2
         draw.text((235, 149-bar_fontsize), "Guild XP Contribution", (0, 0, 0), font=bar_font)
         bar2_percent = min(gxp_contrib/xpranking[1], 1)
         draw.text((450, 149-bar_fontsize), f"{gxp_contrib} XP", (0, 0, 0), font=bar_font)
-        draw.rectangle([241, 168, 241+bar_length*bar2_percent, 151], fill=(40, 200, 40))
+        draw.rectangle([241, 151, 241+bar_length*bar2_percent, 168], fill=(40, 200, 40))
         # bar 3
         draw.text((235, 200-bar_fontsize), "Coolness", (0, 0, 0), font=bar_font)
         
@@ -63,7 +63,7 @@ async def _register_profile(valor: Valor):
         bar3_percent = min(cnt_14d/100, 1)
         
         draw.text((450, 200-bar_fontsize), f"{round(bar3_percent*100)}% Cool", (0, 0, 0), font=bar_font)
-        draw.rectangle([241, 217, 241+bar_length*bar3_percent, 201], fill=(40, 40, 200))
+        draw.rectangle([241, 201, 241+bar_length*bar3_percent, 217], fill=(40, 40, 200))
         # circle 1
         draw.text((267, 270-circle_fontsize), "Wars", (180, 20, 20), font=circle_font)
         draw.text((267, 290-circle_fontsize), wranking[0], (120, 20, 20), font=rank_font)
