@@ -3,6 +3,9 @@ itemdb.json
 changelog
 warcount119.json
 
+# logs
+screenlog*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
