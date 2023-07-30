@@ -177,6 +177,8 @@ async def _register_map(valor: Valor):
                     tag_to_guild[holder_guild] = await guild_tag_from_name(holder_guild)
                 holder_pfx = tag_to_guild[holder_guild]
 
+            x0, x1 = min(x0, x1), max(x0, x1)
+            y0, y1 = min(y0, y1), max(y0, y1)
             section_draw.rectangle((x0, y0, x1, y1), fill=get_col_tuple(gu_color, 64), outline=get_col_tuple(gu_color, 200), width=2)
             if terr_details[claim]["holder"] != claim_owner[claim]: # disputed terr
                 y_i = min(y0, y1)
