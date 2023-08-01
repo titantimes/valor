@@ -85,11 +85,12 @@ class LongTextTable:
                 await msg.edit(content=msg_txt.description)
 
 class LongTextMessage:
-    def __init__(self, title: str, content, limit=1700, code_block=False):
+    def __init__(self, title: str, content, limit=1700, code_block=False, code_type=""):
         if isinstance(content, str):
             self.content = content.split('\n')
         self.page = 1
         self.code_block = code_block
+        self.code_type = code_type
 
         line_idx = 0
         lp = LongTextEmbed.find_linepair(self.content, line_idx)
@@ -102,7 +103,7 @@ class LongTextMessage:
 
         self.description = '\n'.join(self.content[self.line_pairs[0][0]:self.line_pairs[0][1]])
         if code_block:
-            self.description = '```'+self.description+'```'
+            self.description = f'```{self.code_type}\n'+self.description+'```'
 
     def forward_page(self):
         if self.page == self.total_pages:
@@ -111,7 +112,7 @@ class LongTextMessage:
         self.page += 1
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
         if self.code_block:
-            self.description = '```'+self.description+'```'
+            self.description = f'```{self.code_type}\n'+self.description+'```'
 
     def back_page(self):
         if self.page == 1:
@@ -120,7 +121,7 @@ class LongTextMessage:
         lp = self.line_pairs[self.page-1]
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
         if self.code_block:
-            self.description = '```'+self.description+'```'
+            self.description = f'```{self.code_type}\n'+self.description+'```'
 
     @classmethod
     async def send_message(cls, valor: Valor, ctx: Context, title: str, content="", **kwargs):
@@ -171,11 +172,12 @@ class LongTextMessage:
         return usr.id != SELF_ID and (str(rxn.emoji) == LEFT_PAGE_EMOJI or str(rxn.emoji) == RIGHT_PAGE_EMOJI)
 
 class LongTextEmbed(discord.Embed):
-    def __init__(self, title: str, content, limit=3000, code_block=False, footer=None, **kwargs):
+    def __init__(self, title: str, content, limit=3000, code_block=False, footer=None, code_type="", **kwargs):
         if isinstance(content, str):
             self.content = content.split('\n')
         self.page = 1
         self.code_block = code_block
+        self.code_type = code_type
 
         line_idx = 0
         lp = LongTextEmbed.find_linepair(self.content, line_idx)
@@ -188,7 +190,7 @@ class LongTextEmbed(discord.Embed):
 
         description = '\n'.join(self.content[self.line_pairs[0][0]:self.line_pairs[0][1]])
         if code_block:
-            description = '```'+description+'```'
+            description = f'```{code_type}'+description+'```'
 
         super(LongTextEmbed, self).__init__(
             title = title,
@@ -207,7 +209,7 @@ class LongTextEmbed(discord.Embed):
         self.page += 1
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
         if self.code_block:
-            self.description = '```'+self.description+'```'
+            self.description = f'```{self.code_type}\n'+self.description+'```'
         self.set_footer(text="Page {} of {}".format(self.page, self.total_pages))
     
     def back_page(self):
@@ -217,7 +219,7 @@ class LongTextEmbed(discord.Embed):
         lp = self.line_pairs[self.page-1]
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
         if self.code_block:
-            self.description = '```'+self.description+'```'
+            self.description = f'```{self.code_type}\n'+self.description+'```'
         self.set_footer(text="Page {} of {}".format(self.page, self.total_pages))
 
     @staticmethod
