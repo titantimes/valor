@@ -30,6 +30,7 @@ from .rank import _register_rank
 from .wipe import _register_wipe
 from .guildgroup import _register_guildgroup
 from .season import _register_season
+from .sus import _register_sus
 from valor import Valor
 from discord.ext.commands.hybrid import HybridCommand
 
@@ -69,3 +70,4 @@ async def register_all(valor: Valor):
     await _register_wipe(valor)
     await _register_guildgroup(valor)
     await _register_season(valor)
+    await _register_sus(valor)

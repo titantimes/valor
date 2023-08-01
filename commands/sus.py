@@ -35,21 +35,21 @@ async def _register_sus(valor: Valor):
         wynn_join_timestamp = time.mktime(datetime.datetime.strptime(wynn_join, "%Y-%m-%d").timetuple())
         wynn_rank = "VETERAN" if wynn_data["meta"]["veteran"] else wynn_data["meta"]["tag"]["value"]
         wynn_level = wynn_data["global"]["totalLevel"]["combat"]
-        wynn_playtime = wynn_data["meta"]["playtime"]
+        wynn_playtime = round(wynn_data["meta"]["playtime"] * 4.9 / 60, 1)
 
         wynn_quest = 0
         for k, v in wynn_data["characters"].items():
             wynn_quest += v["quests"]["completed"]
 
         first_seen = min(hypixel_join, wynn_join_timestamp) if hypixel_join else wynn_join_timestamp
-        first_seen_time = datetime.fromtimestamp(first_seen).strftime("%Y-%m-%d")
-        first_seen_sus = max(0, (time.time() - first_seen - 94672800) * -1) * 100 / 94672800
+        first_seen_time = datetime.date.fromtimestamp(first_seen).strftime("%Y-%m-%d")
+        first_seen_sus = round(max(0, (time.time() - first_seen - 94672800) * -1) * 100 / 94672800, 1)
         
 
-        wynn_join_sus = max(0, (time.time() - wynn_join_timestamp - 63072000) * -1) * 100 / 63072000
-        wynn_level_sus = max(0, (wynn_level - 210) * -1) * 100 / 210
-        wynn_playtime_sus = max(0, (wynn_playtime - 4800) * -1) * 100 / 4800
-        wynn_quest_sus = max(0, (wynn_quest - 150) * -1) * 100 / 150
+        wynn_join_sus = round(max(0, (time.time() - wynn_join_timestamp - 63072000) * -1) * 100 / 63072000, 1)
+        wynn_level_sus = round(max(0, (wynn_level - 210) * -1) * 100 / 210, 1)
+        wynn_playtime_sus = round(max(0, (wynn_playtime - 800) * -1) * 100 / 800, 1)
+        wynn_quest_sus = round(max(0, (wynn_quest - 150) * -1) * 100 / 150, 1)
 
         if wynn_rank == "VETERAN" or wynn_rank == "CHAMPION" or wynn_rank == "HERO" or wynn_rank == "VIP+":
             wynn_rank_sus = 0.0
@@ -58,7 +58,7 @@ async def _register_sus(valor: Valor):
         else:
             wynn_rank_sus = 50.0
 
-        overall_sus = (first_seen_sus + wynn_join_sus + wynn_level_sus + wynn_playtime_sus + wynn_quest_sus + wynn_rank_sus) / 6
+        overall_sus = round((first_seen_sus + wynn_join_sus + wynn_level_sus + wynn_playtime_sus + wynn_quest_sus + wynn_rank_sus) / 6, 2)
 
         if not os.path.exists(f"/tmp/{name}_model.png"):
             model = requests.get(f"https://visage.surgeplay.com/front/{id}").content 
@@ -70,7 +70,7 @@ async def _register_sus(valor: Valor):
         embed=Embed(title=f"Suspiciousness of {name}: {overall_sus}%", description="The rating is based on the following components:", color=0x00ff2a)
         embed.set_thumbnail(url=f"attachment://{name}_model.png")
         embed.add_field(name="Wynncraft Join Date", value=f"{wynn_join}\n{wynn_join_sus}%", inline=True)
-        embed.add_field(name="Wynncraft Playtime", value=f"{wynn_playtime // 60} hours\n{wynn_playtime_sus}%", inline=True)
+        embed.add_field(name="Wynncraft Playtime", value=f"{wynn_playtime} hours\n{wynn_playtime_sus}%", inline=True)
         embed.add_field(name="Wynncraft Level", value=f"{wynn_level}\n{wynn_level_sus}%", inline=True)
         embed.add_field(name="Wynncraft Quests", value=f"{wynn_quest}\n{wynn_quest_sus}%", inline=True)
         embed.add_field(name="Wynncraft Rank", value=f"{wynn_rank}\n{wynn_rank_sus}%", inline=True)
