@@ -24,10 +24,9 @@ async def get_uuid(player: str):
     return uuid[:8]+'-'+uuid[8:12]+'-'+uuid[12:16]+'-'+uuid[16:20]+'-'+uuid[20:]
 
 async def from_uuid(uuid: str):
-    if "-" in uuid: return False
     exist = await ValorSQL._execute(f"SELECT * FROM uuid_name WHERE uuid='{uuid}' LIMIT 1")
     if not exist:
-        name = requests.get(f"https://api.mojang.com/user/profiles/{uuid.replace('-', '')}/names")[-1]["name"]
+        name = requests.get(f"https://api.mojang.com/user/profile/{uuid.replace('-', '')}").json()["name"]
         await ValorSQL._execute(f"INSERT INTO uuid_name VALUES ('{uuid}', '{name}')")
     else:
         name = exist[0][1]
