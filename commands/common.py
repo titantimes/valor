@@ -124,6 +124,11 @@ async def guild_names_from_tags(tags: List[str]) -> Tuple[MutableSet[str], List[
         else: guild_names.append(guild_names_list[i])
     
     return guild_names, unidentified
+
+async def current_guild_from_uuid(uuid: str) -> str:
+    result = await ValorSQL._execute(f"SELECT joined FROM guild_join_log WHERE uuid='{uuid}' ORDER BY date DESC LIMIT 1")
+    guild = "N/A" if not result else result[0][0]
+    return guild
     
 async def g_tag(tag: str) -> str:
     return await guild_name_from_tag(tag)

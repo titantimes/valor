@@ -9,7 +9,7 @@ import time
 import os
 import argparse
 from dotenv import load_dotenv
-from .common import from_uuid, get_uuid
+from .common import from_uuid, get_uuid, guild_tag_from_name, current_guild_from_uuid
 import requests
 
 load_dotenv()
@@ -37,13 +37,17 @@ async def _register_blacklist(valor: Valor):
         if opt.list:
             blacklist_query = f"SELECT uuid, timestamp FROM player_blacklist"
             result = await ValorSQL._execute(blacklist_query)
-            
+
             blacklist_rows = [
-                (await from_uuid(uuid), datetime.fromtimestamp(timestamp).strftime("%d-%m-%Y"))
+                (
+                    await from_uuid(uuid), 
+                    await guild_tag_from_name(await current_guild_from_uuid(uuid)),
+                    datetime.fromtimestamp(timestamp).strftime("%d-%m-%Y")
+                )
                 for uuid, timestamp in result
             ]
 
-            content = tables.fmt(["Name", "Time added"], blacklist_rows)
+            content = tables.fmt(["Name", "Guild", "Time added"], blacklist_rows)
             return await LongTextEmbed.send_message(valor, ctx, title=f"Blacklist", content=content, color=0xFF10, code_block=True, footer="Ask any Titan+ with proof to add someone to the blacklist")
 
         elif opt.add:
@@ -53,7 +57,11 @@ async def _register_blacklist(valor: Valor):
             reason = opt.reason if opt.reason else "No reason given"
             timestamp = int(time.time())
             
-            add_query = f"""REPLACE INTO player_blacklist VALUES ("{await get_uuid(opt.add)}", "{reason}", {timestamp})"""
+            try:
+                add_query = f"""REPLACE INTO player_blacklist VALUES ("{await get_uuid(opt.add)}", "{reason}", {timestamp})"""
+            except:
+                return await ctx.send(embed=ErrorEmbed("Can't add player (Player doesn't exist?)"))
+            
             time_str = datetime.fromtimestamp(timestamp).ctime()
 
             result = await ValorSQL._execute(add_query)
@@ -78,7 +86,14 @@ async def _register_blacklist(valor: Valor):
             result = await ValorSQL._execute(search_query)
             
             if result:
-                guild = requests.get(f"https://api.wynncraft.com/v2/player/{uuid}/stats").json()["data"][0]["guild"]["name"]
+                db_guild = await current_guild_from_uuid(uuid)
+                guild = db_guild if db_guild != "N/A" else requests.get(f"https://api.wynncraft.com/v2/player/{uuid}/stats").json()["data"]
+                
+                if type(guild) == list:
+                    if not guild:
+                        guild = "No Wynncraft data"
+                    else:
+                        guild = guild[0]["guild"]["name"]
                 
                 embed = Embed(color=0xFF10,title="Blacklist search result",description=username)
                 embed.set_footer(text="Ask any Titan+ with proof to add someone to the blacklist")
