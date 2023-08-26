@@ -30,9 +30,6 @@ async def _register_blacklist(valor: Valor):
             opt = parser.parse_args(options)
         except:
             return await LongTextEmbed.send_message(valor, ctx, "Blacklist Command", parser.format_help().replace("main.py", "-blacklist"), color=0xFF00)
-        
-        if not commands.common.role1(ctx.author) and not TEST:
-            return await ctx.send(embed=ErrorEmbed("No Permissions"))
 
         if opt.list:
             blacklist_query = f"SELECT uuid, timestamp FROM player_blacklist"
@@ -51,6 +48,9 @@ async def _register_blacklist(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, title=f"Blacklist", content=content, color=0xFF10, code_block=True, footer="Ask any Titan+ with proof to add someone to the blacklist")
 
         elif opt.add:
+            if not commands.common.role1(ctx.author) and not TEST:
+                return await ctx.send(embed=ErrorEmbed("No Permissions"))
+            
             if "-" in opt.add:
                 return await ctx.send(embed=ErrorEmbed("Invalid input")) # lazy sanitation
             
@@ -70,6 +70,9 @@ async def _register_blacklist(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, title=f"Added {opt.add} to the blacklist", content=content, color=0xFF10)
         
         elif opt.delete:
+            if not commands.common.role1(ctx.author) and not TEST:
+                return await ctx.send(embed=ErrorEmbed("No Permissions"))
+            
             if "-" in opt.delete:
                 return await ctx.send(embed=ErrorEmbed("Invalid input")) # lazy sanitation
         
