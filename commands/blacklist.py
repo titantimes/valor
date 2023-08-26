@@ -62,12 +62,12 @@ async def _register_blacklist(valor: Valor):
             except:
                 return await ctx.send(embed=ErrorEmbed("Can't add player (Player doesn't exist?)"))
             
-            time_str = datetime.fromtimestamp(timestamp).ctime()
+            time_str = f"<t:{timestamp}:F>"
 
             result = await ValorSQL._execute(add_query)
 
             content = f"Reason: {reason}\nTime added: {time_str}"
-            return await LongTextEmbed.send_message(valor, ctx, title=f"Added {opt.add} to the blacklist", content=content, color=0xFF10, code_block=True)
+            return await LongTextEmbed.send_message(valor, ctx, title=f"Added {opt.add} to the blacklist", content=content, color=0xFF10)
         
         elif opt.delete:
             if "-" in opt.delete:
@@ -76,7 +76,7 @@ async def _register_blacklist(valor: Valor):
             delete_query = f"DELETE FROM player_blacklist WHERE uuid='{await get_uuid(opt.delete)}'"
             result = await ValorSQL._execute(delete_query)
 
-            return await LongTextEmbed.send_message(valor, ctx, title=f"Deleted {opt.delete}", content="Removed player from the blacklist", color=0xFF10, code_block=True)
+            return await LongTextEmbed.send_message(valor, ctx, title=f"Deleted {opt.delete}", content="Removed player from the blacklist", color=0xFF10)
         
         elif opt.search:           
             uuid = await get_uuid(opt.search) if '-' not in opt.search else opt.search
@@ -100,7 +100,7 @@ async def _register_blacklist(valor: Valor):
                 embed.set_thumbnail(url=f"https://visage.surgeplay.com/bust/512/{uuid}.png?y=-40")
                 embed.add_field(name="Reason",value=result[0][0],inline=False)
                 embed.add_field(name="Current guild",value=guild)
-                embed.add_field(name="Time added",value=datetime.fromtimestamp(result[0][1]).ctime())
+                embed.add_field(name="Time added",value=f"<t:{result[0][1]}:F>")
                 embed.add_field(name="UUID",value=uuid,inline=False)
                 
                 return await ctx.send(embed=embed)
