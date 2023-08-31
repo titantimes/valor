@@ -57,6 +57,13 @@ async def _register_map(valor: Valor):
             last_avo_terr_res = time.time()
 
         athena_terr_res = requests.get("https://athena.wynntils.com/cache/get/territoryList").json()
+
+        # use avomap colors for now
+        # athena_colors = requests.get("https://athena.wynntils.com/cache/get/guildListWithColors").json()
+        # guild_to_color = {athena_colors[k]["_id"]: athena_colors[k]["color"] for k in athena_colors}
+
+        guild_to_color = requests.get("https://www.avicia.cf/api/guildcolors").json()
+
         Y_or_Z = "Z"     
         if not athena_terr_res or not "territories" in athena_terr_res or len(athena_terr_res["territories"]) == 0:
             athena_terr_res = requests.get("https://api.wynncraft.com/public_api.php?action=territoryList").json()
@@ -83,9 +90,11 @@ async def _register_map(valor: Valor):
             y0 = athena_terr_res["territories"][terr]["location"]["start"+Y_or_Z]
             x1 = athena_terr_res["territories"][terr]["location"]["endX"]
             y1 = athena_terr_res["territories"][terr]["location"]["end"+Y_or_Z]
+            holder = athena_terr_res["territories"][terr]["guild"]
             terr_details[terr] = {
-                "holder": athena_terr_res["territories"][terr]["guild"],
-                "holder_color": athena_terr_res["territories"][terr].get("guildColor", ''),
+                "holder": holder,
+                # "holder_color": athena_terr_res["territories"][terr].get("guildColor", ''), old way
+                "holder_color": guild_to_color.get(holder, ''),
                 "holder_prefix": athena_terr_res["territories"][terr].get("guildPrefix"),
                 "adj": avo_terr_res[terr]["Trading Routes"],
                 "x0": x0,
