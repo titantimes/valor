@@ -237,6 +237,8 @@ async def _register_react_listener(valor: Valor):
                     return
                 config = config[0]
 
+                if "ticket" in rxn_chn.name: return # so it doesn't delete regular react channels
+
                 if rxn_chn.category_id == config[1] and payload.member.guild_permissions.administrator:
                     await rxn_chn.delete()
 
