@@ -25,13 +25,14 @@ from .alliance import _register_alliance
 from .ffa import _register_ffa
 from .info import _register_info
 from .history import _register_history
-from .warcount import _register_warcount
+from .warcount_old import _register_warcount_old
 from .rank import _register_rank
 from .wipe import _register_wipe
 from .guildgroup import _register_guildgroup
 from .season import _register_season
 from .sus import _register_sus
 from .blacklist import _register_blacklist
+from .warcount import _register_warcount
 from valor import Valor
 from discord.ext.commands.hybrid import HybridCommand
 
@@ -65,7 +66,7 @@ async def register_all(valor: Valor):
     await _register_ffa(valor)
     await _register_info(valor)
     await _register_history(valor)
-    await _register_warcount(valor)
+    await _register_warcount_old(valor)
     await _register_map(valor)
     await _register_rank(valor)
     await _register_wipe(valor)
@@ -73,3 +74,4 @@ async def register_all(valor: Valor):
     await _register_season(valor)
     await _register_sus(valor)
     await _register_blacklist(valor)
+    await _register_warcount(valor)
