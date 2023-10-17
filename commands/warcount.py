@@ -58,7 +58,7 @@ LEFT JOIN player_stats ON player_stats.uuid=cumu_warcounts.uuid''')
         
         guild_names, unidentified = await guild_names_from_tags(opt.guild)
 
-        header = [' '*14+"Name", "Guild", *listed_classes, "Total"]
+        header = [' '*14+"Name", "Guild", *[f"  {x}  " for x in listed_classes], "  Total  "]
         player_to_guild = {}
         guilds_seen = set()
         player_warcounts = {}
