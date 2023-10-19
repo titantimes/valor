@@ -17,22 +17,18 @@ async def _register_online(valor: Valor):
         guild = ' '.join(args) if len(args) else guild
         res = requests.get(valor.endpoints["guild"].format(guild)).json()
 
-        if res.get("error"):
+        if "members" not in res:
             # try using the tag instead
             guild = await guild_name_from_tag(guild)
 
         res = requests.get(valor.endpoints["guild"].format(guild)).json()
 
-        if res.get("error"):
+        if "members" not in res:
             return await ctx.send(embed=ErrorEmbed("Guild doesn't exist."))
 
-        members = {m["name"]: m["rank"] for m in res["members"] if "name" in m}
-        all_players = requests.get(valor.endpoints["online"]).json()
-
-        del all_players["request"]
-
         # add the rank name along with wc
-        online_rn = [(p, k, members[p]) for k in all_players for p in all_players[k] if p in members]
+        # online_rn = [(p, k, members[p]) for k in all_players for p in all_players[k] if p in members]
+        online_rn = [(name, member["server"], rank) for rank, v in res["members"].items() if rank != "total" for name, member in v.items() if member["online"]]
         
         if not len(online_rn):
             return await LongTextEmbed.send_message(valor, ctx, f"{guild} Members Online", "There are no members online.", color = 0xFF)

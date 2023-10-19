@@ -66,7 +66,23 @@ async def _register_map(valor: Valor):
 
         Y_or_Z = "Z"     
         if not athena_terr_res or not "territories" in athena_terr_res or len(athena_terr_res["territories"]) == 0:
-            athena_terr_res = requests.get("https://api.wynncraft.com/public_api.php?action=territoryList").json()
+            # Temporary solution until perhaps athena adapts the format.
+            wynn_terr_res = requests.get("https://api.wynncraft.com/v3/guild/list/territory").json()
+            for territory, data in wynn_terr_res.items():
+                wynn_terr_res[territory] = {
+                    "territory": territory,
+                    "guild": data["guild"]["name"],
+                    "guildPrefix": data["guild"]["prefix"],
+                    "location": {
+                        "startX": data["location"]["start"][0],
+                        "startY": data["location"]["start"][1],
+                        "endX": data["location"]["end"][0],
+                        "endY": data["location"]["end"][1],
+                    }
+                }
+            athena_terr_res["territories"] = wynn_terr_res.copy()
+            del wynn_terr_res
+                
             Y_or_Z = "Y"
         interested_guild_tags = set(opt.guild) if opt.guild else set()
         

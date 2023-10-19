@@ -20,7 +20,8 @@ async def _register_plot(valor: Valor):
     desc = "Plots data for you!"
     opts = ["guild", "player"]
     choice_em = ErrorEmbed(f"Your options are `{repr(opts)}`")
-    rnklut = {"RECRUIT": 0, "RECRUITER": 1, "CAPTAIN": 2, "STRATEGIST": 3, "CHIEF": 4, "OWNER": 5}
+    # rnklut = {"RECRUIT": 0, "RECRUITER": 1, "CAPTAIN": 2, "STRATEGIST": 3, "CHIEF": 4, "OWNER": 5}
+    rnklut = {"recruit": 0, "recruiter": 1, "captain": 2, "strategist": 3, "chief": 4, "owner": 5}
     @valor.group()
     async def plot(ctx: Context):
         if not ctx.invoked_subcommand:
@@ -31,8 +32,10 @@ async def _register_plot(valor: Valor):
         # raw sql query
         res = await ValorSQL._execute(f"SELECT * FROM activity_members WHERE guild = \"{name}\" AND timestamp >= {start} AND timestamp <= {end};")
         ret = {}
-        members = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+name).json()["members"]
-        cpts = {m["name"] for m in members if rnklut[m["rank"]] >= rnklut["CAPTAIN"]}
+        # members = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+name).json()["members"]
+        # cpts = {m["name"] for m in members if rnklut[m["rank"]] >= rnklut["CAPTAIN"]}
+        members = requests.get("https://api.wynncraft.com/v3/guild/"+name).json()["members"]
+        cpts = {name for k, v in members.items() if rnklut.get(k, 0) >= rnklut["captain"] for name, _ in v.items()}
         for row in res:
             if not row[2] in ret:
                 ret[row[2]] = 0
@@ -43,7 +46,7 @@ async def _register_plot(valor: Valor):
     @plot.command()
     async def guild(ctx: Context, unparsed_guild_names = "Avicia", options = ""):
         roles = {x.id for x in ctx.author.roles}
-        if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064:
+        if not 703018636301828246 in roles and not 733841716855046205 in roles and ctx.author.id != 146483065223512064 and os.getenv("TEST") != "TRUE":
             return await ctx.send(embed=ErrorEmbed("Skill Issue"))
         guild_names = unparsed_guild_names.replace(', ', ',').split(',')
         options = options.split(' ')

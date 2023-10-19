@@ -10,21 +10,22 @@ import aiohttp
 import asyncio
 
 load_dotenv()
-uri = "https://api.wynncraft.com/public_api.php?action=guildStats&command="
-player_uri = "https://api.wynncraft.com/v2/player/%s/stats"
+uri = "https://api.wynncraft.com/v3/guild/"
+player_uri = "https://api.wynncraft.com/v3/player/"
 
 async def query_task(session: aiohttp.ClientSession, uuid: str) -> Tuple[str, datetime]:
-    async with session.get(player_uri % uuid) as res:
-        res = (await res.json())["data"][0]
+    async with session.get(player_uri + uuid) as res:
+        res = await res.json()
     user = res["username"]
-    last = res["meta"]["lastJoin"]
-    return user, datetime.utcnow() - datetime.strptime(last, "%Y-%m-%dT%H:%M:%S.%fZ")
+    last = res["lastJoin"]
+    return user, datetime.utcnow() - datetime.strptime(last, "%Y-%m-%dT%H:%M:%S.%f")
 
 async def _register_activity(valor: Valor):
     desc = "Gets you the player last logins sorted"
     @valor.command()
     async def activity(ctx: Context, guild="Titans Valor"):
-        members = [x["uuid"] for x in requests.get(uri + guild).json()["members"]]
+        # members = [x["uuid"] for x in requests.get(uri + guild).json()["members"]]
+        members = [x["uuid"] for k, v in requests.get(uri + guild).json()["members"].items() if k != "total" for _, x in v.items()]
         async with aiohttp.ClientSession() as sess:
             data = await asyncio.gather(*[query_task(sess, uuid) for uuid in members])
         content = sorted([[pair[0], pair[1].days*24*3600 + pair[1].seconds] for pair in data], key = lambda x: -x[1])

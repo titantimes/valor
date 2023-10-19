@@ -90,13 +90,13 @@ async def _register_blacklist(valor: Valor):
             
             if result:
                 db_guild = await current_guild_from_uuid(uuid)
-                guild = db_guild if db_guild != "N/A" else requests.get(f"https://api.wynncraft.com/v2/player/{uuid}/stats").json()["data"]
+                guild = db_guild if db_guild != "N/A" else requests.get(f"https://api.wynncraft.com/v3/player/{uuid}").json()
                 
-                if type(guild) == list:
-                    if not guild:
+                if type(guild) == dict:
+                    if "Error" in guild:
                         guild = "No Wynncraft data"
                     else:
-                        guild = guild[0]["guild"]["name"]
+                        guild = guild["guild"]["name"]
                 
                 embed = Embed(color=0xFF10,title="Blacklist search result",description=username)
                 embed.set_footer(text="Ask any Titan+ with proof to add someone to the blacklist")

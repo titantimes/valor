@@ -27,19 +27,16 @@ async def _register_sus(valor: Valor):
         if hypixel_data["success"]:
             hypixel_join = float(int(hypixel_data["player"]["firstLogin"] / 1000))
 
-        wynn_res = requests.get(f"https://api.wynncraft.com/v2/player/{dashed_uuid}/stats").json()
-        if wynn_res["code"] != 200:
+        wynn_data = requests.get(f"https://api.wynncraft.com/v3/player/{dashed_uuid}?fullResult=true").json()
+        if "username" not in wynn_data:
             return await ctx.send(embed=ErrorEmbed("Wynn API Issue"))
-        wynn_data = wynn_res["data"][0]
-        wynn_join = wynn_data["meta"]["firstJoin"].split("T")[0]
+        wynn_join = wynn_data["firstJoin"].split("T")[0]
         wynn_join_timestamp = time.mktime(datetime.datetime.strptime(wynn_join, "%Y-%m-%d").timetuple())
-        wynn_rank = "VETERAN" if wynn_data["meta"]["veteran"] else wynn_data["meta"]["tag"]["value"]
-        wynn_level = wynn_data["global"]["totalLevel"]["combat"]
-        wynn_playtime = round(wynn_data["meta"]["playtime"] * 4.9 / 60, 1)
-
-        wynn_quest = 0
-        for k, v in wynn_data["characters"].items():
-            wynn_quest += v["quests"]["completed"]
+        # wynn_rank = "VETERAN" if wynn_data["meta"]["veteran"] else wynn_data["meta"]["tag"]["value"]
+        wynn_rank = wynn_data["supportRank"]
+        wynn_level = sum([character["level"] for _, character in wynn_data["characters"].items()])
+        wynn_playtime = wynn_data["playtime"]
+        wynn_quest = wynn_data["globalData"]["completedQuests"]
 
         first_seen = min(hypixel_join, wynn_join_timestamp) if hypixel_join else wynn_join_timestamp
         first_seen_time = datetime.date.fromtimestamp(first_seen).strftime("%Y-%m-%d")
@@ -51,9 +48,9 @@ async def _register_sus(valor: Valor):
         wynn_playtime_sus = round(max(0, (wynn_playtime - 800) * -1) * 100 / 800, 1)
         wynn_quest_sus = round(max(0, (wynn_quest - 150) * -1) * 100 / 150, 1)
 
-        if wynn_rank == "VETERAN" or wynn_rank == "CHAMPION" or wynn_rank == "HERO" or wynn_rank == "VIP+":
+        if wynn_rank == "veteran" or wynn_rank == "champion" or wynn_rank == "hero" or wynn_rank == "vip+":
             wynn_rank_sus = 0.0
-        elif wynn_rank == "VIP":
+        elif wynn_rank == "vip":
             wynn_rank_sus = 25.0
         else:
             wynn_rank_sus = 50.0

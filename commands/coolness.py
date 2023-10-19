@@ -44,9 +44,9 @@ async def _register_coolness(valor: Valor):
             return await LongTextEmbed.send_message(
                 valor, ctx, f"Coolness Error", f"{unidentified} unknown", color=0xFF0000)
 
-        guild_members = {g_name: {x["name"] 
-            for x in requests.get(f"https://api.wynncraft.com/public_api.php?action=guildStats&command={g_name}")
-                .json().get("members", [])} for g_name in guild_names}
+        guild_members = {g_name: {name 
+            for k, v in requests.get(f"https://api.wynncraft.com/v3/guild/{g_name}")
+                .json().get("members", {}).items() if k != "total" for name, _ in v.items()} for g_name in guild_names}
 
         for guild in guild_members:
             for member in guild_members[guild]:

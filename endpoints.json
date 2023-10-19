@@ -1,4 +1,3 @@
 {
-    "online": "https://api.wynncraft.com/public_api.php?action=onlinePlayers",
-    "guild": "https://api.wynncraft.com/public_api.php?action=guildStats&command={}"
+    "guild": "https://api.wynncraft.com/v3/guild/{}"
 }

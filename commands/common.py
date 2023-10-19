@@ -80,8 +80,8 @@ async def guild_name_from_tag(tag: str) -> str:
         revisions = []
 
         for g, tag, _ in guilds:
-            res = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+g).json()
-            n_members = len(res.get("members", []))
+            res = requests.get("https://api.wynncraft.com/v3/guild/"+g).json()
+            n_members = res["members"]["total"]
             revisions.append(f"('{g}','{tag}',{n_members})")
 
         await ValorSQL._execute(f"REPLACE INTO guild_tag_name VALUES " + ','.join(revisions))
@@ -103,8 +103,8 @@ async def guild_tag_from_name(name: str) -> str:
         revisions = []
 
         for g, tag, _ in guilds:
-            res = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+g).json()
-            n_members = len(res.get("members", []))
+            res = requests.get("https://api.wynncraft.com/v3/guild/"+g).json()
+            n_members = res["members"]["total"]
             revisions.append(f"('{g}','{tag}',{n_members})")
 
         await ValorSQL._execute(f"REPLACE INTO guild_tag_name VALUES " + ','.join(revisions))

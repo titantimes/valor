@@ -10,10 +10,17 @@ async def _register_join(valor: Valor):
     
     @valor.command()
     async def join(ctx: Context, username: str):
-        user_data = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command=Titans%20Valor").json()
-        for m in user_data["members"]:
+        user_data = requests.get("https://api.wynncraft.com/v3/guild/Titans%20Valor").json()
+        users = []
+        for k, v in user_data["members"].items():
+            if k != "total":
+                for name, value in v.items():
+                    value["name"] = name
+                    users.append(value)
+        
+        for m in users:
             if m["name"] == username:
-                ezjoin = datetime.fromisoformat(m["joined"][:-1])
+                ezjoin = datetime.fromisoformat(m["joined"])
                 return await LongTextEmbed.send_message(valor, ctx, "Most Recent Join Date of %s" % username, ezjoin.strftime("%d %b %Y %H:%M:%S.%f UTC"), color=0xFF00)
         
         await ctx.send(embed=ErrorEmbed("%s isn't in the guild" % username))
