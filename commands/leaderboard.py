@@ -83,10 +83,14 @@ async def get_leaderboard(stat):
 async def _register_leaderboard(valor: Valor):
     desc = "The leaderboard"
     stat_set = ['sand_swept_tomb', 'galleons_graveyard', 'firstjoin', 'scribing', 'chests_found', 'woodcutting', 'tailoring', 'fishing', 'eldritch_outlook', 'alchemism', 'logins', 'deaths', 'corrupted_decrepit_sewers', 'armouring', 'corrupted_undergrowth_ruins', 'items_identified', 'nest_of_the_grootslangs', 'blocks_walked', 'lost_sanctuary', 'mining', 'the_canyon_colossus', 'undergrowth_ruins', 'corrupted_ice_barrows', 'jeweling', 'woodworking', 'uuid', 'underworld_crypt', 'fallen_factory', 'mobs_killed', 'infested_pit', 'decrepit_sewers', 'corrupted_sand_swept_tomb', 'corrupted_infested_pit', 'farming', 'corrupted_lost_sanctuary', 'cooking', 'guild', 'combat', 'weaponsmithing', 'playtime', 'corrupted_underworld_crypt', 'ice_barrows', 'nexus_of_light', "guild_rank", "the_nameless_anomaly", "raids", "corrupted_galleons_graveyard"]
+    stats_abbr = {'tna' : 'the_nameless_anomaly', 'notg' : 'nest_of_the_grootslangs', 'sst' : 'sand_swept_tomb', 'gg' : 'galleons_graveyard', 'cgg' : 'corrupted_galleons_graveyard', 'csst' : 'corrupted_sand_swept_tomb', 'cds' : 'corrupted_decrepit_sewers', 'ds' : 'decrepit_sewers', 'cur' :'corrupted_undergrowth_ruins', 'ur' : 'undergrowth_ruins', 'tcc' : 'the_canyon_colossus', 'ib' : 'ice_barrows', 'cib' : 'corrupted_ice_barrows', 'uc' : 'underworld_crypt', 'cuc' : 'corrupted_underworld_crypt', 'ff' : 'fallen_factory', 'ip' : 'infested_pit', 'cip' : 'corrupted_infested_pit', 'ls' : 'lost_sanctuary', 'cls' : 'corrupted_lost_sanctuary', 'nol' : 'nexus_of_light', }
 
     @valor.command()
     async def leaderboard(ctx: Context, stat="galleons_graveyard"): 
 
+        if stat in stats_abbr:
+            stat = stats_abbr[stat]
+        
         if stat not in stat_set:
             return await LongTextEmbed.send_message(valor, ctx, "Invalid Stat, choose from the following: ", content='\n'.join(stat_set), code_block=True, color=0x1111AA)
         
