@@ -20,7 +20,6 @@ async def _register_warcount(valor: Valor):
     parser = argparse.ArgumentParser(description='Warcount Command')
     parser.add_argument('-n', '--names', nargs='+', default=[])
     parser.add_argument('-g', '--guild', nargs='+', default=[]) # this one is filter players only in guilds, Callum: 100
-    parser.add_argument('-gs', '--guildsum', nargs='+', default=[]) # TODO: this one is for guild totals ANO: 100, ESI: 200 etc.
     parser.add_argument('-c', '--classes', nargs='+', default=[])
     parser.add_argument('-r', '--range', nargs='+', default=None)
     parser.add_argument('-rk', '--rank', type=str, default="global")
@@ -54,7 +53,6 @@ WHERE UPPER({table_type}.class_type) IN (%s) %%s
 GROUP BY uuid_name.uuid, player_stats.guild
 ORDER BY all_wars DESC;'''
         
-
         class_column_count_parts = []
         select_class_in_parts = []
         for real_class in listed_classes:
