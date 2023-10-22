@@ -71,6 +71,8 @@ LEFT JOIN player_stats ON player_stats.uuid=cumu_warcounts.uuid''')
             class_type = class_type.lower()
             real_class = clone_map.get(class_type, class_type).lower()
 
+            if not real_class in listed_classes_enumerated: continue
+
             if not name in player_warcounts:
                 player_warcounts[name] = [0]*len(listed_classes_enumerated)
 
