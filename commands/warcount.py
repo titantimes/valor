@@ -32,14 +32,14 @@ async def _register_warcount(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, "warcount", parser.format_help().replace("main.py", "-warcount"), color=0xFF00)
     
         listed_classes = real_classes if not opt.classes else opt.classes
-        listed_classes_enumerated = {v.lower(): i for i, v in enumerate(listed_classes)}
+        listed_classes_enumerated = {v.lower(): i for i, v in enumerate(listed_classes)} # {classname: 0, classname: 1, ...}
 
         names = {n.lower() for n in opt.names} if opt.names else None
 
         start = time.time()
 
         if opt.range:
-            opt.range = [2e9, 0]
+            # opt.range = [2e9, 0]
             valid_range = await get_left_right(opt, start)
             if valid_range == "N/A":
                 return await ctx.send(embed=ErrorEmbed("Invalid season name input"))
@@ -48,7 +48,7 @@ async def _register_warcount(valor: Valor):
             res = await ValorSQL._execute(f'''SELECT uuid_name.name, delta_warcounts.warcount_diff, delta_warcounts.class_type, player_stats.guild
 FROM delta_warcounts 
 LEFT JOIN uuid_name ON uuid_name.uuid=delta_warcounts.uuid 
-LEFT JOIN player_stats ON player_stats.uuid=delta_warcounts.uuid WHERE delta_warcounts.time >= 0 >= {left} AND delta_warcounts.time <= {right} ORDER BY delta_warcounts.time ASC;''')
+LEFT JOIN player_stats ON player_stats.uuid=delta_warcounts.uuid WHERE delta_warcounts.time >= {left} AND delta_warcounts.time <= {right} ORDER BY delta_warcounts.time ASC;''')
         else:
             res = await ValorSQL._execute(f'''SELECT uuid_name.name, cumu_warcounts.warcount, cumu_warcounts.class_type, player_stats.guild
 FROM cumu_warcounts 
