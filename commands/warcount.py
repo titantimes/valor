@@ -23,6 +23,7 @@ async def _register_warcount(valor: Valor):
     parser.add_argument('-gs', '--guildsum', nargs='+', default=[]) # TODO: this one is for guild totals ANO: 100, ESI: 200 etc.
     parser.add_argument('-c', '--classes', nargs='+', default=[])
     parser.add_argument('-r', '--range', nargs='+', default=None)
+    parser.add_argument('-rk', '--rank', action='store_true')
 
     @valor.command()
     async def warcount(ctx: Context, *options):
@@ -59,6 +60,9 @@ LEFT JOIN player_stats ON player_stats.uuid=cumu_warcounts.uuid''')
         guild_names, unidentified = await guild_names_from_tags(opt.guild)
 
         header = [' '*14+"Name", "Guild", *[f"  {x}  " for x in listed_classes], "  Total  "]
+        if opt.rank:
+            header = ["  Rank  "] + [' '*14+"Name", "Guild", *[f"  {x}  " for x in listed_classes], "  Total  "]
+
         player_to_guild = {}
         guilds_seen = set()
         player_warcounts = {}
@@ -88,8 +92,10 @@ LEFT JOIN player_stats ON player_stats.uuid=cumu_warcounts.uuid''')
                 if priority > guild_to_tag.get(guild, ("N/A", -1))[1]:
                     guild_to_tag[guild] = (tag, priority)
 
+        if opt.rank:
+            pass
         rows = [(name, guild_to_tag.get(player_to_guild[name], ("None", -1))[0], *player_warcounts[name], sum(player_warcounts[name])) for name in player_warcounts]
-        rows.sort(key=lambda x: x[-1], reverse=True) # Raw, you can add sortby option
+        rows.sort(key=lambda x: x[-1], reverse=True) 
 
         opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
         await LongTextTable.send_message(valor, ctx, header, rows, opt_after)

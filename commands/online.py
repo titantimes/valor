@@ -7,7 +7,7 @@ import requests
 
 async def _register_online(valor: Valor):
     desc = "Online: shows who's online in a guild"
-    rank_order = dict(zip(["RECRUIT", "RECRUITER", "CAPTAIN", "STRATEGIST", "CHIEF", "OWNER"], range(5, -1, -1)))
+    rank_order = dict(zip(["recruit", "recruiter", "captain", "strategist", "chief", "owner"], range(5, -1, -1)))
     @valor.command()
     async def online(ctx: Context, *args, guild="Titans Valor"):
         group = False
@@ -17,7 +17,7 @@ async def _register_online(valor: Valor):
         guild = ' '.join(args) if len(args) else guild
         res = requests.get(valor.endpoints["guild"].format(guild)).json()
 
-        if "members" not in res:
+        if "members" not in res or not res["name"]:
             # try using the tag instead
             guild = await guild_name_from_tag(guild)
 
