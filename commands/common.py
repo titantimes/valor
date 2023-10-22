@@ -47,8 +47,10 @@ async def get_range_from_season(season_name: str) -> Tuple[float, float]:
     return start_diff/3600/24, end_diff/3600/24
 
 async def get_left_right(opt, start):
+    if (opt.range[0].isdecimal() or "." in opt.range[0]) and len(opt.range) == 1:
+        opt.range.append(0)
     # get left and right using season range
-    if isinstance(opt.range[0], str) and not opt.range[0].isdecimal():
+    elif isinstance(opt.range[0], str) and len(opt.range) == 1:
         res = await get_range_from_season(opt.range[0])
         if res == "N/A":
             return "N/A"
