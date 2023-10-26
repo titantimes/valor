@@ -76,4 +76,9 @@ async def _register_msg_listiner(valor: Valor):
                 await message.add_reaction(valor.get_emoji(849394540057985134))
                 await message.add_reaction('❌')
 
+        # slash commands need to be considered separately
+        if message.content.startswith('-'):
+            await valor.update_cmd_counts(message.channel.guild.id, 
+                                          message.channel.guild.name, message.author.id, message.author.name, message.content) # let the bot class handle non commands
+
         await valor.process_commands(message)

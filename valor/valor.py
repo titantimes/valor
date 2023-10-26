@@ -5,6 +5,7 @@ from sql import ValorSQL
 import asyncio
 import aiomysql
 import multiprocessing as mp
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,6 +27,8 @@ class Valor(discord.ext.commands.Bot):
         self.endpoints = {
 
         }
+
+        self.last_cmd_counts = []
 
         manager = mp.Manager()
         self.db_lock = manager.Lock()
@@ -50,3 +53,20 @@ class Valor(discord.ext.commands.Bot):
     async def run(self):
         self.reaction_msg_ids = dict(await ValorSQL.get_all_react_msg())
         await super(Valor, self).start(self.BOT_TOKEN)
+    
+    async def update_cmd_counts(self, server_id, server_name, discord_id, discord_name, full_command: str):
+        cmd_str = full_command.split(' ')[0][1:]
+        save_N = 10 # how many to buffer until db write
+        valid_cmd_names = set(cmd.name for cmd in self.commands)
+        if not cmd_str in valid_cmd_names: return
+        
+        now = time.time()
+        self.last_cmd_counts.append((server_id, server_name, discord_id, discord_name, cmd_str, full_command, now))
+
+        if len(self.last_cmd_counts) < save_N: return
+
+        query = "INSERT INTO command_queries (server_id, server_name, discord_id, discord_name, command, full_command, time) VALUES "+\
+            ','.join(f"({server_id}, '{server_name}', {discord_id}, '{discord_name}', '{cmd_str}', '{full_command}', {now})" 
+                    for (server_id, server_name, discord_id, discord_name, cmd_str, full_command, now) in self.last_cmd_counts)
+        await ValorSQL._execute(query)
+
