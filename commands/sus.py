@@ -48,7 +48,7 @@ async def _register_sus(valor: Valor):
         wynn_playtime_sus = round(max(0, (wynn_playtime - 800) * -1) * 100 / 800, 1)
         wynn_quest_sus = round(max(0, (wynn_quest - 150) * -1) * 100 / 150, 1)
 
-        if wynn_rank == "veteran" or wynn_rank == "champion" or wynn_rank == "hero" or wynn_rank == "vip+":
+        if wynn_rank == "veteran" or wynn_rank == "champion" or wynn_rank == "hero" or wynn_rank == "vipplus":
             wynn_rank_sus = 0.0
         elif wynn_rank == "vip":
             wynn_rank_sus = 25.0
