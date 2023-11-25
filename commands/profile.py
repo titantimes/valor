@@ -34,6 +34,9 @@ async def _register_profile(valor: Valor):
         uuid = await get_uuid(username)
 
         warcount = valor.warcount119.get(username.lower(), 0)
+        res = await ValorSQL.exec_param("SELECT SUM(warcount) FROM cumu_warcounts WHERE uuid=%s", uuid)
+        warcount += (res[0][0] if res else 0)
+
         wranking = get_war_rank(warcount)
         # schema = "https://" if os.getenv("USESSL") == "true" else "http://"
         # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/Titans Valor/{username}").json().get("data", {"xp": 0})
@@ -45,7 +48,7 @@ async def _register_profile(valor: Valor):
         draw = ImageDraw.Draw(img)
         draw.text((14, 75-fontsize), username, (0, 0, 0), font=font)
         # bar 1
-        draw.text((235, 96-bar_fontsize), "1.19 War Count", (0, 0, 0), font=bar_font)
+        draw.text((235, 96-bar_fontsize), "War Count", (0, 0, 0), font=bar_font)
         draw.text((450, 96-bar_fontsize), f"{warcount}/{wranking[1]} Wars", (0, 0, 0), font=bar_font)
         bar1_percent = min(warcount/wranking[1], 1)
         draw.rectangle([241, 96, 241+bar_length*bar1_percent, 113], fill=(200, 40, 40))

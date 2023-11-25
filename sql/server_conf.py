@@ -97,6 +97,16 @@ class ValorSQL:
         
         return res
 
+    @classmethod
+    async def exec_param(cls, query: str, params):
+        async with ValorSQL.pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(query, params)
+                res = await cur.fetchall()
+                await conn.commit()
+        
+        return res
+
     # all of the message reaction / vote polls
 
     @classmethod
