@@ -46,15 +46,16 @@ async def _register_activity(valor: Valor):
         for rank in guild_members_data:
             if type(guild_members_data[rank]) != dict: continue
 
-            members |= guild_members_data[rank].keys()
+            members |= {guild_members_data[rank][x]["uuid"] for x in guild_members_data[rank]}
 
         res = await ValorSQL.exec_param("SELECT uuid_name.name, player_stats.lastJoin, player_stats.uuid FROM player_stats LEFT JOIN uuid_name ON player_stats.uuid=uuid_name.uuid WHERE player_stats.guild=%s", [guild_name])
         content = []
 
         checkup_on = []
+        checkup_on.extend(set(members) - set(uuid for _, _, uuid in res)) # by default get anyone who isn't in player_stats
 
         for name, last_join, uuid in res:
-            if not name in members: continue
+            if not uuid in members: continue
 
             time_delta = datetime.utcnow() - datetime.fromtimestamp(last_join)
             if last_join:
