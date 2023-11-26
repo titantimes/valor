@@ -66,7 +66,7 @@ class Valor(discord.ext.commands.Bot):
         if len(self.last_cmd_counts) < save_N: return
 
         query = "INSERT INTO command_queries (server_id, server_name, discord_id, discord_name, command, full_command, time) VALUES "+\
-            ("(%s, %s, %s, %s, %s, %s, %s),"*save_N)[:-1]
+            ("(%s, %s, %s, %s, %s, %s, %s),"*len(self.last_cmd_counts))[:-1]
 
         async with ValorSQL.pool.acquire() as conn:
             async with conn.cursor() as cur:
