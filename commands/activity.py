@@ -41,6 +41,7 @@ async def _register_activity(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, "rank", parser.format_help().replace("main.py", "-rank"), color=0xFF00)
         
         guild_name = await guild_name_from_tag(opt.guild)
+
         guild_members_data = requests.get(uri+guild_name).json()["members"]
         members = set()
         for rank in guild_members_data:
@@ -56,7 +57,8 @@ async def _register_activity(valor: Valor):
 
         for name, last_join, uuid in res:
             if not uuid in members: continue
-
+            if not name: continue # name is none type should almost never happen (initially messed up uuid_name table)
+            
             time_delta = datetime.utcnow() - datetime.fromtimestamp(last_join)
             if last_join:
                 content.append((time_delta, name.replace('_', '\\_'), f'{time_delta.days}d{time_delta.seconds // 3600}h'))
