@@ -72,7 +72,8 @@ async def _register_activity(valor: Valor):
         # push the player into the queue to check on
         now = time.time()
         pairs = [(uuid, now) for uuid in checkup_on]
-        await ValorSQL.exec_param("REPLACE INTO player_stats_queue VALUES " + ("(%s,%s),"*len(pairs))[:-1], [y for x in pairs for y in x])
+        if pairs:
+            await ValorSQL.exec_param("REPLACE INTO player_stats_queue VALUES " + ("(%s,%s),"*len(pairs))[:-1], [y for x in pairs for y in x])
 
         # quickly respond to the command
         await LongFieldEmbed.send_message(valor, ctx, f"Player Last Join of {guild_name} ({len(members)})", content)
