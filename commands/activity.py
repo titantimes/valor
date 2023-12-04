@@ -14,15 +14,18 @@ from sql import ValorSQL
 from .common import guild_name_from_tag
 
 load_dotenv()
-uri = "https://api.wynncraft.com/v3/guild/"
+uri = "https://api.wynncraft.com/v3-dev/guild/"
 player_uri = "https://api.wynncraft.com/v3/player/"
 
 async def query_task(session: aiohttp.ClientSession, uuid: str) -> Tuple[str, datetime]:
     async with session.get(player_uri + uuid) as res:
         res = await res.json()
+
     user = res["username"]
     last = res["lastJoin"]
-    return user, datetime.utcnow() - datetime.strptime(last, "%Y-%m-%dT%H:%M:%S.%f")
+    uuid = res["uuid"]
+
+    return user, datetime.fromisoformat(last).timestamp(), uuid
 
 async def _register_activity(valor: Valor):
     desc = "Gets you the player last logins sorted"
@@ -49,12 +52,19 @@ async def _register_activity(valor: Valor):
 
             members |= {guild_members_data[rank][x]["uuid"] for x in guild_members_data[rank]}
 
-        res = await ValorSQL.exec_param("SELECT uuid_name.name, player_stats.lastJoin, player_stats.uuid FROM player_stats LEFT JOIN uuid_name ON player_stats.uuid=uuid_name.uuid WHERE player_stats.guild=%s", [guild_name])
+        members = list(members)
+        # res = await ValorSQL.exec_param("SELECT uuid_name.name, player_stats.lastJoin, player_stats.uuid FROM player_stats LEFT JOIN uuid_name ON player_stats.uuid=uuid_name.uuid WHERE player_stats.guild=%s", [guild_name])
         content = []
 
-        checkup_on = []
-        checkup_on.extend(set(members) - set(uuid for _, _, uuid in res)) # by default get anyone who isn't in player_stats
+        # checkup_on = []
+        # checkup_on.extend(set(members) - set(uuid for _, _, uuid in res)) # by default get anyone who isn't in player_stats
 
+        res = []
+        async with aiohttp.ClientSession() as sess:
+            res.extend(await asyncio.gather(*[query_task(sess, uuid) for uuid in members[:64]]))
+            await asyncio.sleep(1)
+            res.extend(await asyncio.gather(*[query_task(sess, uuid) for uuid in members[64:]]))
+        
         for name, last_join, uuid in res:
             if not uuid in members: continue
             if not name: continue # name is none type should almost never happen (initially messed up uuid_name table)
@@ -64,16 +74,16 @@ async def _register_activity(valor: Valor):
                 content.append((time_delta, name.replace('_', '\\_'), f'{time_delta.days}d{time_delta.seconds // 3600}h'))
             else:
                 content.append((time_delta, name.replace('_', '\\_'), '30d+'))
-                checkup_on.append(uuid)
+                # checkup_on.append(uuid)
         
         content.sort(reverse=True)
         content = [(x[1], x[2]) for x in content]
 
         # push the player into the queue to check on
-        now = time.time()
-        pairs = [(uuid, now) for uuid in checkup_on]
-        if pairs:
-            await ValorSQL.exec_param("REPLACE INTO player_stats_queue VALUES " + ("(%s,%s),"*len(pairs))[:-1], [y for x in pairs for y in x])
+        # now = time.time()
+        # pairs = [(uuid, now) for uuid in checkup_on]
+        # if pairs:
+        #     await ValorSQL.exec_param("REPLACE INTO player_stats_queue VALUES " + ("(%s,%s),"*len(pairs))[:-1], [y for x in pairs for y in x])
 
         # quickly respond to the command
         await LongFieldEmbed.send_message(valor, ctx, f"Player Last Join of {guild_name} ({len(members)})", content)
