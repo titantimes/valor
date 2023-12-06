@@ -22,7 +22,7 @@ async def query_task(session: aiohttp.ClientSession, uuid: str) -> Tuple[str, da
         res = await res.json()
 
     user = res["username"]
-    last = res["lastJoin"]
+    last = res["lastJoin"][:-1]
     uuid = res["uuid"]
 
     return user, datetime.fromisoformat(last).timestamp(), uuid
