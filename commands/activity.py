@@ -17,10 +17,13 @@ load_dotenv()
 uri = "https://api.wynncraft.com/v3/guild/"
 player_uri = "https://api.wynncraft.com/v3/player/"
 
-async def query_task(session: aiohttp.ClientSession, uuid: str) -> Tuple[str, datetime]:
+async def query_task(session: aiohttp.ClientSession, uuid: str) -> Tuple[str, datetime, str]:
     async with session.get(player_uri + uuid) as res:
         res = await res.json()
 
+    # skip player if wynnapi errors.
+    if "username" not in res:
+        return None, None, None
     user = res["username"]
     last = res["lastJoin"][:-1]
     uuid = res["uuid"]
@@ -38,10 +41,10 @@ async def _register_activity(valor: Valor):
         try:
             opt = parser.parse_args(options)
         except:
-            return await LongTextEmbed.send_message(valor, ctx, "rank", parser.format_help().replace("main.py", "-rank"), color=0xFF00)
+            return await LongTextEmbed.send_message(valor, ctx, "activity", parser.format_help().replace("main.py", "-activity"), color=0xFF00)
         
         if not opt.guild:
-            return await LongTextEmbed.send_message(valor, ctx, "rank", parser.format_help().replace("main.py", "-rank"), color=0xFF00)
+            return await LongTextEmbed.send_message(valor, ctx, "activity", parser.format_help().replace("main.py", "-activity"), color=0xFF00)
         
         guild_name = await guild_name_from_tag(opt.guild)
 
@@ -67,7 +70,7 @@ async def _register_activity(valor: Valor):
         
         for name, last_join, uuid in res:
             if not uuid in members: continue
-            if not name: continue # name is none type should almost never happen (initially messed up uuid_name table)
+            if not name: continue # name is none type should almost never happen (initially messed up uuid_name table or when wynnapi returns error)
             
             time_delta = datetime.utcnow() - datetime.fromtimestamp(last_join)
             if last_join:
@@ -90,7 +93,7 @@ async def _register_activity(valor: Valor):
         
     @activity.error
     async def cmd_error(ctx, error: Exception):
-        await ctx.send(embed=ErrorEmbed())
+        await ctx.send(embed=ErrorEmbed(err=error))
         raise error
     
     @valor.help_override.command()
