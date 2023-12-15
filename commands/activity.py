@@ -14,7 +14,7 @@ from sql import ValorSQL
 from .common import guild_name_from_tag
 
 load_dotenv()
-uri = "https://api.wynncraft.com/v3-dev/guild/"
+uri = "https://api.wynncraft.com/v3/guild/"
 player_uri = "https://api.wynncraft.com/v3/player/"
 
 async def query_task(session: aiohttp.ClientSession, uuid: str) -> Tuple[str, datetime]:
