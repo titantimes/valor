@@ -27,7 +27,7 @@ async def _register_sus(valor: Valor):
         if hypixel_data["success"]:
             hypixel_join = float(int(hypixel_data["player"]["firstLogin"] / 1000))
 
-        wynn_data = requests.get(f"https://api.wynncraft.com/v3/player/{dashed_uuid}?fullResult=true").json()
+        wynn_data = requests.get(f"https://api.wynncraft.com/v3/player/{dashed_uuid}?fullResult").json()
         if "username" not in wynn_data:
             return await ctx.send(embed=ErrorEmbed("Wynn API Issue"))
         wynn_join = wynn_data["firstJoin"].split("T")[0]
