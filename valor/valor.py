@@ -29,7 +29,7 @@ class Valor(discord.ext.commands.Bot):
 
         self.last_cmd_counts = []
 
-        self.http = aiohttp_handler.HTTPHandler()
+        self.ahttp = aiohttp_handler.HTTPHandler()
 
         manager = mp.Manager()
         self.db_lock = manager.Lock()
