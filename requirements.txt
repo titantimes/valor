@@ -8,3 +8,4 @@ scipy
 mysql-connector-python==8.0.29
 requests
 websockets
+openai
