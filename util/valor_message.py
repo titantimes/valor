@@ -242,16 +242,22 @@ class LongTextEmbed(discord.Embed):
         return usr.id != SELF_ID and (str(rxn.emoji) == LEFT_PAGE_EMOJI or str(rxn.emoji) == RIGHT_PAGE_EMOJI)
 
     @abstractclassmethod
-    async def send_message(cls, valor: Valor, ctx: Context, title: str, content="", color=0x000000, file="", url="", **kwargs):
+    async def send_message(cls, valor: Valor, ctx: Context, title: str, content="", color=0x000000, file="", url="", reply=False, **kwargs):
         em: cls = cls(title, content, **kwargs)
         if url:
             em.set_image(url=url)
         em.color = color
         msg: discord.Message
         if file:
-            msg = await ctx.send(file=file, embed=em)
+            if reply:
+                msg = await ctx.message.reply(file=file, embed=em)
+            else:
+                msg = await ctx.send(file=file, embed=em)
         else:
-            msg = await ctx.send(embed=em)
+            if reply:
+                msg =await ctx.message.reply(embed=em)
+            else:
+                msg = await ctx.send(embed=em)
         if em.total_pages <= 1:
             return
         await msg.add_reaction(LEFT_PAGE_EMOJI)

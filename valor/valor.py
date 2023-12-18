@@ -2,10 +2,9 @@ import discord
 import os
 import json
 from sql import ValorSQL
-import asyncio
-import aiomysql
 import multiprocessing as mp
 import time
+from valor import aiohttp_handler
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,6 +28,8 @@ class Valor(discord.ext.commands.Bot):
         }
 
         self.last_cmd_counts = []
+
+        self.http = aiohttp_handler.HTTPHandler()
 
         manager = mp.Manager()
         self.db_lock = manager.Lock()

@@ -33,6 +33,7 @@ from .season import _register_season
 from .sus import _register_sus
 from .blacklist import _register_blacklist
 from .warcount import _register_warcount
+from .chat import _register_chat
 from valor import Valor
 from discord.ext.commands.hybrid import HybridCommand
 
@@ -75,3 +76,4 @@ async def register_all(valor: Valor):
     await _register_sus(valor)
     await _register_blacklist(valor)
     await _register_warcount(valor)
+    await _register_chat(valor)
