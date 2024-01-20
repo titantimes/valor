@@ -57,22 +57,15 @@ async def _register_sus(valor: Valor):
 
         overall_sus = round((first_seen_sus + wynn_join_sus + wynn_level_sus + wynn_playtime_sus + wynn_quest_sus + wynn_rank_sus) / 6, 2)
 
-        if not os.path.exists(f"/tmp/{name}_model.png"):
-            model = requests.get(f"https://visage.surgeplay.com/front/{id}").content 
-            with open(f"/tmp/{name}_model.png", "wb") as f:
-                f.write(model)
-
-        file = File(f"/tmp/{name}_model.png", filename=f"{name}_model.png")
-
         embed=Embed(title=f"Suspiciousness of {name}: {overall_sus}%", description="The rating is based on the following components:", color=0x00ff2a)
-        embed.set_thumbnail(url=f"attachment://{name}_model.png")
+        embed.set_thumbnail(url=f"https://visage.surgeplay.com/bust/512/{id}.png?y=-40")
         embed.add_field(name="Wynncraft Join Date", value=f"{wynn_join}\n{wynn_join_sus}%", inline=True)
         embed.add_field(name="Wynncraft Playtime", value=f"{wynn_playtime} hours\n{wynn_playtime_sus}%", inline=True)
         embed.add_field(name="Wynncraft Level", value=f"{wynn_level}\n{wynn_level_sus}%", inline=True)
         embed.add_field(name="Wynncraft Quests", value=f"{wynn_quest}\n{wynn_quest_sus}%", inline=True)
         embed.add_field(name="Wynncraft Rank", value=f"{wynn_rank}\n{wynn_rank_sus}%", inline=True)
         embed.add_field(name="Minecraft First Seen", value=f"""{first_seen_time}\n{first_seen_sus}%""", inline=True)
-        await ctx.send(file=file, embed=embed)
+        await ctx.send(embed=embed)
 
 
     @valor.help_override.command()

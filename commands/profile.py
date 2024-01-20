@@ -2,13 +2,13 @@ import requests
 import time
 from valor import Valor
 from sql import ValorSQL
-import mongo
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, get_war_rank, get_xp_rank
 from discord.ext.commands import Context
 from datetime import datetime
 from discord import File
 from dotenv import load_dotenv
 import os
+import json
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -77,23 +77,20 @@ async def _register_profile(valor: Valor):
         draw.text((520, 270-circle_fontsize), "Cool", (20, 20, 180), font=circle_font)
         draw.text((520, 290-circle_fontsize), "X", (20, 20, 120), font=rank_font)
         # medals
-        client = mongo.client
-        collection = client.valor.player_awards
-        cursor = collection.find_one({"uuid": uuid})
-
-        if cursor is not None:
-            if len(cursor["awards"]) == 0:
-                draw.text((244, 357-circle_fontsize), "No medals lul", (0, 50, 80), font=circle_font)
-            else:
-                medals = cursor["awards"]
-                for i, medal in enumerate(medals):
-                    medal_img = Image.open(f"assets/medals/{medal}.png")
-                    img.paste(medal_img, (242+(40*i), 307), medal_img)
-        else:
+        res = await ValorSQL._execute(f"SELECT awards FROM player_awards WHERE uuid='{uuid}'")
+        
+        if not res:
             draw.text((244, 357-circle_fontsize), "No medals lul", (0, 50, 80), font=circle_font)
+        else:
+            medals = json.loads(res[0][0])
+            for i, medal in enumerate(medals):
+                medal_img = Image.open(f"assets/medals/{medal}.png")
+                img.paste(medal_img, (242+(40*i), 307), medal_img)
+
         # get model
         if not os.path.exists(f"/tmp/{username}_model.png"):
-            model = requests.get(model_base+uuid).content 
+            user_agent = {'User-Agent': 'valor-bot/1.0'}
+            model = requests.get(model_base+uuid+'.png', headers=user_agent).content
             with open(f"/tmp/{username}_model.png", "wb") as f:
                 f.write(model)
         model_img = Image.open(f"/tmp/{username}_model.png", 'r')
