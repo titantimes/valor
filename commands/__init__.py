@@ -35,6 +35,7 @@ from .blacklist import _register_blacklist
 from .warcount import _register_warcount
 from .chat import _register_chat
 from .inspire import _register_inspire
+from .update_stats import _register_update_stats 
 from valor import Valor
 from discord.ext.commands.hybrid import HybridCommand
 
@@ -79,3 +80,5 @@ async def register_all(valor: Valor):
     await _register_warcount(valor)
     await _register_chat(valor)
     await _register_inspire(valor)
+    await _register_update_stats(valor)
+    

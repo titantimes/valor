@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package pyvalor;
+
+service PlayerStatsUpdater {
+    rpc UpdatePlayerStats(Request) returns (Response) {}
+}
+
+message Request {
+    repeated string player_uuid = 1;
+}
+
+message Response {
+    repeated string failures = 1;        
+}
