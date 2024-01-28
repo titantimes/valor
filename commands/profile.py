@@ -2,13 +2,13 @@ import requests
 import time
 from valor import Valor
 from sql import ValorSQL
-import mongo
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, get_war_rank, get_xp_rank
 from discord.ext.commands import Context
 from datetime import datetime
 from discord import File
 from dotenv import load_dotenv
 import os
+import json
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -49,13 +49,13 @@ async def _register_profile(valor: Valor):
         draw.text((14, 75-fontsize), username, (0, 0, 0), font=font)
         # bar 1
         draw.text((235, 96-bar_fontsize), "War Count", (0, 0, 0), font=bar_font)
-        draw.text((450, 96-bar_fontsize), f"{warcount}/{wranking[1]} Wars", (0, 0, 0), font=bar_font)
+        draw.text((589, 96-bar_fontsize), f"{warcount}/{wranking[1]} Wars", (0, 0, 0), font=bar_font, anchor="ra")
         bar1_percent = min(warcount/wranking[1], 1)
         draw.rectangle([241, 96, 241+bar_length*bar1_percent, 113], fill=(200, 40, 40))
         # bar 2
-        draw.text((235, 149-bar_fontsize), "Guild XP Contribution", (0, 0, 0), font=bar_font)
+        draw.text((235, 149-bar_fontsize), "Guild XP", (0, 0, 0), font=bar_font)
         bar2_percent = min(gxp_contrib/xpranking[1], 1)
-        draw.text((450, 149-bar_fontsize), f"{gxp_contrib} XP", (0, 0, 0), font=bar_font)
+        draw.text((589, 149-bar_fontsize), f"{gxp_contrib} XP", (0, 0, 0), font=bar_font, anchor="ra")
         draw.rectangle([241, 151, 241+bar_length*bar2_percent, 168], fill=(40, 200, 40))
         # bar 3
         draw.text((235, 200-bar_fontsize), "Coolness", (0, 0, 0), font=bar_font)
@@ -65,7 +65,7 @@ async def _register_profile(valor: Valor):
         print(f"SELECT * FROM activity_members WHERE uuid='{uuid}' AND timestamp>={d7}")
         bar3_percent = min(cnt_14d/100, 1)
         
-        draw.text((450, 200-bar_fontsize), f"{round(bar3_percent*100)}% Cool", (0, 0, 0), font=bar_font)
+        draw.text((589, 200-bar_fontsize), f"{round(bar3_percent*100)}% Cool", (0, 0, 0), font=bar_font, anchor="ra")
         draw.rectangle([241, 201, 241+bar_length*bar3_percent, 217], fill=(40, 40, 200))
         # circle 1
         draw.text((267, 270-circle_fontsize), "Wars", (180, 20, 20), font=circle_font)
@@ -77,23 +77,20 @@ async def _register_profile(valor: Valor):
         draw.text((520, 270-circle_fontsize), "Cool", (20, 20, 180), font=circle_font)
         draw.text((520, 290-circle_fontsize), "X", (20, 20, 120), font=rank_font)
         # medals
-        client = mongo.client
-        collection = client.valor.player_awards
-        cursor = collection.find_one({"uuid": uuid})
-
-        if cursor is not None:
-            if len(cursor["awards"]) == 0:
-                draw.text((244, 357-circle_fontsize), "No medals lul", (0, 50, 80), font=circle_font)
-            else:
-                medals = cursor["awards"]
-                for i, medal in enumerate(medals):
-                    medal_img = Image.open(f"assets/medals/{medal}.png")
-                    img.paste(medal_img, (242+(40*i), 307), medal_img)
-        else:
+        res = await ValorSQL._execute(f"SELECT awards FROM player_awards WHERE uuid='{uuid}'")
+        
+        if not res:
             draw.text((244, 357-circle_fontsize), "No medals lul", (0, 50, 80), font=circle_font)
+        else:
+            medals = json.loads(res[0][0])
+            for i, medal in enumerate(medals):
+                medal_img = Image.open(f"assets/medals/{medal}.png")
+                img.paste(medal_img, (242+(40*i), 307), medal_img)
+
         # get model
         if not os.path.exists(f"/tmp/{username}_model.png"):
-            model = requests.get(model_base+uuid).content 
+            user_agent = {'User-Agent': 'valor-bot/1.0'}
+            model = requests.get(model_base+uuid+'.png', headers=user_agent).content
             with open(f"/tmp/{username}_model.png", "wb") as f:
                 f.write(model)
         model_img = Image.open(f"/tmp/{username}_model.png", 'r')
