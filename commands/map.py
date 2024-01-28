@@ -224,10 +224,12 @@ async def _register_map(valor: Valor):
 
         warn_athena_down = "Athena API is down (WynnAPI as fallback) Colors may be wrong.!!!\n\n" if Y_or_Z == "Y" else ""
 
-        await LongTextEmbed.send_message(valor, ctx, f"Map", no_territories_msg+warn_athena_down+"It's out of embed because discord confines img previews in embeds.\n Striped lines means enemy holds ally (includes FFAs)", color=0xFF0000, 
-            file=file, 
-            # url="attachment://map.jpg",
-        )
+        await ctx.send(file=file)
+
+        if warn_athena_down:
+            await LongTextEmbed.send_message(valor, ctx, f"Map", no_territories_msg+warn_athena_down, color=0xFF0000, 
+                # url="attachment://map.jpg",
+            )
 
         # main_map.close() don't actually close it
 
