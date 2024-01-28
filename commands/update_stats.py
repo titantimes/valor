@@ -52,7 +52,7 @@ async def _register_update_stats(valor: Valor):
 
         content = "Updated Players:\n" + '\n'.join(requested_players - failed_players)
         if failed_players:
-            content += "\nFailed to Update:\n" + '\n'.join(failed_players)
+            content += "\n\nFailed to Update:\n" + '\n'.join(failed_players)
         return await LongTextEmbed.send_message(valor, ctx, title=f"Player Stats Update", content=content, color=0xFF10, code_block=True, footer=f"RPC took {end-start:.3}s.")
 
     @valor.help_override.command()
