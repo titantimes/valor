@@ -20,7 +20,7 @@ async def _register_join(valor: Valor):
         
         for m in users:
             if m["name"] == username:
-                ezjoin = datetime.fromisoformat(m["joined"])
+                ezjoin = datetime.datetime.fromisoformat(m["joined"])
                 return await LongTextEmbed.send_message(valor, ctx, "Most Recent Join Date of %s" % username, ezjoin.strftime("%d %b %Y %H:%M:%S.%f UTC"), color=0xFF00)
         
         await ctx.send(embed=ErrorEmbed("%s isn't in the guild" % username))
