@@ -70,10 +70,6 @@ async def get_leaderboard(stat):
         res = await ValorSQL._execute(f"SELECT uuid_name.name, uuid_name.uuid, player_stats.{stat} FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY {stat} DESC LIMIT 50")
     stats = []
     for m in res:
-        if stat == "playtime":
-            value = round(m[2] * 4.9 / 60, 1)
-        else:
-            value = m[2]
         if not m[0] and m[1]:
             stats.append((await from_uuid(m[1]), value))
         else:
