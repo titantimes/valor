@@ -71,9 +71,9 @@ async def get_leaderboard(stat):
     stats = []
     for m in res:
         if not m[0] and m[1]:
-            stats.append((await from_uuid(m[1]), value))
+            stats.append((await from_uuid(m[1]), m[2]))
         else:
-            stats.append((m[0] if m[0] else "can't find name", value))
+            stats.append((m[0] if m[0] else "can't find name", m[2]))
 
     return "```\n"+'\n'.join("%3d. %24s %5d" % (i+1, stats[i][0], stats[i][1]) for i in range(len(stats)))+"\n```"
 
