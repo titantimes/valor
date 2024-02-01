@@ -49,7 +49,8 @@ async def main():
         
         await asyncio.gather(
             asyncio.ensure_future(valor.run()),
-            asyncio.ensure_future(cron.gxp_roles(valor))       
+            asyncio.ensure_future(cron.gxp_roles(valor)),
+            asyncio.ensure_future(cron.warcount_roles(valor))      
         )
         
 

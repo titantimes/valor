@@ -27,6 +27,10 @@ def get_xp_rank_index(xp: int):
         i += 1
     return i
 
-
-
-
+def get_war_rank_index(wars: int):
+    i = 0
+    while i < len(war_ranks):
+        if wars < war_ranks[i]:
+            break
+        i += 1
+    return i

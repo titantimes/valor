@@ -8,6 +8,7 @@ import time
 from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed
 from sql import ValorSQL
 from util import profile_calc
+from commands.common import from_uuid
 
 load_dotenv()
 async def _smp_loop(valor: Valor):
@@ -115,3 +116,49 @@ async def seniority_roles(valor: Valor):
                 await member.add_roles(xp_role)
     
         await asyncio.sleep(3600)
+
+async def warcount_roles(valor: Valor):
+    if os.environ["TEST"] == "TRUE":
+        return
+    
+    await valor.wait_until_ready()
+
+    guild = valor.get_guild(535603929598394389)
+    # guild = valor.get_guild(1088602008837169294) # test server
+
+    roles = [0,guild.get_role(1054213859289878528), guild.get_role(1054214523717947423), guild.get_role(1054214514054271015), guild.get_role(1054214505766330408), guild.get_role(1054214486820663346), guild.get_role(1054214475231793172), guild.get_role(1054214464817336350), guild.get_role(1054214452712579142), guild.get_role(1054214410169765908), guild.get_role(1054214365278126110)]
+    # test server roles 
+    # roles = [0, guild.get_role(1088604270603026502), guild.get_role(1088604260935147580), guild.get_role(1088604253104378016), guild.get_role(1088604245474943148), guild.get_role(1088604237946179594), guild.get_role(1088604229830184980), guild.get_role(1088604222473383996), guild.get_role(1088604215049474161), guild.get_role(1088604206832824330), guild.get_role(1088603953786265652)]
+
+    while not valor.is_closed():
+        user_wars_table = await ValorSQL._execute(f"SELECT uuid, SUM(warcount) FROM cumu_warcounts GROUP BY uuid;")
+        user_ids = await ValorSQL._execute(f"SELECT * FROM id_uuid")
+
+        user_wars= {}
+        for row in user_wars_table: # * make a dictionary of uuid:warcount
+            user_wars[row[0]] = row[1]
+
+        for row in user_ids:
+            discord_id, uuid = row
+            wars = user_wars.get(uuid, 0)
+            member = guild.get_member(discord_id)
+
+            if not member: # skip if member is not in discord anymore.
+                continue
+
+            username = await from_uuid(uuid)
+            wars += valor.warcount119.get(username.lower(), 0) # 1.19 wars
+
+            member_roles = set(member.roles)
+            intersect = set(roles) & member_roles
+
+            war_role=roles[profile_calc.get_war_rank_index(wars)-1]
+
+            if not war_role in member.roles:
+                if intersect and intersect != war_role:
+                    await member.remove_roles([*intersect][0])
+
+                if member.roles and war_role: # snazz for whatever reason wants a 0 at the beginning of roles
+                    await member.add_roles(war_role)
+        
+        await asyncio.sleep(600)
