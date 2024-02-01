@@ -1,6 +1,7 @@
 discord.py
 python-dotenv
 aiomysql
+cffi
 numpy
 matplotlib
 pymongo
