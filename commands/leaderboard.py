@@ -1,11 +1,12 @@
 from valor import Valor
 from discord.ext.commands import Context
 from discord.ui import Select, View
+from discord import File
 import discord
-from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
-import random
-from datetime import datetime
-import requests
+from util import ErrorEmbed, LongTextEmbed
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
 from sql import ValorSQL
 from commands.common import get_uuid, from_uuid
 
@@ -14,10 +15,10 @@ class LeaderboardSelect(Select):
         super().__init__(options=options, placeholder="Select a stat to view its leaderboard.", row=0)
     
     async def callback(self, interaction: discord.Interaction):     
-        table = await get_leaderboard(self.values[0])
+        board = await get_leaderboard(self.values[0])
 
         self.embed.title = f"Leaderboard for {self.values[0]}"
-        self.embed.description = table
+        self.embed.set_image(url="attachment://leaderboard.png")
 
         await interaction.response.edit_message(embed=self.embed, view=self.view)
 
@@ -63,9 +64,9 @@ class LeaderboardView(View):
 
 async def get_leaderboard(stat):
     if stat == "raids":
-        res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs DESC LIMIT 50")
+        res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs DESC LIMIT 10")
     elif stat == "dungeons":
-        res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.decrepit_sewers + player_stats.corrupted_decrepit_sewers + player_stats.infested_pit + player_stats.corrupted_infested_pit + player_stats.corrupted_underworld_crypt + player_stats.underworld_crypt + player_stats.lost_sanctuary + player_stats.corrupted_lost_sanctuary + player_stats.ice_barrows + player_stats.corrupted_ice_barrows + player_stats.corrupted_undergrowth_ruins + player_stats.undergrowth_ruins + player_stats.corrupted_galleons_graveyard + player_stats.galleons_graveyard + player_stats.fallen_factory + player_stats.eldritch_outlook + player_stats.corrupted_sand_swept_tomb + player_stats.sand_swept_tomb + player_stats.timelost_sanctum FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.decrepit_sewers + player_stats.corrupted_decrepit_sewers + player_stats.infested_pit + player_stats.corrupted_infested_pit + player_stats.corrupted_underworld_crypt + player_stats.underworld_crypt + player_stats.lost_sanctuary + player_stats.corrupted_lost_sanctuary + player_stats.ice_barrows + player_stats.corrupted_ice_barrows + player_stats.corrupted_undergrowth_ruins + player_stats.undergrowth_ruins + player_stats.corrupted_galleons_graveyard + player_stats.galleons_graveyard + player_stats.fallen_factory + player_stats.eldritch_outlook + player_stats.corrupted_sand_swept_tomb + player_stats.sand_swept_tomb + player_stats.timelost_sanctum DESC LIMIT 50")
+        res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.decrepit_sewers + player_stats.corrupted_decrepit_sewers + player_stats.infested_pit + player_stats.corrupted_infested_pit + player_stats.corrupted_underworld_crypt + player_stats.underworld_crypt + player_stats.lost_sanctuary + player_stats.corrupted_lost_sanctuary + player_stats.ice_barrows + player_stats.corrupted_ice_barrows + player_stats.corrupted_undergrowth_ruins + player_stats.undergrowth_ruins + player_stats.corrupted_galleons_graveyard + player_stats.galleons_graveyard + player_stats.fallen_factory + player_stats.eldritch_outlook + player_stats.corrupted_sand_swept_tomb + player_stats.sand_swept_tomb + player_stats.timelost_sanctum FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.decrepit_sewers + player_stats.corrupted_decrepit_sewers + player_stats.infested_pit + player_stats.corrupted_infested_pit + player_stats.corrupted_underworld_crypt + player_stats.underworld_crypt + player_stats.lost_sanctuary + player_stats.corrupted_lost_sanctuary + player_stats.ice_barrows + player_stats.corrupted_ice_barrows + player_stats.corrupted_undergrowth_ruins + player_stats.undergrowth_ruins + player_stats.corrupted_galleons_graveyard + player_stats.galleons_graveyard + player_stats.fallen_factory + player_stats.eldritch_outlook + player_stats.corrupted_sand_swept_tomb + player_stats.sand_swept_tomb + player_stats.timelost_sanctum DESC LIMIT 10")
     else:
         res = await ValorSQL._execute(f"SELECT uuid_name.name, uuid_name.uuid, player_stats.{stat} FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY {stat} DESC LIMIT 50")
     stats = []
@@ -74,8 +75,43 @@ async def get_leaderboard(stat):
             stats.append((await from_uuid(m[1]), m[2]))
         else:
             stats.append((m[0] if m[0] else "can't find name", m[2]))
+        
+    stats_list = []
+    for i in range(len(stats)):
+        stats_list.append([i+1, stats[i][0], stats[i][1]])
+    
+    #print(stats_list)
+        
+    left_margin = 40
+    middle_margin = 120
+    right_margin = 650
 
-    return "```\n"+'\n'.join("%3d. %24s %5d" % (i+1, stats[i][0], stats[i][1]) for i in range(len(stats)))+"\n```"
+    font = ImageFont.truetype("Ubuntu-B.ttf", 20)
+    board = Image.open("assets/leaderboard.png")
+    overlay = Image.open("assets/overlay.png")
+    draw = ImageDraw.Draw(board)
+
+    for i in range(1, 11):
+        stat = stats_list[i-1]
+        height = (i*74)-74
+        board.paste(overlay, (0, height))
+        match stat[0]:
+            case 1:
+                color = "yellow"
+            case 2:
+                color = (170,169,173,255)
+            case 3:
+                color = (169,113,66,255)
+            case _:
+                color = "white"
+        draw.text((left_margin, height+20), "#"+str(stat[0]), fill=color, font=font)
+        draw.text((middle_margin, height+20), str(stat[1]), font=font)
+        draw.text((right_margin, height+20), str(stat[2]), font=font, align="right")
+
+
+    board.save("/tmp/leaderboard.png")
+
+    return File("/tmp/leaderboard.png", filename="leaderboard.png")
 
 
 async def _register_leaderboard(valor: Valor):
@@ -94,16 +130,16 @@ async def _register_leaderboard(valor: Valor):
         
         view = LeaderboardView(stat, stat_set)
 
-        table = await get_leaderboard(stat)
+        board = await get_leaderboard(stat)
         
         view.select.embed = discord.Embed(
             title=f"Leaderboard for {stat}",
-            description=table,
             color=0x11FFBB,
         )
+        view.select.embed.set_image(url="attachment://leaderboard.png")
         view.select.embed.set_footer(text=f"Selection page {view.page+1} | Use arrows keys to switch between pages.")
 
-        await ctx.send(embed=view.select.embed, view=view)
+        await ctx.send(embed=view.select.embed, view=view, file=board)
 
     @leaderboard.error
     async def cmd_error(ctx, error: Exception):
