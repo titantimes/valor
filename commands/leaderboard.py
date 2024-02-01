@@ -20,7 +20,7 @@ class LeaderboardSelect(Select):
         self.embed.title = f"Leaderboard for {self.values[0]}"
         self.embed.set_image(url="attachment://leaderboard.png")
 
-        await interaction.response.edit_message(embed=self.embed, view=self.view)
+        await interaction.response.edit_message(embed=self.embed, view=self.view, attachments=[board])
 
 class LeaderboardView(View):
     def __init__(self, default, stat_set):
@@ -62,11 +62,11 @@ class LeaderboardView(View):
         self.select.embed.set_footer(text=f"Selection page {self.page+1} | Use arrows keys to switch between pages.")
         await interaction.response.edit_message(embed=self.select.embed, view=self)
 
-async def get_leaderboard(stat):
+async def get_leaderboard(stat, page):
     if stat == "raids":
-        res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs DESC LIMIT 10")
+        res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs DESC LIMIT 50")
     elif stat == "dungeons":
-        res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.decrepit_sewers + player_stats.corrupted_decrepit_sewers + player_stats.infested_pit + player_stats.corrupted_infested_pit + player_stats.corrupted_underworld_crypt + player_stats.underworld_crypt + player_stats.lost_sanctuary + player_stats.corrupted_lost_sanctuary + player_stats.ice_barrows + player_stats.corrupted_ice_barrows + player_stats.corrupted_undergrowth_ruins + player_stats.undergrowth_ruins + player_stats.corrupted_galleons_graveyard + player_stats.galleons_graveyard + player_stats.fallen_factory + player_stats.eldritch_outlook + player_stats.corrupted_sand_swept_tomb + player_stats.sand_swept_tomb + player_stats.timelost_sanctum FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.decrepit_sewers + player_stats.corrupted_decrepit_sewers + player_stats.infested_pit + player_stats.corrupted_infested_pit + player_stats.corrupted_underworld_crypt + player_stats.underworld_crypt + player_stats.lost_sanctuary + player_stats.corrupted_lost_sanctuary + player_stats.ice_barrows + player_stats.corrupted_ice_barrows + player_stats.corrupted_undergrowth_ruins + player_stats.undergrowth_ruins + player_stats.corrupted_galleons_graveyard + player_stats.galleons_graveyard + player_stats.fallen_factory + player_stats.eldritch_outlook + player_stats.corrupted_sand_swept_tomb + player_stats.sand_swept_tomb + player_stats.timelost_sanctum DESC LIMIT 10")
+        res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.decrepit_sewers + player_stats.corrupted_decrepit_sewers + player_stats.infested_pit + player_stats.corrupted_infested_pit + player_stats.corrupted_underworld_crypt + player_stats.underworld_crypt + player_stats.lost_sanctuary + player_stats.corrupted_lost_sanctuary + player_stats.ice_barrows + player_stats.corrupted_ice_barrows + player_stats.corrupted_undergrowth_ruins + player_stats.undergrowth_ruins + player_stats.corrupted_galleons_graveyard + player_stats.galleons_graveyard + player_stats.fallen_factory + player_stats.eldritch_outlook + player_stats.corrupted_sand_swept_tomb + player_stats.sand_swept_tomb + player_stats.timelost_sanctum FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.decrepit_sewers + player_stats.corrupted_decrepit_sewers + player_stats.infested_pit + player_stats.corrupted_infested_pit + player_stats.corrupted_underworld_crypt + player_stats.underworld_crypt + player_stats.lost_sanctuary + player_stats.corrupted_lost_sanctuary + player_stats.ice_barrows + player_stats.corrupted_ice_barrows + player_stats.corrupted_undergrowth_ruins + player_stats.undergrowth_ruins + player_stats.corrupted_galleons_graveyard + player_stats.galleons_graveyard + player_stats.fallen_factory + player_stats.eldritch_outlook + player_stats.corrupted_sand_swept_tomb + player_stats.sand_swept_tomb + player_stats.timelost_sanctum DESC LIMIT 50")
     else:
         res = await ValorSQL._execute(f"SELECT uuid_name.name, uuid_name.uuid, player_stats.{stat} FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY {stat} DESC LIMIT 50")
     stats = []
@@ -84,7 +84,7 @@ async def get_leaderboard(stat):
         
     left_margin = 40
     middle_margin = 120
-    right_margin = 650
+    right_margin = 640
 
     font = ImageFont.truetype("Ubuntu-B.ttf", 20)
     board = Image.open("assets/leaderboard.png")
