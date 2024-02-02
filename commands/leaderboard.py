@@ -14,8 +14,9 @@ class LeaderboardSelect(Select):
     def __init__(self, options):
         super().__init__(options=options, placeholder="Select a stat to view its leaderboard.", row=0)
     
-    async def callback(self, interaction: discord.Interaction):     
-        board = await get_leaderboard(self.values[0])
+    async def callback(self, interaction: discord.Interaction):
+        self.view.page = 0
+        board = await get_leaderboard(self.values[0], self.view.page)
 
         self.embed.title = f"Leaderboard for {self.values[0]}"
         self.embed.set_image(url="attachment://leaderboard.png")
@@ -36,6 +37,7 @@ class LeaderboardView(View):
                 break
         select_options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
         self.select = LeaderboardSelect(options=select_options)
+        self.select.values.append("galleons_graveyard")
         self.add_item(self.select)
 
     
@@ -60,7 +62,13 @@ class LeaderboardView(View):
     async def update(self, interaction: discord.Interaction):
         self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
         self.select.embed.set_footer(text=f"Selection page {self.page+1} | Use arrows keys to switch between pages.")
-        await interaction.response.edit_message(embed=self.select.embed, view=self)
+        board = await get_leaderboard(self.select.values[0], self.page)
+        self.embed = self.select.embed
+
+        self.embed.title = f"Leaderboard for {self.select.values[0]}"
+        self.embed.set_image(url="attachment://leaderboard.png")
+
+        await interaction.response.edit_message(embed=self.embed, view=self, attachments=[board])
 
 async def get_leaderboard(stat, page):
     if stat == "raids":
@@ -79,12 +87,11 @@ async def get_leaderboard(stat, page):
     stats_list = []
     for i in range(len(stats)):
         stats_list.append([i+1, stats[i][0], stats[i][1]])
-    
-    #print(stats_list)
+
         
     left_margin = 40
     middle_margin = 120
-    right_margin = 640
+    right_margin = 630
 
     font = ImageFont.truetype("Ubuntu-B.ttf", 20)
     board = Image.open("assets/leaderboard.png")
@@ -92,7 +99,7 @@ async def get_leaderboard(stat, page):
     draw = ImageDraw.Draw(board)
 
     for i in range(1, 11):
-        stat = stats_list[i-1]
+        stat = stats_list[(i-1)+(page*10)]
         height = (i*74)-74
         board.paste(overlay, (0, height))
         match stat[0]:
@@ -130,7 +137,7 @@ async def _register_leaderboard(valor: Valor):
         
         view = LeaderboardView(stat, stat_set)
 
-        board = await get_leaderboard(stat)
+        board = await get_leaderboard(stat, 0)
         
         view.select.embed = discord.Embed(
             title=f"Leaderboard for {stat}",
