@@ -137,6 +137,8 @@ async def _register_leaderboard(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, "Invalid Stat, choose from the following: ", content='\n'.join(stat_set), code_block=True, color=0x1111AA)
         
         view = LeaderboardView(stat, stat_set)
+        view.select.values[0] = stat
+        view.page = 0
 
         board = await get_leaderboard(stat, 0)
         
