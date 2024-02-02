@@ -29,7 +29,7 @@ class LeaderboardView(View):
         self.page = 0
 
         self.stats = [stat_set[i:i + 25] for i in range(0, len(stat_set), 25)] # split into pages of 25 because discord limits select menus to 25 options
-        self.max_page = len(self.stats) - 1
+        self.max_page = 4
 
         for sublist in self.stats:
             if default in sublist:
@@ -60,7 +60,7 @@ class LeaderboardView(View):
             await self.update(interaction)
 
     async def update(self, interaction: discord.Interaction):
-        self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
+        self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[0]]
         self.select.embed.set_footer(text=f"Selection page {self.page+1} | Use arrows keys to switch between pages.")
         board = await get_leaderboard(self.select.values[0], self.page)
         self.embed = self.select.embed
