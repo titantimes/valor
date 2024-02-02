@@ -1,11 +1,12 @@
 from valor import Valor
 from discord.ext.commands import Context
 from discord.ui import Select, View
+from discord import File
 import discord
-from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
-import random
-from datetime import datetime
-import requests
+from util import ErrorEmbed, LongTextEmbed
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
 from sql import ValorSQL
 from commands.common import get_uuid, from_uuid
 
@@ -13,13 +14,15 @@ class LeaderboardSelect(Select):
     def __init__(self, options):
         super().__init__(options=options, placeholder="Select a stat to view its leaderboard.", row=0)
     
-    async def callback(self, interaction: discord.Interaction):     
-        table = await get_leaderboard(self.values[0])
+    async def callback(self, interaction: discord.Interaction):
+        self.view.page = 0
+        board = await get_leaderboard(self.values[0], self.view.page)
 
         self.embed.title = f"Leaderboard for {self.values[0]}"
-        self.embed.description = table
+        self.embed.set_image(url="attachment://leaderboard.png")
+        self.embed.set_footer(text=f"Selection page {self.view.page+1} | Use arrows keys to switch between pages.")
 
-        await interaction.response.edit_message(embed=self.embed, view=self.view)
+        await interaction.response.edit_message(embed=self.embed, view=self.view, attachments=[board])
 
 class LeaderboardView(View):
     def __init__(self, default, stat_set):
@@ -27,7 +30,7 @@ class LeaderboardView(View):
         self.page = 0
 
         self.stats = [stat_set[i:i + 25] for i in range(0, len(stat_set), 25)] # split into pages of 25 because discord limits select menus to 25 options
-        self.max_page = len(self.stats) - 1
+        self.max_page = 4
 
         for sublist in self.stats:
             if default in sublist:
@@ -35,6 +38,7 @@ class LeaderboardView(View):
                 break
         select_options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
         self.select = LeaderboardSelect(options=select_options)
+        self.select.values.append("galleons_graveyard")
         self.add_item(self.select)
 
     
@@ -57,11 +61,17 @@ class LeaderboardView(View):
             await self.update(interaction)
 
     async def update(self, interaction: discord.Interaction):
-        self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[self.page]]
+        self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[0]]
         self.select.embed.set_footer(text=f"Selection page {self.page+1} | Use arrows keys to switch between pages.")
-        await interaction.response.edit_message(embed=self.select.embed, view=self)
+        board = await get_leaderboard(self.select.values[0], self.page)
+        self.embed = self.select.embed
 
-async def get_leaderboard(stat):
+        self.embed.title = f"Leaderboard for {self.select.values[0]}"
+        self.embed.set_image(url="attachment://leaderboard.png")
+
+        await interaction.response.edit_message(embed=self.embed, view=self, attachments=[board])
+
+async def get_leaderboard(stat, page):
     if stat == "raids":
         res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs DESC LIMIT 50")
     elif stat == "dungeons":
@@ -74,8 +84,42 @@ async def get_leaderboard(stat):
             stats.append((await from_uuid(m[1]), m[2]))
         else:
             stats.append((m[0] if m[0] else "can't find name", m[2]))
+        
+    stats_list = []
+    for i in range(len(stats)):
+        stats_list.append([i+1, stats[i][0], stats[i][1]])
 
-    return "```\n"+'\n'.join("%3d. %24s %5d" % (i+1, stats[i][0], stats[i][1]) for i in range(len(stats)))+"\n```"
+        
+    left_margin = 40
+    middle_margin = 120
+    right_margin = 630
+
+    font = ImageFont.truetype("Ubuntu-B.ttf", 20)
+    board = Image.open("assets/leaderboard.png")
+    overlay = Image.open("assets/overlay.png")
+    draw = ImageDraw.Draw(board)
+
+    for i in range(1, 11):
+        stat = stats_list[(i-1)+(page*10)]
+        height = (i*74)-74
+        board.paste(overlay, (0, height))
+        match stat[0]:
+            case 1:
+                color = "yellow"
+            case 2:
+                color = (170,169,173,255)
+            case 3:
+                color = (169,113,66,255)
+            case _:
+                color = "white"
+        draw.text((left_margin, height+20), "#"+str(stat[0]), fill=color, font=font)
+        draw.text((middle_margin, height+20), str(stat[1]), font=font)
+        draw.text((right_margin, height+20), str(stat[2]), font=font, align="right")
+
+
+    board.save("/tmp/leaderboard.png")
+
+    return File("/tmp/leaderboard.png", filename="leaderboard.png")
 
 
 async def _register_leaderboard(valor: Valor):
@@ -94,16 +138,16 @@ async def _register_leaderboard(valor: Valor):
         
         view = LeaderboardView(stat, stat_set)
 
-        table = await get_leaderboard(stat)
+        board = await get_leaderboard(stat, 0)
         
         view.select.embed = discord.Embed(
             title=f"Leaderboard for {stat}",
-            description=table,
             color=0x11FFBB,
         )
+        view.select.embed.set_image(url="attachment://leaderboard.png")
         view.select.embed.set_footer(text=f"Selection page {view.page+1} | Use arrows keys to switch between pages.")
 
-        await ctx.send(embed=view.select.embed, view=view)
+        await ctx.send(embed=view.select.embed, view=view, file=board)
 
     @leaderboard.error
     async def cmd_error(ctx, error: Exception):

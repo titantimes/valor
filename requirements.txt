@@ -1,12 +1,14 @@
 discord.py
 python-dotenv
 aiomysql
+cffi
+grpcio
 numpy
 matplotlib
 pymongo
+Pillow
 scipy
 mysql-connector-python==8.0.29
 requests
 websockets
 openai
-grpcio
