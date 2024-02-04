@@ -43,7 +43,7 @@ FROM
     LEFT JOIN (
         SELECT uuid, COUNT(*) AS coolness 
         FROM activity_members
-        WHERE timestamp >= %s-3600*24*7
+        WHERE timestamp >= %s-3600*24*14
         GROUP BY uuid
     ) G ON G.uuid=D.uuid
 WHERE C.guild IN ''' + f"({','.join('%s' for _ in range(len(guild_names)))})\n" + \
