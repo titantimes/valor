@@ -52,7 +52,7 @@ WHERE C.guild IN ''' + f"({','.join('%s' for _ in range(len(guild_names)))})\n" 
         results = await ValorSQL.exec_param(query, (now, now, now, *guild_names))
 
         header = ['Guild', "   Rank   ", "       Name       ", "Days Inactive", "Days Since Notice", "Coolness"]
-        opt_after = f"\nQuery took {0.1:.3}s. Requested at {datetime.utcnow().ctime()}"
+        opt_after = f"\nQuery took {time.time()-now:.3}s. Requested at {datetime.utcnow().ctime()}"
         await LongTextTable.send_message(valor, ctx, header, results, opt_after)
     
     async def handle_get_inactivity_details(valor, ctx, name):
