@@ -75,6 +75,11 @@ async def _register_msg_listiner(valor: Valor):
             if message.content.count("\n") > 3:
                 await message.add_reaction(valor.get_emoji(849394540057985134))
                 await message.add_reaction('❌')
+            
+        # inactivity-alerts channel
+        if message.channel.id == 713926223654420523 and "ign" in message.content.lower():
+            query = "INSERT INTO inactivity_alerts (discord_id, notify_timestamp, msg, message_id) VALUES (%s, %s, %s, %s);"
+            await ValorSQL.exec_param(query, (message.author.id, time.time(), message.content[:1024], message.id))
 
         # slash commands need to be considered separately
         if message.content.startswith('-') and (os.getenv("TEST") != "TRUE"):

@@ -37,6 +37,7 @@ from .warcount import _register_warcount
 from .chat import _register_chat
 from .inspire import _register_inspire
 from .update_stats import _register_update_stats 
+from .inactivity import _register_inactivity
 from valor import Valor
 from discord.ext.commands.hybrid import HybridCommand
 
@@ -83,4 +84,5 @@ async def register_all(valor: Valor):
     await _register_chat(valor)
     await _register_inspire(valor)
     await _register_update_stats(valor)
+    await _register_inactivity(valor)
     

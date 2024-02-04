@@ -144,4 +144,13 @@ async def current_guild_from_uuid(uuid: str) -> str:
     
 async def g_tag(tag: str) -> str:
     return await guild_name_from_tag(tag)
+
+async def get_guild_members(ahttp_ctx, guild_name: str) -> List[str]:
+    members = []
+    guild_members_data = (await ahttp_ctx.get_json("https://api.wynncraft.com/v3/guild/"+guild_name))["members"]
+    for rank in guild_members_data:
+        if type(guild_members_data[rank]) != dict: continue
+
+        members.extend([guild_members_data[rank][x]["uuid"] for x in guild_members_data[rank]]) 
     
+    return members
