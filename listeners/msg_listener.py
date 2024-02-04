@@ -77,7 +77,7 @@ async def _register_msg_listiner(valor: Valor):
                 await message.add_reaction('❌')
             
         # inactivity-alerts channel
-        if message.channel.id == 713926223654420523 and "ign" in message.content.lower():
+        if message.channel.id == 679724389184569364 and "ign" in message.content.lower():
             query = "INSERT INTO inactivity_alerts (discord_id, notify_timestamp, msg, message_id) VALUES (%s, %s, %s, %s);"
             await ValorSQL.exec_param(query, (message.author.id, time.time(), message.content[:1024], message.id))
 
