@@ -53,7 +53,7 @@ async def _register_map(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, "Map", parser.format_help().replace("main.py", "-map"), color=0xFF00)
         
         if time.time() - last_avo_terr_res > 3600*4: # refresh it every 4 hours or something
-            avo_terr_res = requests.get("https://www.avicia.cf/map/terralldata.json").json()
+            avo_terr_res = requests.get("https://www.avicia.info/map/terralldata.json").json()
             last_avo_terr_res = time.time()
 
         athena_terr_res = requests.get("https://athena.wynntils.com/cache/get/territoryList").json()
@@ -62,7 +62,7 @@ async def _register_map(valor: Valor):
         # athena_colors = requests.get("https://athena.wynntils.com/cache/get/guildListWithColors").json()
         # guild_to_color = {athena_colors[k]["_id"]: athena_colors[k]["color"] for k in athena_colors}
 
-        guild_to_color = requests.get("https://www.avicia.cf/api/guildcolors").json()
+        guild_to_color = requests.get("https://www.avicia.info/api/guildcolors").json()
 
         Y_or_Z = "Z"     
         if not athena_terr_res or not "territories" in athena_terr_res or len(athena_terr_res["territories"]) == 0:
