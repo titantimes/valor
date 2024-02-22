@@ -4,6 +4,7 @@ from .help import _register_help
 from .showbuild import _register_showbuild
 from .preferences import _register_preferences
 from .gxp import _register_gxp
+from .guild import _register_guild
 from .plot import _register_plot
 from .activity import _register_activity
 from .profile import _register_profile
@@ -51,6 +52,7 @@ async def register_all(valor: Valor):
     await _register_showbuild(valor)
     await _register_preferences(valor)
     await _register_gxp(valor)
+    await _register_guild(valor)
     await _register_plot(valor)
     await _register_activity(valor)
     await _register_profile(valor)
