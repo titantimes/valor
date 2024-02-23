@@ -5,6 +5,7 @@ from discord import File
 from datetime import datetime
 import discord
 import requests
+from sql import ValorSQL
 from util import ErrorEmbed, LongTextEmbed
 from commands.common import from_uuid
 
@@ -15,13 +16,13 @@ class GuildView(View):
         self.page = 0
         self.guild = guild
 
-        self.max_page = 4
+        self.max_page = 1
 
     
     @discord.ui.button(emoji="⬅️", row=1)
     async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.page -= 1
-        if self.page <= 0:
+        if self.page < 0:
             self.page = 0
             await interaction.response.send_message("You are at the first page!", ephemeral=True)
         else:
@@ -30,7 +31,7 @@ class GuildView(View):
     @discord.ui.button(emoji="➡️", row=1)
     async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.page += 1
-        if self.page >= self.max_page:
+        if self.page > self.max_page:
             self.page = self.max_page
             await interaction.response.send_message("You are at the last page!", ephemeral=True)
         else:
@@ -42,14 +43,14 @@ class GuildView(View):
 
         await interaction.response.edit_message(embed=self.embed, view=self)
         
-async def get_guild_page_one(guild, page, data):
-    desc = f"""```
+async def get_guild_page_one(data):
+    desc = f"""```properties
 Name: {data["name"]} [{data["prefix"]}]
 Level: {data["level"]} ({data["xpPercent"]}%)
 Owner: {list(data["members"]["owner"])[0]}
 Members: {data["members"]["total"]}
-Territories: needs work
-War Count: needs work
+Territories: {data["territories"]}
+War Count: {data["wars"]}
 Created: {datetime.fromisoformat(data["created"]).strftime("%m/%d/%Y  %H:%M")}
 ```"""
 
@@ -59,24 +60,73 @@ Created: {datetime.fromisoformat(data["created"]).strftime("%m/%d/%Y  %H:%M")}
         if rank != "total":
             for member in data["members"][rank]:
                 if data["members"][rank][member]["server"]:
-                    online.append([member, data["members"][rank][member]["server"], rank])
+                    online.append([member, rank, data["members"][rank][member]["server"]])
 
-    
+    rank_dict = {
+        "recruit": "",
+        "recruiter": "*",
+        "captain": "**",
+        "strategist": "***",
+        "chief": "****",
+        "owner": "*****"
+    }
 
-    print(online)
-
-
-
+    if online:
+        online_desc = "```isbl\n"
+        online_desc += "Name            ┃ Rank  ┃ World\n"
+        online_desc += "━━━━━━━━━━━━━━━━╋━━━━━━━╋━━━━━━\n"
+        for player in online:
+            t = player[0]
+            t += (16 - len(player[0])) * " "
+            t += "┃ " + rank_dict[player[1]]
+            t += (5 - len(rank_dict[player[1]])) * " "
+            t += " ┃ " + player[2] + "\n"
+            
+            online_desc += t
+        online_desc += "```"
+    else:
+        online_desc = "```There are no members currently online```"
 
     embed = discord.Embed(title=f"{data['name']}: Overview", description=desc, color=0x7785cc)
-    embed.add_field(name="Online Members", value="salutations!")
+    embed.add_field(name="Online Members", value=online_desc)
 
     
     return embed
 
 
+async def get_guild_page_two(data):
+    embed = discord.Embed(title=f"{data['name']}: Members", color=0x7785cc)
 
-async def get_guild(valor, guild, page):
+    for rank in data["members"]:
+        if rank != "total":
+            rank_desc = "Name            ┃   Joined   ┃  Wars \n"
+            rank_desc += "━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━\n"
+            for player in data["members"][rank]:
+                warcount = str(6969)
+
+                t = player
+                t += (16 - len(player)) * " "
+                t += "┃ " + datetime.fromisoformat(data["members"][rank][player]["joined"]).strftime("%m/%d/%Y")
+                t += " ┃ " + warcount + ((5 - len(warcount)) * " ") + "\n"
+                
+                rank_desc += t
+            rank_desc += "```"
+
+            if len(rank_desc) > 926:
+                descriptions = [rank_desc[i:i+926] for i in range(0, len(rank_desc), 926)]
+                embed.add_field(name=rank.capitalize(), value="```isbl\n" + descriptions[0] + "```")
+                descriptions.pop(0)
+
+                for desc in descriptions:
+                    embed.add_field(name ="", value="```isbl\n" + desc, inline=False)
+            else:
+                embed.add_field(name=rank.capitalize(), value="```isbl\n" + rank_desc, inline=False)
+    
+    return embed
+
+
+
+async def get_guild(guild, page):
     res = requests.get("https://api.wynncraft.com/v3/guild/prefix/" + guild)
 
     if res.status_code != 200:
@@ -85,11 +135,11 @@ async def get_guild(valor, guild, page):
     data = res.json()
 
     if page == 0:
-        embed = await get_guild_page_one(guild, page, data)
+        embed = await get_guild_page_one(data)
+    elif page == 1:
+        embed = await get_guild_page_two(data)
 
     
-
-
     embed.set_footer(text=f"Page {page+1} | Use arrows keys to switch between pages.")
     return embed
 
@@ -102,7 +152,7 @@ async def _register_guild(valor: Valor):
 
         view = GuildView(guild)
 
-        embed = await get_guild(valor, guild, 0)
+        embed = await get_guild(guild, 0)
         
         view.embed = embed
 
