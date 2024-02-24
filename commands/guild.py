@@ -16,7 +16,7 @@ class GuildView(View):
         self.page = 0
         self.guild = guild
 
-        self.max_page = 1
+        self.max_page = 2
 
     
     @discord.ui.button(emoji="⬅️", row=1)
@@ -95,6 +95,8 @@ Created: {datetime.fromisoformat(data["created"]).strftime("%m/%d/%Y  %H:%M")}
 
 
 async def get_guild_page_two(data):
+    res = await ValorSQL._execute("""SELECT `uuid`, SUM(`warcount`) FROM `cumu_warcounts` WHERE `uuid` in (SELECT `uuid` FROM `guild_members` WHERE `guild` = "Titans Valor") GROUP BY `uuid`;""")
+
     embed = discord.Embed(title=f"{data['name']}: Members", color=0x7785cc)
 
     for rank in data["members"]:
@@ -102,7 +104,12 @@ async def get_guild_page_two(data):
             rank_desc = "Name            ┃   Joined   ┃  Wars \n"
             rank_desc += "━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━\n"
             for player in data["members"][rank]:
-                warcount = str(6969)
+                warcount = "6969"
+                for pair in res:
+                    if data["members"][rank][player]["uuid"] == pair[0]:
+                        warcount = str(pair[1])
+                        
+                
 
                 t = player
                 t += (16 - len(player)) * " "
@@ -125,6 +132,45 @@ async def get_guild_page_two(data):
     return embed
 
 
+async def get_guild_page_three(data):
+    embed = discord.Embed(title=f"{data['name']}: XP Contributions", color=0x7785cc)
+
+    xp_table = []
+    for rank in data["members"]:
+        if rank != "total":
+            for player in data["members"][rank]:
+                xp_table.append([player, rank, data["members"][rank][player]["contributed"]])
+
+    xp_table = sorted(xp_table, key=lambda x: x[2], reverse=True)
+    print(xp_table)
+
+    i = 1
+
+    gxp_desc = "     ┃Name             ┃ XP                 \n"
+    gxp_desc += "━━━━━┃━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━\n"
+    for player in xp_table:
+
+        t = str(i) + ")" + ((4 - len(str(i))) * " ") + "┃ "
+
+        t += player[0]
+        t += ((16 - len(player[0])) * " ")
+        xp = "{:,}".format(data["members"][player[1]][player[0]]["contributed"])
+        t += "┃ " + xp + " xp"
+        t += ((16 - len(xp)) * " ") + "\n"
+        
+        gxp_desc += t
+        i += 1
+
+    if len(gxp_desc) > 989:
+        descriptions = [gxp_desc[i:i+989] for i in range(0, len(gxp_desc), 989)]
+
+        for desc in descriptions:
+            embed.add_field(name ="", value="```isbl\n" + desc + "```", inline=False)
+    else:
+        embed.add_field(name="", value="```isbl\n" + gxp_desc + "```", inline=False)
+    
+    return embed
+
 
 async def get_guild(guild, page):
     res = requests.get("https://api.wynncraft.com/v3/guild/prefix/" + guild)
@@ -138,6 +184,8 @@ async def get_guild(guild, page):
         embed = await get_guild_page_one(data)
     elif page == 1:
         embed = await get_guild_page_two(data)
+    elif page == 2:
+        embed = await get_guild_page_three(data)
 
     
     embed.set_footer(text=f"Page {page+1} | Use arrows keys to switch between pages.")
