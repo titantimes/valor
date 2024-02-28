@@ -95,7 +95,17 @@ Created: {datetime.fromisoformat(data["created"]).strftime("%m/%d/%Y  %H:%M")}
 
 
 async def get_guild_page_two(data):
-    res = await ValorSQL._execute("""SELECT `uuid`, SUM(`warcount`) FROM `cumu_warcounts` WHERE `uuid` in (SELECT `uuid` FROM `guild_members` WHERE `guild` = "Titans Valor") GROUP BY `uuid`;""")
+    res = await ValorSQL._execute(f"""
+SELECT A.name, SUM(C.warcount) AS wars
+FROM
+  uuid_name A NATURAL JOIN guild_member_cache B
+  LEFT JOIN cumu_warcounts C ON A.uuid=C.uuid
+GROUP BY B.guild, A.name
+HAVING B.guild IN ("{data["name"]}")
+ORDER BY wars DESC;""")
+    warcounts = {}
+    for pair in res:
+        warcounts[pair[0]] = str(pair[1])  
 
     embed = discord.Embed(title=f"{data['name']}: Members", color=0x7785cc)
 
@@ -104,12 +114,10 @@ async def get_guild_page_two(data):
             rank_desc = "Name            ┃   Joined   ┃  Wars \n"
             rank_desc += "━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━\n"
             for player in data["members"][rank]:
-                warcount = "6969"
-                for pair in res:
-                    if data["members"][rank][player]["uuid"] == pair[0]:
-                        warcount = str(pair[1])
-                        
-                
+                try:
+                    warcount = warcounts[player]
+                except KeyError:
+                    warcount = "0"
 
                 t = player
                 t += (16 - len(player)) * " "
@@ -117,17 +125,17 @@ async def get_guild_page_two(data):
                 t += " ┃ " + warcount + ((5 - len(warcount)) * " ") + "\n"
                 
                 rank_desc += t
-            rank_desc += "```"
 
+            rank_name = f"{rank.capitalize()} ({len(data['members'][rank])})"
             if len(rank_desc) > 926:
                 descriptions = [rank_desc[i:i+926] for i in range(0, len(rank_desc), 926)]
-                embed.add_field(name=rank.capitalize(), value="```isbl\n" + descriptions[0] + "```")
+                embed.add_field(name=rank_name, value="```isbl\n" + descriptions[0] + "```")
                 descriptions.pop(0)
 
                 for desc in descriptions:
-                    embed.add_field(name ="", value="```isbl\n" + desc, inline=False)
+                    embed.add_field(name ="", value="```isbl\n" + desc + "```", inline=False)
             else:
-                embed.add_field(name=rank.capitalize(), value="```isbl\n" + rank_desc, inline=False)
+                embed.add_field(name=rank_name, value="```isbl\n" + rank_desc + "```", inline=False)
     
     return embed
 
@@ -142,12 +150,11 @@ async def get_guild_page_three(data):
                 xp_table.append([player, rank, data["members"][rank][player]["contributed"]])
 
     xp_table = sorted(xp_table, key=lambda x: x[2], reverse=True)
-    print(xp_table)
 
     i = 1
 
     gxp_desc = "     ┃Name             ┃ XP                 \n"
-    gxp_desc += "━━━━━┃━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━\n"
+    gxp_desc += "━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━\n"
     for player in xp_table:
 
         t = str(i) + ")" + ((4 - len(str(i))) * " ") + "┃ "
@@ -161,13 +168,10 @@ async def get_guild_page_three(data):
         gxp_desc += t
         i += 1
 
-    if len(gxp_desc) > 989:
-        descriptions = [gxp_desc[i:i+989] for i in range(0, len(gxp_desc), 989)]
+    descriptions = [gxp_desc[i:i+990] for i in range(0, len(gxp_desc), 990)]
 
-        for desc in descriptions:
-            embed.add_field(name ="", value="```isbl\n" + desc + "```", inline=False)
-    else:
-        embed.add_field(name="", value="```isbl\n" + gxp_desc + "```", inline=False)
+    for desc in descriptions:
+        embed.add_field(name ="", value="```isbl\n" + desc + "```", inline=False)
     
     return embed
 
