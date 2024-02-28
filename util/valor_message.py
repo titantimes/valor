@@ -18,6 +18,7 @@ class ErrorEmbed(discord.Embed):
             description = err,
             color = 0xFF0000
         )
+        self.error = True
         self.set_footer(text="Scream at Andrew or Cal if something should be working")
 
 class LongTextTable:
