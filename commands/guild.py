@@ -51,7 +51,7 @@ Owner: {list(data["members"]["owner"])[0]}
 Members: {data["members"]["total"]}
 Territories: {data["territories"]}
 War Count: {data["wars"]}
-Created: {datetime.fromisoformat(data["created"]).strftime("%m/%d/%Y  %H:%M")}
+Created: {datetime.fromisoformat(data["created"][:-1]).strftime("%m/%d/%Y  %H:%M")}
 ```"""
 
     online = []
