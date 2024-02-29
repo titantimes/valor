@@ -121,7 +121,7 @@ ORDER BY wars DESC;""")
 
                 t = player
                 t += (16 - len(player)) * " "
-                t += "┃ " + datetime.fromisoformat(data["members"][rank][player]["joined"]).strftime("%m/%d/%Y")
+                t += "┃ " + datetime.fromisoformat(data["members"][rank][player]["joined"][:-1]).strftime("%m/%d/%Y")
                 t += " ┃ " + warcount + ((5 - len(warcount)) * " ") + "\n"
                 
                 rank_desc += t
