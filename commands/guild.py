@@ -199,7 +199,7 @@ async def get_guild(guild, page):
 async def _register_guild(valor: Valor):
     desc = "Provides an overview of a guild"
 
-    @valor.command()
+    @valor.command(aliases=["g"])
     async def guild(ctx: Context, guild="ANO"):
 
         view = GuildView(guild)
