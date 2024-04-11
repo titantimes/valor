@@ -37,6 +37,7 @@ async def main():
     @valor.event
     async def on_ready():
         await valor.tree.sync()
+        cron.ticket_cron.start(valor)
 
     async with valor:
         ValorSQL.pool = await aiomysql.create_pool(**ValorSQL._info, loop=valor.loop)

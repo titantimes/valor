@@ -22,6 +22,7 @@ from .coolness import _register_coolness
 from .uniform import _register_uniform
 from .up import _register_up
 from .glist import _register_glist
+from .tickets import _register_tickets
 from .nuke import _register_nuke
 from .alliance import _register_alliance
 from .ffa import _register_ffa
@@ -69,6 +70,7 @@ async def register_all(valor: Valor):
     await _register_uniform(valor)
     await _register_up(valor)
     await _register_glist(valor)
+    await _register_tickets(valor)
     await _register_nuke(valor)
     await _register_alliance(valor)
     await _register_ffa(valor)
