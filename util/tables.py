@@ -11,15 +11,15 @@ def fmt(header: List[str], rows: List[List[any]], separators=False, str_converte
             rows_copy[r][c] = str_converter(rows[r][c])
             max_lengths[c] = max(max_lengths[c], len(rows[r][c]))
     
-    header_str = ' | '.join(f'%{max_lengths[i]}s' % header[i] for i in range(len(max_lengths)))
+    header_str = ' ┃ '.join(f'%{max_lengths[i]}s' % header[i] for i in range(len(max_lengths)))
     line_separators = ''
     for i in range(len(max_lengths)):
         # first col doesn't need extra '-'
         line_separators += '-'*(max_lengths[i]+2 - (i==0))
         if i < len(max_lengths)-1:
-            line_separators += '+'
+            line_separators += '╋'
         else:
-            line_separators += '-'   
+            line_separators += '━'   
 
     body = ''
     for r in rows_copy:

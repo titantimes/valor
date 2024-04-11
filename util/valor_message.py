@@ -23,12 +23,12 @@ class ErrorEmbed(discord.Embed):
 
 class LongTextTable:
     def __init__(self, header: Tuple[str], content: List[Tuple[str]], opt_after="", limit=1000): # code blocks always true for tables content should all be strings
-        self.fmt = ' | '.join(f"%{len(x)}s" for x in header)
+        self.fmt = ' ┃ '.join(f"%{len(x)}s" for x in header)
         self.header_str = self.fmt % tuple(header)
         self.opt_after = opt_after
 
         self.content = [self.fmt % tuple(line) for line in content]
-        self.table_bar = ''.join('+' if x == '|' else '-' for x in self.header_str)
+        self.table_bar = ''.join('╋' if x == '┃' else '━' for x in self.header_str)
 
         self.page = 1
         line_idx = 0
