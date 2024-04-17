@@ -9,7 +9,7 @@ import time
 import numpy as np
 from sql import ValorSQL
 from util import ErrorEmbed, LongTextEmbed, LongTextTable
-from commands.common import from_uuid
+from commands.common import get_uuid, role1
 
 
 
@@ -58,11 +58,20 @@ async def _register_tickets(valor: Valor):
             return await LongTextEmbed.send_message(valor, ctx, "tickets", parser.format_help().replace("main.py", "-tickets"), color=0xFF00)
         
         if opt.add:
-
-            #res = await ValorSQL._execute(f"""
+            if not role1(ctx.author):
+                return await ctx.send(embed=ErrorEmbed("No Permissions"))
+            print(opt.add)
+            try:
+                uuid = await get_uuid(opt.add[0])
+                value = opt.add[1]
+            except: 
+                return await ctx.send(embed=ErrorEmbed("Invalid input"))
+            
+                        #res = await ValorSQL._execute(f"""
 #INSERT INTO ticket_bonuses (uuid, ticket_bonus, timestamp) VALUES ('your_uuid_here', your_ticket_bonus_value, your_timestamp);
-#""")    
-            await ctx.send("done")
+#""")       
+            embed = discord.Embed(title="Operation successful", description="Successfully added " + value + " tickets to " + uuid, color=0xFF00)
+            return await ctx.send(embed=embed)
         else:
             ticket_data = await get_tickets()
             table = LongTextTable(ticket_data[0], ticket_data[1])
