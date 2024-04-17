@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 import requests
 import datetime as dt
-from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed
+from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed, LongTextTable
 from discord.ext import tasks
 from commands.tickets import get_tickets
 from sql import ValorSQL
@@ -167,7 +167,7 @@ async def warcount_roles(valor: Valor):
 @tasks.loop(seconds=50)
 async def ticket_cron(valor: Valor):
     if dt.datetime.now(tz=dt.timezone.utc).strftime("%H:%M") == "17:00":
-        print("it worked!")
         message_channel = valor.get_channel(892878955323994132)
-        embed = await get_tickets()
-        await message_channel.send(embed=embed)
+        ticket_data = await get_tickets()
+        table = LongTextTable(ticket_data[0], ticket_data[1])
+        await message_channel.send(table.description)

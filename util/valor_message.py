@@ -41,7 +41,7 @@ class LongTextTable:
             line_idx = lp[1]
 
         self.description = '\n'.join(self.content[self.line_pairs[0][0]:self.line_pairs[0][1]])
-        self.description = '```'+self.header_str+'\n'+self.table_bar+'\n'+self.description+'\n'+self.table_bar+'\n'+self.opt_after+'```'
+        self.description = '```isbl\n'+self.header_str+'\n'+self.table_bar+'\n'+self.description+'\n'+self.table_bar+'\n'+self.opt_after+'```'
 
     def forward_page(self):
         if self.page == self.total_pages:
@@ -49,7 +49,7 @@ class LongTextTable:
         lp = self.line_pairs[self.page]
         self.page += 1
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
-        self.description = '```'+self.header_str+'\n'+self.table_bar+'\n'+self.description+'\n'+self.table_bar+'\n'+self.opt_after+'```'
+        self.description = '```isbl\n'+self.header_str+'\n'+self.table_bar+'\n'+self.description+'\n'+self.table_bar+'\n'+self.opt_after+'```'
 
     def back_page(self):
         if self.page == 1:
@@ -57,7 +57,7 @@ class LongTextTable:
         self.page -= 1
         lp = self.line_pairs[self.page-1]
         self.description = '\n'.join(self.content[lp[0]:lp[1]])
-        self.description = '```'+self.header_str+'\n'+self.table_bar+'\n'+self.description+'\n'+self.table_bar+'```'
+        self.description = '```isbl\n'+self.header_str+'\n'+self.table_bar+'\n'+self.description+'\n'+self.table_bar+'```'
 
     @classmethod
     async def send_message(cls, valor: Valor, ctx: Context, header, content="", opt_after=""):
