@@ -1,11 +1,12 @@
 import asyncio
 from valor import Valor
 from dotenv import load_dotenv
-import json
 import os
 import requests
-import time
-from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed
+import datetime as dt
+from util import ErrorEmbed, LongTextEmbed, info, LongFieldEmbed, LongTextTable
+from discord.ext import tasks
+from commands.tickets import get_tickets
 from sql import ValorSQL
 from util import profile_calc
 from commands.common import from_uuid
@@ -162,3 +163,11 @@ async def warcount_roles(valor: Valor):
                     await member.add_roles(war_role)
         
         await asyncio.sleep(600)
+
+@tasks.loop(seconds=50)
+async def ticket_cron(valor: Valor):
+    if dt.datetime.now(tz=dt.timezone.utc).strftime("%H:%M") == "17:00":
+        message_channel = valor.get_channel(892878955323994132)
+        ticket_data = await get_tickets()
+        table = LongTextTable(ticket_data[0], ticket_data[1])
+        await message_channel.send(table.description)
