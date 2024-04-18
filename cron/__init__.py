@@ -164,7 +164,7 @@ async def warcount_roles(valor: Valor):
         
         await asyncio.sleep(600)
 
-@tasks.loop(seconds=50)
+@tasks.loop(seconds=55)
 async def ticket_cron(valor: Valor):
     if dt.datetime.now(tz=dt.timezone.utc).strftime("%H:%M") == "17:00":
         message_channel = valor.get_channel(892878955323994132)
