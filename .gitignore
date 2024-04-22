@@ -138,3 +138,7 @@ dmypy.json
 
 # Font files
 *.ttf
+!assets/MinecraftRegular.ttf
+
+# Vscode
+.vscode/
