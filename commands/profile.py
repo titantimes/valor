@@ -68,10 +68,13 @@ async def _register_profile(valor: Valor):
         res = await ValorSQL._execute(f"SELECT * FROM user_total_xps WHERE uuid='{uuid}'")
         if res:
             gxp_contrib = res[0][1]
-        else:
+        elif data["guild"]:
             res = requests.get("https://api.wynncraft.com/v3/guild/prefix/"+data["guild"]["prefix"])
             res = res.json()
             gxp_contrib = res["members"][data["guild"]["rank"].lower()][username]["contributed"]
+        else:
+            gxp_contrib = 0
+
         gxp_ranking = get_xp_rank(gxp_contrib)
 
         img: Image = Image.open("assets/profile_template.png")
@@ -82,15 +85,15 @@ async def _register_profile(valor: Valor):
         if data["supportRank"]:
             rank_badge = Image.open(f'assets/badges/{data["supportRank"]}.png')
             img.paste(rank_badge, (21, 25), rank_badge)
-            match data["supportRank"]:
-                case "vip":
-                    offset = 84
-                case "vipplus":
-                    offset = 105
-                case "hero":
-                    offset = 110
-                case "champion":
-                    offset = 175
+            # python < 3.10
+            if data["supportRank"] == "vip":
+                offset = 84
+            elif data["supportRank"] == "vipplus":
+                offset = 105
+            elif data["supportRank"] == "hero":
+                offset = 110
+            elif data["supportRank"] == "champion":
+                offset = 175
         draw.text((21+offset, 24), username, white, name_font)
 
 
@@ -147,7 +150,7 @@ async def _register_profile(valor: Valor):
 
         rankings = data["ranking"]
         for rank in dict(rankings):
-            if rank in ["craftsmanContent", "huntedContent", "ironmanContent", "ultimateIronmanContent", "huichContent", "huicContent", "hardcoreLegacyLevel"]:
+            if rank in {"hardcoreLegacyLevel"}:
                 rankings.pop(rank)
         top_rank_keys = sorted(rankings, key=rankings.get)[:3]
         top_rankings = {}
@@ -156,19 +159,23 @@ async def _register_profile(valor: Valor):
         
         for i, key in enumerate(top_rank_keys):
             temp = [s for s in re.split("([A-Z][^A-Z]*)", key) if s]
+
             rank_badge_link = f"https://cdn.wynncraft.com/nextgen/leaderboard/icons/{temp[0]}.webp?height=50"
             rank_place = rankings[key]+1
             rank_word_list = []
             for word in temp:
-                if word in ["tcc", "nol", "nog", "tna"]:
+                if word in {"tcc", "nol", "nog", "tna", "huic", "huich"}:
                     rank_word_list.append(word.upper())
                 else:
                     rank_word_list.append(word.title())
             rank = " ".join(rank_word_list)
-            wrapper = textwrap.TextWrapper(width=13) 
+            wrapper = textwrap.TextWrapper(width=13, max_lines=2, placeholder="") 
             rank = wrapper.wrap(text=rank) 
 
-            rank_badge = Image.open(requests.get(rank_badge_link, stream=True).raw)
+            if temp[0] in {"craftsman", "hunted", "ironman", "hardcore", "ultimate", "huic", "huich"}:
+                rank_badge = Image.open(f"assets/icons/{temp[0]}.png")
+            else:
+                rank_badge = Image.open(requests.get(rank_badge_link, stream=True).raw)
 
             for x, line in enumerate(rank):
                 draw.text((91+(i*120), 335+(x*20)), line, white, text_font, anchor="ma")
@@ -176,16 +183,18 @@ async def _register_profile(valor: Valor):
             draw.text((91+(i*120), 445), f"#{rank_place}", white, text_font, anchor="ma")
 
 
-        
-
         offset = 53
-        try: 
-            guild_badge = Image.open(f'assets/badges/{data["guild"]["prefix"]}.png')
-            img.paste(guild_badge, (414, 289), guild_badge)
-        except FileNotFoundError:
-            offset = 0
-        draw.text((505, 380+offset), f'{data["guild"]["rank"]} of', white, text_font, anchor="ma")
-        draw.text((505, 400+offset), data["guild"]["name"], white, text_font, anchor="ma")
+        if data["guild"]:
+            try:
+                guild_badge = Image.open(f'assets/badges/{data["guild"]["prefix"]}.png')
+                img.paste(guild_badge, (414, 289), guild_badge)
+            except FileNotFoundError:
+                offset = 0
+
+            draw.text((505, 380+offset), f'{data["guild"]["rank"]} of', white, text_font, anchor="ma")
+            draw.text((505, 400+offset), data["guild"]["name"], white, text_font, anchor="ma")
+        else:
+            draw.text((505, 390), "No Guild", white, text_font, anchor="ma")
 
 
         stats = [f'{data["playtime"]} Hours', 
