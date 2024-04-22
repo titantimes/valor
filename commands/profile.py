@@ -8,8 +8,9 @@ from datetime import datetime
 from discord import File
 from dotenv import load_dotenv
 import os
+import re
 import math
-import json
+import textwrap
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -34,6 +35,7 @@ async def _register_profile(valor: Valor):
         except ValueError:
             return 0
     
+
     white = (255, 255, 255)
     red = (229, 83, 107)
     green = (87, 234, 128)
@@ -143,16 +145,37 @@ async def _register_profile(valor: Valor):
             draw.text((740, 209), 'Player last seen:', white, text_font, anchor="ma")
             draw.text((740, 229), datetime.fromisoformat(data["lastJoin"][:-1]).strftime("%H:%M  %m/%d/%Y"), white, text_font, anchor="ma")
 
-
-        res = await ValorSQL._execute(f"SELECT awards FROM player_awards WHERE uuid='{uuid}'")
+        rankings = data["ranking"]
+        for rank in dict(rankings):
+            if rank in ["craftsmanContent", "huntedContent", "ironmanContent", "ultimateIronmanContent", "huichContent", "huicContent", "hardcoreLegacyLevel"]:
+                rankings.pop(rank)
+        top_rank_keys = sorted(rankings, key=rankings.get)[:3]
+        top_rankings = {}
+        for key in top_rank_keys:
+            top_rankings[key] = rankings[key]
         
-        if not res:
-            draw.text((35, 338), "This player has no medals", white, text_font)
-        else:
-            medals = json.loads(res[0][0])
-            for i, medal in enumerate(medals):
-                medal_img = Image.open(f"assets/medals/{medal}.png")
-                img.paste(medal_img, (36+(40*i), 350), medal_img)
+        for i, key in enumerate(top_rank_keys):
+            temp = [s for s in re.split("([A-Z][^A-Z]*)", key) if s]
+            rank_badge_link = f"https://cdn.wynncraft.com/nextgen/leaderboard/icons/{temp[0]}.webp?height=50"
+            rank_place = rankings[key]+1
+            rank_word_list = []
+            for word in temp:
+                if word in ["tcc", "nol", "nog", "tna"]:
+                    rank_word_list.append(word.upper())
+                else:
+                    rank_word_list.append(word.title())
+            rank = " ".join(rank_word_list)
+            wrapper = textwrap.TextWrapper(width=13) 
+            rank = wrapper.wrap(text=rank) 
+
+            rank_badge = Image.open(requests.get(rank_badge_link, stream=True).raw)
+
+            for x, line in enumerate(rank):
+                draw.text((91+(i*120), 335+(x*20)), line, white, text_font, anchor="ma")
+            img.paste(rank_badge, (66+(i*120), 380), rank_badge)
+            draw.text((91+(i*120), 445), f"#{rank_place}", white, text_font, anchor="ma")
+
+
         
 
         offset = 53
@@ -172,7 +195,7 @@ async def _register_profile(valor: Valor):
                  f'{data["globalData"]["completedQuests"]} Quests']
         i = 0
         for stat in stats:
-            draw.text((819, 332+(i*29)), stat, white, stat_text_font, anchor="ra")
+            draw.text((819, 333+(i*29)), stat, white, stat_text_font, anchor="ra")
             i += 1
 
 
