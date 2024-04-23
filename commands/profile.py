@@ -161,10 +161,10 @@ async def _register_profile(valor: Valor):
             temp = [s for s in re.split("([A-Z][^A-Z]*)", key) if s]
 
             rank_badge_link = f"https://cdn.wynncraft.com/nextgen/leaderboard/icons/{temp[0]}.webp?height=50"
-            rank_place = rankings[key]+1
+            rank_place = rankings[key]
             rank_word_list = []
             for word in temp:
-                if word in {"tcc", "nol", "nog", "tna", "huic", "huich"}:
+                if word in {"tcc", "nol", "nog", "tna", "huic", "huich", "hic", "hich"}:
                     rank_word_list.append(word.upper())
                 else:
                     rank_word_list.append(word.title())
@@ -172,7 +172,7 @@ async def _register_profile(valor: Valor):
             wrapper = textwrap.TextWrapper(width=13, max_lines=2, placeholder="") 
             rank = wrapper.wrap(text=rank) 
 
-            if temp[0] in {"craftsman", "hunted", "ironman", "hardcore", "ultimate", "huic", "huich"}:
+            if temp[0] in {"craftsman", "hunted", "ironman", "hardcore", "ultimate", "huic", "huich", "hic", "hich"}:
                 rank_badge = Image.open(f"assets/icons/gamemodes/{temp[0]}.png")
             else:
                 rank_badge = Image.open(requests.get(rank_badge_link, stream=True).raw)
