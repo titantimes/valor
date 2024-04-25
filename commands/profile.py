@@ -175,7 +175,7 @@ async def _register_profile(valor: Valor):
             rank = wrapper.wrap(text=rank) 
 
             if temp[0] in {"craftsman", "hunted", "ironman", "hardcore", "ultimate", "huic", "huich"}:
-                rank_badge = Image.open(f"assets/icons/{temp[0]}.png")
+                rank_badge = Image.open(f"assets/icons/gamemodes/{temp[0]}.png")
             else:
                 rank_badge = Image.open(requests.get(rank_badge_link, stream=True).raw)
 
@@ -188,7 +188,7 @@ async def _register_profile(valor: Valor):
         offset = 53
         if data["guild"]:
             try:
-                guild_badge = Image.open(f'assets/badges/{data["guild"]["prefix"]}.png')
+                guild_badge = Image.open(f'assets/icons/guilds/{data["guild"]["prefix"]}.png')
                 img.paste(guild_badge, (414, 289), guild_badge)
             except FileNotFoundError:
                 offset = 0
