@@ -97,7 +97,7 @@ async def _register_profile(valor: Valor):
         draw.text((21+offset, 24), username, white, name_font)
 
 
-        if not os.path.exists(f"/tmp/{username}_model.png"):
+        if not os.path.exists(f"/tmp/{username}_model.png") or time.time() - os.path.getmtime(f"/tmp/{username}_model.png") > (24 * 3600):
             user_agent = {'User-Agent': 'valor-bot/1.0'}
             model = requests.get(model_base+uuid+'.png', headers=user_agent).content
             with open(f"/tmp/{username}_model.png", "wb") as f:
