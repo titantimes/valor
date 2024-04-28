@@ -20,7 +20,7 @@ class LeaderboardSelect(Select):
 
         self.embed.title = f"Leaderboard for {self.values[0]}"
         self.embed.set_image(url="attachment://leaderboard.png")
-        self.embed.set_footer(text=f"Page {self.view.page+1} | Use arrows keys to switch between pages.")
+        self.embed.set_footer(text=f"Page {self.view.page+1} | Use arrows buttons to switch between pages.")
 
         await interaction.response.edit_message(embed=self.embed, view=self.view, attachments=[board])
 
