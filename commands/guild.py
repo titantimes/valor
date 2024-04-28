@@ -192,7 +192,7 @@ async def get_guild(guild, page):
         embed = await get_guild_page_three(data)
 
     
-    embed.set_footer(text=f"Page {page+1} | Use arrows keys to switch between pages.")
+    embed.set_footer(text=f"Page {page+1} | Use arrow buttons to switch between pages.")
     return embed
 
 

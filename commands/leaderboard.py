@@ -20,7 +20,7 @@ class LeaderboardSelect(Select):
 
         self.embed.title = f"Leaderboard for {self.values[0]}"
         self.embed.set_image(url="attachment://leaderboard.png")
-        self.embed.set_footer(text=f"Page {self.view.page+1} | Use arrows buttons to switch between pages.")
+        self.embed.set_footer(text=f"Page {self.view.page+1} | Use arrow buttons to switch between pages.")
 
         await interaction.response.edit_message(embed=self.embed, view=self.view, attachments=[board])
 
@@ -62,7 +62,7 @@ class LeaderboardView(View):
 
     async def update(self, interaction: discord.Interaction):
         self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[0]]
-        self.select.embed.set_footer(text=f"Page {self.page+1} | Use arrows keys to switch between pages.")
+        self.select.embed.set_footer(text=f"Page {self.page+1} | Use arrow buttons to switch between pages.")
         board = await get_leaderboard(self.select.values[0], self.page)
         self.embed = self.select.embed
 
@@ -147,7 +147,7 @@ async def _register_leaderboard(valor: Valor):
             color=0x11FFBB,
         )
         view.select.embed.set_image(url="attachment://leaderboard.png")
-        view.select.embed.set_footer(text=f"Page {view.page+1} | Use arrows keys to switch between pages.")
+        view.select.embed.set_footer(text=f"Page {view.page+1} | Use arrow buttons to switch between pages.")
 
         await ctx.send(embed=view.select.embed, view=view, file=board)
 
