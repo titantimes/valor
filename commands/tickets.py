@@ -57,7 +57,7 @@ GROUP BY
         return [header, data]
 
 def do_ticket_math(value, b):
-    return round(math.log((int(value) / b) + 1, 1.05))
+    return math.floor(math.log((math.floor(float(value) + 0.5) / b) + 1, 1.05) + 0.5)
 
 
 
