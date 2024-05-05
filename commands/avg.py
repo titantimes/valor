@@ -20,7 +20,7 @@ async def _register_avg(valor: Valor):
     opts = ["tag"]
     choice_em = ErrorEmbed(f"Your options are `{repr(opts)}`")
     parser = argparse.ArgumentParser(description='Plot2 command')
-    parser.add_argument('-r', '--range', nargs=2)
+    parser.add_argument('-r', '--range', nargs='+', default=None)
     parser.add_argument('-g', '--guild', nargs='+')
     
     @valor.command()
