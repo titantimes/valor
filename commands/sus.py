@@ -24,9 +24,8 @@ async def _register_sus(valor: Valor):
         headers = {'user-agent': 'ano_valor/0.0.0',"API-Key":os.environ["HYPIXEL_API_KEY"]}
         hypixel_data = requests.get(f"https://api.hypixel.net/player?uuid={id}", headers=headers).json()
         hypixel_join = None
-        if hypixel_data["player"]:
+        if hypixel_data["success"]:
             hypixel_join = float(int(hypixel_data["player"]["firstLogin"] / 1000))
-        else hypixel_join = None
 
         wynn_data = requests.get(f"https://api.wynncraft.com/v3/player/{dashed_uuid}?fullResult").json()
         if "username" not in wynn_data:
