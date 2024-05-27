@@ -166,7 +166,7 @@ async def warcount_roles(valor: Valor):
 
 @tasks.loop(seconds=55)
 async def ticket_cron(valor: Valor):
-    if dt.datetime.now(tz=dt.timezone.utc).strftime("%H:%M") == "17:00":
+    if dt.datetime.now(tz=dt.timezone.utc).strftime("%a %H:%M") == "Sun 17:00":
         message_channel = valor.get_channel(892878955323994132)
         ticket_data = await get_tickets()
         table = LongTextTable(ticket_data[0], ticket_data[1])
