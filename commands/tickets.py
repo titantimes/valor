@@ -20,7 +20,7 @@ SELECT
     GMC.name,
     SUM(CASE WHEN PDR.label = 'g_wars' THEN PDR.delta ELSE 0 END) AS wars_gain,
     SUM(CASE WHEN PDR.label = 'gu_gxp' THEN PDR.delta ELSE 0 END) AS gxp_gain,
-    SUM(CASE WHEN PDR.label IN ('g_The Canyon Colossus', "g_Orphion's Nexus of Light", 'Nest of the Grootslangs') THEN PDR.delta ELSE 0 END) AS raids_gain,
+    SUM(CASE WHEN PDR.label IN ('g_The Canyon Colossus', "g_Orphion's Nexus of Light", 'g_Nest of the Grootslangs', "g_The Nameless Anomaly") THEN PDR.delta ELSE 0 END) AS raids_gain,
     COALESCE(MAX(TB.ticket_bonus), 0) AS ticket_bonus
 FROM 
     guild_member_cache GMC
