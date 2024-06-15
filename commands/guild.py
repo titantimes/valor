@@ -6,9 +6,10 @@ from datetime import datetime
 import discord
 import requests
 from sql import ValorSQL
-from util import ErrorEmbed, LongTextEmbed
+from util import ErrorEmbed, LongTextEmbed, LongTextTable
 from commands.common import from_uuid
-
+import time
+import argparse
 
 class GuildView(View):
     def __init__(self, guild):
@@ -198,17 +199,83 @@ async def get_guild(guild, page):
 
 async def _register_guild(valor: Valor):
     desc = "Provides an overview of a guild"
+    parser = argparse.ArgumentParser(description='Guild command')
+    parser.add_argument('-f', '--feature', type=str, default=None)
+    parser.add_argument('-r', '--range', nargs=2, default=None)
 
     @valor.command(aliases=["g"])
-    async def guild(ctx: Context, guild="ANO"):
-
-        view = GuildView(guild)
-
-        embed = await get_guild(guild, 0)
+    async def guild(ctx: Context, *options):
+        if len(options) < 2:
+            # default to c0rupted's feature otherwise start argparsing 
+            options = "ANO" if not options else options[0]
+            view = GuildView(guild)
+            embed = await get_guild(guild, 0)
+            view.embed = embed
+            return await ctx.send(embed=view.embed, view=view)
         
-        view.embed = embed
+        try:
+            opt = parser.parse_args(options)
+        except:
+            return await LongTextEmbed.send_message(valor, ctx, "Guild", parser.format_help().replace("main.py", "-guild"), color=0xFF00)
 
-        await ctx.send(embed=view.embed, view=view)
+        if opt.feature == "xp":
+            # past 24 hour gained per guild see >g xp
+            xp_query = """
+SELECT 
+	ROW_NUMBER() OVER(ORDER BY delta_gxp DESC),
+	tag,
+    guild, 
+    `level`,
+    CASE 
+        WHEN ABS(delta_gxp) >= 1e12 THEN CONCAT(ROUND(delta_gxp / 1e12, 1), 'T') 
+        WHEN ABS(delta_gxp) >= 1e9 THEN CONCAT(ROUND(delta_gxp / 1e9, 1), 'B')
+        WHEN ABS(delta_gxp) >= 1e6 THEN CONCAT(ROUND(delta_gxp / 1e6, 1), 'M') 
+        WHEN ABS(delta_gxp) >= 1e3 THEN CONCAT(ROUND(delta_gxp / 1e3, 1), 'K')
+        ELSE gxp
+    END AS delta_gxp_s,  
+    CASE 
+        WHEN ABS(gxp) >= 1e12 THEN CONCAT(ROUND(gxp / 1e12, 1), 'T') 
+        WHEN ABS(gxp) >= 1e9 THEN CONCAT(ROUND(gxp / 1e9, 1), 'B')
+        WHEN ABS(gxp) >= 1e6 THEN CONCAT(ROUND(gxp / 1e6, 1), 'M') 
+        WHEN ABS(gxp) >= 1e3 THEN CONCAT(ROUND(gxp / 1e3, 1), 'K')
+        ELSE gxp
+    END AS gxp_s
+FROM
+    (SELECT D.tag, C.guild, delta_gxp, `level`, gxp
+    FROM
+        (SELECT A.guild, A.delta_gxp, CAST(B.level AS UNSIGNED) AS `level`, 133289*EXP(0.139765*`level`) AS gxp
+        FROM
+            (SELECT guild, SUM(delta) delta_gxp
+            FROM
+                player_delta_record
+            WHERE `time` >= %s AND `time` <= %s AND label="gu_gxp" 
+            GROUP BY guild
+            ORDER BY delta_gxp DESC LIMIT 100) A
+            LEFT JOIN
+            guild_autotrack_active B ON A.guild=B.guild) C
+        LEFT JOIN guild_tag_name D ON C.guild=D.guild) E
+ORDER BY delta_gxp DESC;
+"""
+            t_start = time.time()
+            t_left = t_start - 3600*24
+            t_right = t_start
+            if opt.range and len(opt.range) == 2:
+                t_left, t_right = opt.range
+
+            rows = await ValorSQL.exec_param(xp_query, (t_left, t_right))
+            delta_time = time.time() - t_start
+            opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
+            header = ['   ',  " Tag ", " "*16+"Guild ", " Level ", " XP Gain ", " Total XP "]
+
+            return await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
+        elif opt.feature == "levelrank":
+            # see >g levelrank
+            pass
+        elif opt.feature == "globalxp":
+            # see what callum asked for
+            pass
+        else:
+            return ctx.send(ErrorEmbed("-f options are xp, levelrank, and globalxp"))
 
     @guild.error
     async def cmd_error(ctx, error: Exception):
