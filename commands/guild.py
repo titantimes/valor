@@ -7,7 +7,7 @@ import discord
 import requests
 from sql import ValorSQL
 from util import ErrorEmbed, LongTextEmbed, LongTextTable
-from commands.common import from_uuid
+from commands.common import get_left_right
 import time
 import argparse
 
@@ -256,11 +256,14 @@ async def _register_guild(valor: Valor):
         """
 
         t_start = time.time()
-        t_left = t_start - 3600*24
-        t_right = t_start
         if opt.range and len(opt.range) == 2:
-            t_left, t_right = opt.range
-            t_left, t_right = t_start-float(t_left)*3600*24, t_start-float(t_right)*3600*24
+            # opt.range = [2e9, 0]
+            valid_range = await get_left_right(opt, t_start)
+            if valid_range == "N/A":
+                return await ctx.send(embed=ErrorEmbed("Invalid season name input"))
+            t_left, t_right = valid_range
+        else:
+            t_left, t_right = t_start - 3600*24, t_start
 
         query = None
 
