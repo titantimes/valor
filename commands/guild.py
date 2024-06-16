@@ -208,8 +208,9 @@ async def _register_guild(valor: Valor):
         if len(options) < 2:
             # default to c0rupted's feature otherwise start argparsing 
             options = "ANO" if not options else options[0]
-            view = GuildView(guild)
-            embed = await get_guild(guild, 0)
+            print(options)
+            view = GuildView(options)
+            embed = await get_guild(options, 0)
             view.embed = embed
             return await ctx.send(embed=view.embed, view=view)
         
@@ -241,7 +242,7 @@ async def _register_guild(valor: Valor):
         FROM
             (SELECT D.tag, C.guild, delta_gxp, `level`, gxp
             FROM
-                (SELECT A.guild, A.delta_gxp, CAST(B.level AS UNSIGNED) AS `level`, 133289*EXP(0.139765*`level`) AS gxp
+                (SELECT A.guild, A.delta_gxp, CAST(B.level AS UNSIGNED) AS `level`, 133289*EXP(0.139765*(`level`-1)) AS gxp
                 FROM
                     (SELECT guild, SUM(delta) delta_gxp
                     FROM
