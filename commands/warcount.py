@@ -20,6 +20,7 @@ async def _register_warcount(valor: Valor):
     parser = argparse.ArgumentParser(description='Warcount Command')
     parser.add_argument('-n', '--names', nargs='+', default=[])
     parser.add_argument('-a', '--guild_aggregate', action="store_true", default=False)
+    parser.add_argument('-t', '--territory_captures', action="store_true", default=False)
     parser.add_argument('-g', '--guild', nargs='+', default=[]) # this one is filter players only in guilds, Callum: 100
     parser.add_argument('-c', '--classes', nargs='+', default=[])
     parser.add_argument('-r', '--range', nargs='+', default=None)
@@ -54,6 +55,36 @@ FROM
         header = ['   ',  " Tag ", " "*16+"Guild ", "  Wars  "]
 
         return await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
+    
+    async def do_guild_aggregate_captures(ctx: Context, opt):
+        query = """
+SELECT ROW_NUMBER() OVER(ORDER BY captures DESC) AS `rank`,B .tag, A.guild, CAST(A.captures AS UNSIGNED)
+FROM
+    (SELECT terr_exchange.attacker AS guild, COUNT(terr_exchange.attacker) AS captures
+    FROM
+        terr_exchange
+    WHERE time >= %s AND time <= %s
+    GROUP BY terr_exchange.attacker
+    ORDER BY captures DESC LIMIT 100) A
+    LEFT JOIN guild_tag_name B ON A.guild=B.guild;
+"""
+        start = time.time()
+        if opt.range:
+            # opt.range = [2e9, 0]
+            valid_range = await get_left_right(opt, start)
+            if valid_range == "N/A":
+                return await ctx.send(embed=ErrorEmbed("Invalid season name input"))
+            left, right = valid_range
+        else:
+            left, right = start - 3600*24*7, start
+
+        rows = await ValorSQL.exec_param(query, (left, right))
+
+        delta_time = time.time() - start
+        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
+        header = ['   ',  " Tag ", " "*16+"Guild ", "  Captures  "]
+
+        return await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
 
     @valor.command()
     async def warcount(ctx: Context, *options):
@@ -64,6 +95,8 @@ FROM
     
         if opt.guild_aggregate:
             return await do_guild_aggregate_warcount(ctx, opt)
+        elif opt.territory_captures:
+            return await do_guild_aggregate_captures(ctx, opt)
         
         listed_classes = real_classes if not opt.classes else opt.classes
         listed_classes = [x.upper() for x in listed_classes]
