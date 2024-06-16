@@ -201,7 +201,7 @@ async def _register_guild(valor: Valor):
     desc = "Provides an overview of a guild"
     parser = argparse.ArgumentParser(description='Guild command')
     parser.add_argument('-f', '--feature', type=str, default=None)
-    parser.add_argument('-r', '--range', nargs=2, default=None)
+    parser.add_argument('-r', '--range', nargs='+', default=None)
 
     @valor.command(aliases=["g"])
     async def guild(ctx: Context, *options):
@@ -256,7 +256,7 @@ async def _register_guild(valor: Valor):
         """
 
         t_start = time.time()
-        if opt.range and len(opt.range) == 2:
+        if opt.range:
             # opt.range = [2e9, 0]
             valid_range = await get_left_right(opt, t_start)
             if valid_range == "N/A":
