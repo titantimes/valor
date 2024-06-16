@@ -208,7 +208,6 @@ async def _register_guild(valor: Valor):
         if len(options) < 2:
             # default to c0rupted's feature otherwise start argparsing 
             options = "ANO" if not options else options[0]
-            print(options)
             view = GuildView(options)
             embed = await get_guild(options, 0)
             view.embed = embed
