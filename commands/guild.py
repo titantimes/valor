@@ -241,7 +241,7 @@ async def _register_guild(valor: Valor):
         FROM
             (SELECT D.tag, C.guild, delta_gxp, `level`, gxp
             FROM
-                (SELECT A.guild, A.delta_gxp, TRUNCATE(B.level, 0) AS `level`, 885689*EXP(0.139808*`level`) AS gxp
+                (SELECT A.guild, A.delta_gxp, CAST(TRUNCATE(B.level, 0) AS UNSIGNED) AS `level`, 885689*EXP(0.139808*`level`) AS gxp
                 FROM
                     (SELECT guild, SUM(delta) delta_gxp
                     FROM
