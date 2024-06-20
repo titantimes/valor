@@ -32,20 +32,28 @@ async def _register_gxp(valor: Valor):
             now = int(time.time())
             t0 = now-to_seconds(player)
             t1 = now-to_seconds(arg2)
-            res = await ValorSQL._execute(f"SELECT * FROM member_record_xps WHERE timestamp > {t0} AND timestamp < {t1}")
-            membermap = {}
-            for m in res:
-                if not m[1] in membermap:
-                    membermap[m[1]] = 0
-                membermap[m[1]] += m[3]
-
-            pair_data = [[x[0], f"{x[1]:,}"] for x in sorted(membermap.items(), key = lambda x: x[1], reverse=True)]
+            res = await ValorSQL.exec_param("""
+SELECT C.name, SUM(B.delta) AS delta_gxp
+FROM 
+    (SELECT * FROM player_delta_record WHERE guild="Titans Valor" AND label="gu_gxp" AND time >= 1718819387 AND time <= 1718905787) B 
+    JOIN uuid_name C ON B.uuid=C.uuid
+GROUP BY B.uuid
+ORDER BY delta_gxp  DESC;
+""", (t0, t1))
+            pair_data = [[x[0], f"{x[1]:,}"] for x in sorted(res, key = lambda x: x[1], reverse=True)]
             
             return await LongFieldEmbed.send_message(valor, ctx, f"GXP Contribs Over Specified Time", pair_data, color=0xF5b642)
             
 
         # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/{guild}/{player}").json()["data"]
-        res = await ValorSQL._execute(f"SELECT * FROM user_total_xps")
+        res = await ValorSQL.exec_param("""
+SELECT C.name, B.value
+FROM 
+    player_stats A JOIN player_global_stats B ON A.uuid=B.uuid
+    JOIN uuid_name C ON B.uuid=C.uuid
+WHERE A.guild=(%s) AND B.label="gu_gxp"  
+ORDER BY `B`.`value`  DESC
+""", (guild))
         # if isinstance(res, tuple):
         mesg = [[k[0], k[1]] for k in res]
         mesg = sorted(mesg, key=lambda x: x[1], reverse=True)
