@@ -35,7 +35,7 @@ async def _register_gxp(valor: Valor):
             res = await ValorSQL.exec_param("""
 SELECT C.name, SUM(B.delta) AS delta_gxp
 FROM 
-    (SELECT * FROM player_delta_record WHERE guild="Titans Valor" AND label="gu_gxp" AND time >= 1718819387 AND time <= 1718905787) B 
+    (SELECT * FROM player_delta_record WHERE guild="Titans Valor" AND label="gu_gxp" AND time >= %s AND time <= %s) B 
     JOIN uuid_name C ON B.uuid=C.uuid
 GROUP BY B.uuid
 ORDER BY delta_gxp  DESC;
