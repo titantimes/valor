@@ -46,7 +46,23 @@ ORDER BY delta_gxp  DESC;
             
 
         # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/{guild}/{player}").json()["data"]
-        res = await ValorSQL.exec_param("""
+        if guild == "Titans Valor":
+            res = await ValorSQL._execute("""
+SELECT B2.name, A2.gxp
+FROM
+    (SELECT uuid, MAX(xp) AS gxp
+    FROM
+        ((SELECT uuid, last_xp AS xp FROM user_total_xps)
+        UNION ALL
+        (SELECT B.uuid, B.value AS xp
+        FROM 
+            player_stats A JOIN player_global_stats B ON A.uuid=B.uuid
+        WHERE A.guild="Titans Valor" AND B.label="gu_gxp")) A1
+    GROUP BY uuid) A2 LEFT JOIN uuid_name B2 ON A2.uuid=B2.uuid
+ORDER BY A2.gxp DESC;
+""")
+        else:
+            res = await ValorSQL.exec_param("""
 SELECT C.name, B.value
 FROM 
     player_stats A JOIN player_global_stats B ON A.uuid=B.uuid
@@ -54,6 +70,7 @@ FROM
 WHERE A.guild=(%s) AND B.label="gu_gxp"  
 ORDER BY `B`.`value`  DESC
 """, (guild))
+            
         # if isinstance(res, tuple):
         mesg = [[k[0], k[1]] for k in res]
         mesg = sorted(mesg, key=lambda x: x[1], reverse=True)
