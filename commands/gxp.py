@@ -52,7 +52,7 @@ SELECT IFNULL(B2.name, C2.name), A2.gxp
 FROM
     (SELECT uuid, MAX(xp) AS gxp
     FROM
-        ((SELECT uuid, last_xp AS xp FROM user_total_xps)
+        ((SELECT uuid, xp FROM user_total_xps)
         UNION ALL
         (SELECT B.uuid, B.value AS xp
         FROM 
