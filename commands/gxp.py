@@ -48,7 +48,7 @@ ORDER BY delta_gxp  DESC;
         # res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/usertotalxp/{guild}/{player}").json()["data"]
         if guild == "Titans Valor":
             res = await ValorSQL._execute("""
-SELECT B2.name, A2.gxp
+SELECT IFNULL(B2.name, C2.name), A2.gxp
 FROM
     (SELECT uuid, MAX(xp) AS gxp
     FROM
@@ -58,7 +58,9 @@ FROM
         FROM 
             player_stats A JOIN player_global_stats B ON A.uuid=B.uuid
         WHERE A.guild="Titans Valor" AND B.label="gu_gxp")) A1
-    GROUP BY uuid) A2 LEFT JOIN uuid_name B2 ON A2.uuid=B2.uuid
+    GROUP BY uuid) A2 
+    LEFT JOIN uuid_name B2 ON A2.uuid=B2.uuid
+    LEFT JOIN (SELECT uuid, name FROM user_total_xps) C2 ON C2.uuid=A2.uuid
 ORDER BY A2.gxp DESC;
 """)
         else:
