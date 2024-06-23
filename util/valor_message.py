@@ -204,6 +204,9 @@ class LongTextEmbed(discord.Embed):
         else:
             self.set_footer(text=footer)
 
+        # 500x1 transparent image for embed width
+        self.set_image(url="https://cdn.discordapp.com/attachments/703019604968210482/1254483589362618518/placeholder.png")
+
     def forward_page(self):
         if self.page == self.total_pages:
             return

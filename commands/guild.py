@@ -43,6 +43,21 @@ class GuildView(View):
         self.embed = embed
 
         await interaction.response.edit_message(embed=self.embed, view=self)
+
+def break_description(desc, length):
+    lines = desc.split("\n")
+    descriptions = []
+    current_field = ""
+    for line in lines:
+        if len(current_field) + len(line) + 1 > length:
+            descriptions.append(current_field)
+            current_field = line
+        else:
+            current_field += "\n" + line
+    if current_field:
+        descriptions.append(current_field)
+
+    return descriptions
         
 async def get_guild_page_one(data):
     desc = f"""```properties
@@ -162,14 +177,14 @@ async def get_guild_page_three(data):
 
         t += player[0]
         t += ((16 - len(player[0])) * " ")
-        xp = data["members"][player[1]][player[0]]["contributed"]
+        xp = str(data["members"][player[1]][player[0]]["contributed"])
         t += "┃ " + xp
         t += ((16 - len(xp)) * " ") + "\n"
         
         gxp_desc += t
         i += 1
 
-    descriptions = [gxp_desc[i:i+990] for i in range(0, len(gxp_desc), 990)]
+    descriptions = break_description(gxp_desc, 990)
 
     for desc in descriptions:
         embed.add_field(name ="", value="```isbl\n" + desc + "```", inline=False)
@@ -192,8 +207,10 @@ async def get_guild(guild, page):
     elif page == 2:
         embed = await get_guild_page_three(data)
 
-    
     embed.set_footer(text=f"Page {page+1} | Use arrow buttons to switch between pages.")
+
+    # 500x1 transparent image for embed width
+    embed.set_image(url="https://cdn.discordapp.com/attachments/703019604968210482/1254483589362618518/placeholder.png")
     return embed
 
 
