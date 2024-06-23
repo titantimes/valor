@@ -154,16 +154,16 @@ async def get_guild_page_three(data):
 
     i = 1
 
-    gxp_desc = "     ┃Name             ┃ XP                 \n"
-    gxp_desc += "━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━\n"
+    gxp_desc = "     ┃Name             ┃ XP            \n"
+    gxp_desc += "━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━━━━\n"
     for player in xp_table:
 
         t = str(i) + ")" + ((4 - len(str(i))) * " ") + "┃ "
 
         t += player[0]
         t += ((16 - len(player[0])) * " ")
-        xp = "{:,}".format(data["members"][player[1]][player[0]]["contributed"])
-        t += "┃ " + xp + " xp"
+        xp = data["members"][player[1]][player[0]]["contributed"]
+        t += "┃ " + xp
         t += ((16 - len(xp)) * " ") + "\n"
         
         gxp_desc += t
