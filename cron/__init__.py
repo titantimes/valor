@@ -48,13 +48,27 @@ async def gxp_roles(valor: Valor):
     # roles = [0, guild.get_role(1085380592620818564), guild.get_role(1085380626552729640), guild.get_role(1085380658391691284), guild.get_role(1085380670152527922), guild.get_role(1085380671268208710), guild.get_role(1085380672685879336), guild.get_role(1085380673407295569), guild.get_role(1085380674330050740), guild.get_role(1085380768039174154), guild.get_role(1085380768978718771)]
 
     while not valor.is_closed():
-        user_xps_table = await ValorSQL._execute(f"SELECT * FROM user_total_xps")
+        user_xps_table = await ValorSQL._execute("""
+SELECT IFNULL(A2.uuid, C2.uuid), A2.gxp
+FROM
+    (SELECT uuid, MAX(xp) AS gxp
+    FROM
+        ((SELECT uuid, xp FROM user_total_xps)
+        UNION ALL
+        (SELECT B.uuid, B.value AS xp
+        FROM 
+            player_stats A JOIN player_global_stats B ON A.uuid=B.uuid
+        WHERE A.guild="Titans Valor" AND B.label="gu_gxp")) A1
+    GROUP BY uuid) A2 
+    LEFT JOIN (SELECT uuid, name FROM user_total_xps) C2 ON C2.uuid=A2.uuid
+ORDER BY A2.gxp DESC;
+""")
         user_ids = await ValorSQL._execute(f"SELECT * FROM id_uuid")
 
         user_xps= {}
         for row in user_xps_table: # * make a dictionary of uuid:xp
-            if row[4]:
-                user_xps[row[4]] = row[1]
+            if row[0]:
+                user_xps[row[0]] = row[1]
 
         for row in user_ids:
             discord_id, uuid = row
