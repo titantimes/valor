@@ -65,9 +65,11 @@ async def _register_profile(valor: Valor):
         warcount += (res[0][0] if res else 0)
         war_ranking = get_war_rank(warcount)
         
-        res = await ValorSQL._execute(f"SELECT * FROM user_total_xps WHERE uuid='{uuid}'")
+        res = await ValorSQL.exec_param("""
+SELECT GREATEST((SELECT value AS xp FROM `player_global_stats` WHERE uuid=%s AND label="gu_gxp"),
+(SELECT xp FROM user_total_xps WHERE uuid=%s));""", (uuid, uuid))
         if res:
-            gxp_contrib = res[0][1]
+            gxp_contrib = res[0][0]
         elif data["guild"]:
             res = requests.get("https://api.wynncraft.com/v3/guild/prefix/"+data["guild"]["prefix"])
             res = res.json()
