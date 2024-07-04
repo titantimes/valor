@@ -24,8 +24,12 @@ async def _register_profile(valor: Valor):
     def human_format(number):
         units = ['', 'K', 'M', 'B', 'T']
         k = 1000.0
+
+        if not number:
+            number = 0
+
         try:
-            magnitude = int(math.floor(math.log(number, k)))
+            magnitude = int(math.floor(math.log(number + 1e-8, k)))
             x = number / k**magnitude
             if int(x) == x:
                 v = int(x)
@@ -77,6 +81,7 @@ SELECT GREATEST((SELECT value AS xp FROM `player_global_stats` WHERE uuid=%s AND
         else:
             gxp_contrib = 0
 
+        gxp_contrib = gxp_contrib if gxp_contrib else 0
         gxp_ranking = get_xp_rank(gxp_contrib)
 
         img: Image = Image.open("assets/profile_template.png")
