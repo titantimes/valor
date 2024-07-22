@@ -1,6 +1,6 @@
 from valor import Valor
 from discord.ext.commands import Context
-from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
+from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed, LongTextTable
 from .common import guild_name_from_tag, guild_names_from_tags
 import random
 from datetime import datetime
@@ -75,11 +75,17 @@ async def _register_coolness(valor: Valor):
                 else: left = mid+1
             board = board[:mid]
 
-        unid_prefix = f"The following guilds are unidentified: {unidentified}\n" if unidentified else ""
-        table = '\n'.join("[%24s] %18s %5d%%" % (name_to_guild[name], name, count) for name, count in board)
-        await LongTextEmbed.send_message(valor, ctx, "Leaderboard of Coolness", content=unid_prefix+table, code_block=True, color=0x11FFBB,
-            footer=f"Query took {end-start:.5}s - {len(res):,} rows"
-        )
+        header = [" Guild" + ' '*(max(len(x) for x in name_to_guild.values())-5), "Username"+' '*(18-8), "Hours Online"]
+        table = [(name_to_guild[name], name, count) for name, count in board] 
+
+        if unidentified:
+            unid_prefix = f"The following guilds are unidentified: {unidentified}\n" if unidentified else ""
+            await LongTextEmbed.send_message(valor, ctx, "Unidentified Guilds", unid_prefix)
+
+        await LongTextTable.send_message(valor, ctx, header, table, f"Query took {end-start:.5}s - {len(res):,} rows")
+        # await LongTextEmbed.send_message(valor, ctx, "Leaderboard of Coolness", content=unid_prefix+table, code_block=True, color=0x11FFBB,
+        #     footer=f"Query took {end-start:.5}s - {len(res):,} rows"
+        # )
 
     @coolness.error
     async def cmd_error(ctx, error: Exception):
