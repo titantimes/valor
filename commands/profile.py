@@ -70,8 +70,11 @@ async def _register_profile(valor: Valor):
         war_ranking = get_war_rank(warcount)
         
         res = await ValorSQL.exec_param("""
-SELECT GREATEST((SELECT value AS xp FROM `player_global_stats` WHERE uuid=%s AND label="gu_gxp"),
-(SELECT xp FROM user_total_xps WHERE uuid=%s));""", (uuid, uuid))
+SELECT MAX(xp)
+FROM
+	((SELECT xp FROM user_total_xps WHERE uuid=%s)
+    UNION ALL
+    (SELECT SUM(delta) FROM player_delta_record WHERE guild="Titans Valor" AND uuid=%s AND label="gu_gxp")) A;""", (uuid, uuid))
         if res:
             gxp_contrib = res[0][0]
         elif data["guild"]:
