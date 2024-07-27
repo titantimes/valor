@@ -5,6 +5,7 @@ from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_
 from discord.ext.commands import Context
 from datetime import datetime
 from discord import File
+import logging
 from dotenv import load_dotenv
 import os
 import numpy as np
@@ -56,7 +57,11 @@ async def _register_map(valor: Valor):
             avo_terr_res = requests.get("https://www.avicia.info/map/terralldata.json").json()
             last_avo_terr_res = time.time()
 
-        athena_terr_res = requests.get("https://athena.wynntils.com/cache/get/territoryList").json()
+        try:
+            athena_terr_res = requests.get("https://athena.wynntils.com/cache/get/territoryList").json()
+        except:
+            athena_terr_res = None
+            logging.error("Athena is down")
 
         # use avomap colors for now
         # athena_colors = requests.get("https://athena.wynntils.com/cache/get/guildListWithColors").json()
