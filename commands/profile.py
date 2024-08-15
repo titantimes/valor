@@ -59,7 +59,7 @@ async def _register_profile(valor: Valor):
     async def profile(ctx: Context, username):
         uuid = await get_uuid(username)
 
-        res = requests.get("https://api.wynncraft.com/v3/player/"+uuid)
+        res = requests.get("https://beta-api.wynncraft.com/v3/player/"+uuid)
         if res.status_code != 200:
             return await ctx.send(embed=ErrorEmbed())
         data = res.json()
@@ -78,7 +78,7 @@ FROM
         if res:
             gxp_contrib = res[0][0]
         elif data["guild"]:
-            res = requests.get("https://api.wynncraft.com/v3/guild/prefix/"+data["guild"]["prefix"])
+            res = requests.get("https://beta-api.wynncraft.com/v3/guild/prefix/"+data["guild"]["prefix"])
             res = res.json()
             gxp_contrib = res["members"][data["guild"]["rank"].lower()][username]["contributed"]
         else:

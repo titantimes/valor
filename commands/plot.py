@@ -34,7 +34,7 @@ async def _register_plot(valor: Valor):
         ret = {}
         # members = requests.get("https://api.wynncraft.com/public_api.php?action=guildStats&command="+name).json()["members"]
         # cpts = {m["name"] for m in members if rnklut[m["rank"]] >= rnklut["CAPTAIN"]}
-        members = requests.get("https://api.wynncraft.com/v3/guild/"+name).json()["members"]
+        members = requests.get("https://beta-api.wynncraft.com/v3/guild/"+name).json()["members"]
         cpts = {name for k, v in members.items() if rnklut.get(k, 0) >= rnklut["captain"] for name, _ in v.items()}
         for row in res:
             if not row[2] in ret:

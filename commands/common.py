@@ -82,7 +82,7 @@ async def guild_name_from_tag(tag: str) -> str:
         revisions = []
 
         for g, tag, _ in guilds:
-            res = requests.get("https://api.wynncraft.com/v3/guild/"+g).json()
+            res = requests.get("https://beta-api.wynncraft.com/v3/guild/"+g).json()
             n_members = res["members"]["total"]
             revisions.append(f"('{g}','{tag}',{n_members})")
 
@@ -105,7 +105,7 @@ async def guild_tag_from_name(name: str) -> str:
         revisions = []
 
         for g, tag, _ in guilds:
-            res = requests.get("https://api.wynncraft.com/v3/guild/"+g).json()
+            res = requests.get("https://beta-api.wynncraft.com/v3/guild/"+g).json()
             n_members = res["members"]["total"]
             revisions.append(f"('{g}','{tag}',{n_members})")
 
@@ -147,7 +147,7 @@ async def g_tag(tag: str) -> str:
 
 async def get_guild_members(ahttp_ctx, guild_name: str) -> List[str]:
     members = []
-    guild_members_data = (await ahttp_ctx.get_json("https://api.wynncraft.com/v3/guild/"+guild_name))["members"]
+    guild_members_data = (await ahttp_ctx.get_json("https://beta-api.wynncraft.com/v3/guild/"+guild_name))["members"]
     for rank in guild_members_data:
         if type(guild_members_data[rank]) != dict: continue
 
