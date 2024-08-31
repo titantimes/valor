@@ -10,7 +10,7 @@ async def _register_join(valor: Valor):
     
     @valor.command()
     async def join(ctx: Context, username: str):
-        user_data = requests.get("https://beta-api.wynncraft.com/v3/guild/Titans%20Valor").json()
+        user_data = requests.get("https://api.wynncraft.com/v3/guild/Titans%20Valor").json()
         users = []
         for k, v in user_data["members"].items():
             if k != "total":

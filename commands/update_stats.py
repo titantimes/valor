@@ -59,7 +59,7 @@ WHERE
 
             # for guild_tag in opt.guild:
             #     guild_name = await guild_name_from_tag(guild_tag)
-            #     guild_members_data = (await valor.ahttp.get_json("https://beta-api.wynncraft.com/v3/guild/"+guild_name))["members"]
+            #     guild_members_data = (await valor.ahttp.get_json("https://api.wynncraft.com/v3/guild/"+guild_name))["members"]
             #     for rank in guild_members_data:
             #         if type(guild_members_data[rank]) != dict: continue
 

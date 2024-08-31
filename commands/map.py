@@ -72,7 +72,7 @@ async def _register_map(valor: Valor):
         Y_or_Z = "Z"     
         if not athena_terr_res or not "territories" in athena_terr_res or len(athena_terr_res["territories"]) == 0:
             # Temporary solution until perhaps athena adapts the format.
-            wynn_terr_res = requests.get("https://beta-api.wynncraft.com/v3/guild/list/territory").json()
+            wynn_terr_res = requests.get("https://api.wynncraft.com/v3/guild/list/territory").json()
             for territory, data in wynn_terr_res.items():
                 wynn_terr_res[territory] = {
                     "territory": territory,

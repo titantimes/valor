@@ -90,7 +90,7 @@ async def _register_blacklist(valor: Valor):
             
             if result:
                 db_guild = await current_guild_from_uuid(uuid)
-                guild = db_guild if db_guild != "N/A" else requests.get(f"https://beta-api.wynncraft.com/v3/player/{uuid}").json()
+                guild = db_guild if db_guild != "N/A" else requests.get(f"https://api.wynncraft.com/v3/player/{uuid}").json()
                 
                 if type(guild) == dict:
                     if "Error" in guild:

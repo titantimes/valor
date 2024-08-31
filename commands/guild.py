@@ -193,7 +193,7 @@ async def get_guild_page_three(data):
 
 
 async def get_guild(guild, page):
-    res = requests.get("https://beta-api.wynncraft.com/v3/guild/prefix/" + guild)
+    res = requests.get("https://api.wynncraft.com/v3/guild/prefix/" + guild)
 
     if res.status_code != 200:
         return ErrorEmbed()

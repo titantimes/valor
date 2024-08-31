@@ -96,7 +96,7 @@ LIMIT 1;
             await LongTextEmbed.send_message(valor, ctx, f"Inactivity Details for {name}", "Player not found", color=0xFF0000)
         results = results[0]
 
-        real_lastjoin_str = (await valor.ahttp.get_json("https://beta-api.wynncraft.com/v3/player/"+name))["lastJoin"][:-1]
+        real_lastjoin_str = (await valor.ahttp.get_json("https://api.wynncraft.com/v3/player/"+name))["lastJoin"][:-1]
         real_lastjoin = datetime.fromisoformat(real_lastjoin_str).timestamp()
 
         now = time.time()
