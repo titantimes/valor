@@ -75,7 +75,7 @@ FROM
 	((SELECT xp FROM user_total_xps WHERE uuid=%s)
     UNION ALL
     (SELECT SUM(delta) FROM player_delta_record WHERE guild="Titans Valor" AND uuid=%s AND label="gu_gxp")) A;""", (uuid, uuid))
-        if res:
+        if res and res[0][0]:
             gxp_contrib = res[0][0]
         elif data["guild"]:
             res = requests.get("https://api.wynncraft.com/v3/guild/prefix/"+data["guild"]["prefix"])
@@ -84,7 +84,6 @@ FROM
         else:
             gxp_contrib = 0
 
-        gxp_contrib = gxp_contrib if gxp_contrib else 0
         gxp_ranking = get_xp_rank(gxp_contrib)
 
         img: Image = Image.open("assets/profile_template.png")
