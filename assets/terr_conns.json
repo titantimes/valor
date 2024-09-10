@@ -5000,6 +5000,22 @@
             "Mining Base Camp"
         ]
     },
+    "Abandoned Mines Entrance": {
+        "resources": {
+            "emeralds": "9000",
+            "ore": "0",
+            "crops": "3600",
+            "fish": "0",
+            "wood": "0"
+        },
+        "Trading Routes": [
+            "Mining Base Camp",
+            "Abandoned Pass",
+            "Ternaves",
+            "Black Road",
+            "Mine Base Plains"
+        ]
+    },
     "Ragni North Entrance": {
         "resources": {
             "emeralds": "9000",

@@ -5,13 +5,11 @@ from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, sinusoid_
 from discord.ext.commands import Context
 from datetime import datetime
 from discord import File
+from collections import defaultdict
 import logging
 from dotenv import load_dotenv
-import os
-import numpy as np
 import argparse
 from PIL import Image, ImageDraw, ImageFont
-import time
 import zlib
 from .common import guild_name_from_tag, guild_tag_from_name
 import json
@@ -30,8 +28,7 @@ async def _register_map(valor: Valor):
     font = ImageFont.truetype("Ubuntu-R.ttf", 16)
     map_width, map_height = main_map.size
 
-    avo_terr_res = None
-    last_avo_terr_res = 0
+    terr_conn_lookup = None
 
     def to_full_map_coord(x_ingame, y_ingame):
         # (-1614 -2923) (x,y) center of corkus -> (192 913) (x, canvas y)
@@ -47,16 +44,19 @@ async def _register_map(valor: Valor):
     @valor.command()
     async def map(ctx: Context, *options):
         # closure capture reference
-        nonlocal avo_terr_res, last_avo_terr_res # I really didn't know about this feature. Better than static class var
+        nonlocal terr_conn_lookup # I really didn't know about this feature. Better than static class var
+        if not terr_conn_lookup:
+            with open("assets/terr_conns.json", 'r') as f:
+                terr_data = json.load(f)
+            terr_conn_lookup = defaultdict(list)
+            for k in terr_data:
+                terr_conn_lookup[k] = terr_data[k]["Trading Routes"]
+        
         try:
             opt = parser.parse_args(options)
         except:
             return await LongTextEmbed.send_message(valor, ctx, "Map", parser.format_help().replace("main.py", "-map"), color=0xFF00)
         
-        if time.time() - last_avo_terr_res > 3600*4: # refresh it every 4 hours or something
-            avo_terr_res = requests.get("https://www.avicia.info/map/terralldata.json").json()
-            last_avo_terr_res = time.time()
-
         try:
             athena_terr_res = requests.get("https://athena.wynntils.com/cache/get/territoryList").json()
         except:
@@ -93,10 +93,11 @@ async def _register_map(valor: Valor):
         
         interest_guild_names = set([await guild_name_from_tag(x) for x in interested_guild_tags])
 
-        res = await ValorSQL._execute("SELECT * FROM ally_claims")
+        # no more alliance. just mark every territory as our guild claim.
+        # res = await ValorSQL._execute("SELECT * FROM ally_claims")
         claim_owner = {}
-        for guild, terr in res:
-            claim_owner[terr] = guild
+        for terr in athena_terr_res["territories"].keys():
+            claim_owner[terr] = "Titans Valor"
 
         terr_details = {}
         x_lo = y_lo = float("inf")
@@ -117,7 +118,7 @@ async def _register_map(valor: Valor):
                 # "holder_color": athena_terr_res["territories"][terr].get("guildColor", ''), old way
                 "holder_color": guild_to_color.get(holder, ''),
                 "holder_prefix": athena_terr_res["territories"][terr].get("guildPrefix"),
-                "adj": avo_terr_res[terr]["Trading Routes"],
+                "adj": terr_conn_lookup[terr],
                 "x0": x0,
                 "y0": y0,
                 "x1": x1,
@@ -125,7 +126,7 @@ async def _register_map(valor: Valor):
             }
 
             if opt.routes:
-                neighbors = avo_terr_res[terr]["Trading Routes"]
+                neighbors = terr_conn_lookup[terr]
                 for n in neighbors:
                     if (terr, n) in edge_list_done or (n, terr) in edge_list_done: continue
                     edge_list_done.add((n, terr))
@@ -186,7 +187,7 @@ async def _register_map(valor: Valor):
         tag_to_guild = {}
 
         # draw boxes around terrs and stuff
-        for guild, claim in res:
+        for claim, guild in claim_owner.items():
             x0, y0 = to_full_map_coord(terr_details[claim]["x0"], terr_details[claim]["y0"])
             x1, y1 = to_full_map_coord(terr_details[claim]["x1"], terr_details[claim]["y1"])
             x0 -= x_lo_full
