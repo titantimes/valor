@@ -113,7 +113,7 @@ async def _register_react_listener(valor: Valor):
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(f"Hey, <@{payload.user_id}>", embed = LongTextEmbed("Fill This Out!", config[11], color=0xFFAA))
 
-            elif res[-1] == 'captain' and (1152706040299786271 in rls or TEST):
+            elif res[-1] == 'captain' and ((1152706040299786271 in rls or 892886015017103360 in rls) or TEST):
                 guild = valor.get_guild(payload.guild_id)
                 config = (await ValorSQL.get_server_config(payload.guild_id))[0]
                 category_id = config[1]
