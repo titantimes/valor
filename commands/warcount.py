@@ -188,7 +188,7 @@ ORDER BY all_wars DESC;'''
         rows.sort(key=lambda x: x[-1], reverse=True)
 
 	if not rows:
-            return await ctx.send(embed=ErrorEmbed("No results, wrong username? have they done no wars?"))
+        return await ctx.send(embed=ErrorEmbed("No results, wrong username? have they done no wars?"))
 
         opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
         await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
