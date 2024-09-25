@@ -187,8 +187,8 @@ ORDER BY all_wars DESC;'''
         rows = [(name_to_ranking[name], name, guild_to_tag.get(player_to_guild[name], ("None", -1))[0], *player_warcounts[name], sum(player_warcounts[name])) for name in player_warcounts]
         rows.sort(key=lambda x: x[-1], reverse=True)
 
-	if not rows:
-        return await ctx.send(embed=ErrorEmbed("No results, wrong username? have they done no wars?"))
+        if not rows:
+            return await ctx.send(embed=ErrorEmbed("No results, wrong username? have they done no wars?"))
 
         opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
         await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
