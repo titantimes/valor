@@ -4,7 +4,6 @@ import util
 import discord.ext
 from discord.ext.commands import Context
 import requests
-from pprint import pprint
 from valor import Valor
 
 
@@ -26,14 +25,10 @@ async def _register_completion(valor: Valor):
         try:
             isUUID = False
             uuid = "84f90219-44c2-470b-8f42-d33a4efd2b08"
-            five_completions = False
             enforce_limits = False
-            max_useful = False
 
             # Max stats for goals
             max_stats = {"total": 1690, "combat": 106, "gathering": 132, "crafting": 132}
-            if max_useful:
-                max_stats = {"total": 1369, "combat": 105, "gathering": 110, "crafting": 103}
 
             url = f"https://api.wynncraft.com/v3/player/{uuid if isUUID else name}?fullResult"
             resp = getInfo(url)
@@ -69,56 +64,77 @@ async def _register_completion(valor: Valor):
                 purple = "\033[0;35m"
                 sick_green = "\033[0;32m"
                 other_blue = "\033[0;34m"
+                reddy = "\033[1;31m"
+                stop = "\033[0m"
+                
                 results = []
+                total_count = 0
+                total_max = 0
                 results.append(
                     f"{other_blue}{'Total Level':>24}{stop}  | {stats['Level']:>7,} / {(max_total := max_stats['total'] * max_characters):>6,}  |"
                     f" {color_percentage(stats['Level'] / max_total)}")
+                total_count += stats['Level']
+                total_max += max_total
                 
                 results.append(f"{other_blue}{('Combat'):>24}{stop}  | {stats['Combat']:>7,} / {(max_combat := max_stats['combat'] * max_characters):>6,}  |"
                     f" {color_percentage(stats['Combat'] / max_combat)}")
-
+                total_count += stats['Combat']
+                total += max_combat
+                
                 # Profs
                 for prof in ["Farming", "Fishing", "Mining", "Woodcutting"]:
                     results.append(f"{purple}{(prof):>24}{stop}  | {stats[prof]:>7,} /"
                         f" {(single_prof_level := max_stats['gathering'] * max_characters):>6,}  | {color_percentage(stats[prof] / single_prof_level)}")
+                total_count += stats[prof]
+                total_max += single_prof_level
                 
                 for prof in ["Alchemism", "Armouring", "Cooking", "Jeweling", "Scribing", "Tailoring", "Weaponsmithing", "Woodworking"]:
                     results.append(f"{purple}{prof:>24}{stop}  | {stats[prof]:>7,} /"
                         f" {(single_prof_level := max_stats['crafting'] * max_characters):>6,}  | {color_percentage(stats[prof] / single_prof_level)}")
-
+                total_count += stats[prof]
+                total_max += single_prof_level
+                
                 # Quests
                 results.append(f"{sick_green}{'Main Quests':>24}{stop}  | {stats['Quests']:>7,} /"
                     f" {(total_quests := 137 * max_characters):>6,}  |"
                     f" {color_percentage(stats['Quests'] / total_quests)}")
+                total_count += stats['Quests']
+                total_max += total_quests
                 results.append(f"{sick_green}{'Slaying Mini-Quests':>24}{stop}  |"
                     f" {stats['Slaying Mini-Quests']:>7,} / {(total_slaying := max_characters * 29):>6}  |"
                     f" {color_percentage(stats['Slaying Mini-Quests'] / total_slaying)}")
+                total_count += stats['Slaying Mini-Quests']
+                total_max += total_slaying
                 results.append(f"{sick_green}{('Gathering Mini-Quests'):>24}{stop}  |"
                     f" {stats['Gathering Mini-Quests']:>7,} / {(total_gathering := 96 * max_characters):>6,}  |"
                     f" {color_percentage(stats['Gathering Mini-Quests'] / total_gathering)}")
+                total_count += stats['Gathering Mini-Quests']
+                total_max += total_gathering
 
                 # # # Completionist
                 results.append(f"{sick_green}{('Discoveries'):>24}{stop}  |"
                     f" {stats['Discoveries']:>7,} / {(total_discoveries := (105 + 496) * max_characters):>6,}  |"
                     f" {color_percentage(stats['Discoveries'] / total_discoveries)}")
+                total_count += stats['Discoveries']
+                total_max += total_discoveries
                 
                 # Dungeons
                 results.append(f"{sick_green}{('Unique Dungeons'):>24}{stop}  |"
                     f" {stats['Unique Dungeon Completions']:>7,} / {(total_dungeons := max_characters * 18):>6,}  |"
                     f" {color_percentage(stats['Unique Dungeon Completions'] / total_dungeons)}")
-                if five_completions:
-                    results.append(f"{sick_green}{('Dungeon Completions'):>24}{stop}  |"
-                        f" {stats['Dungeon Completions']:>7,} / {(five_dungeons := max_characters * 85):>6}  |"
-                        f" {color_percentage(stats['Dungeon Completions'] / five_dungeons)}")
-
+                total_count += stats['Unique Dungeon Completions']
+                total_max += total_dungeons
+                
                 # Raids
                 results.append(f"{sick_green}{('Unique Raids'):>24}{stop}  |"
                     f" {stats['Unique Raid Completions']:>7,} / {(total_raids := 4 * max_characters):>6,}  |"
                     f" {color_percentage(stats['Unique Raid Completions'] / total_raids)}")
-                if five_completions:
-                    results.append(f"{sick_green}{('Raid Completions'):>24}{stop}  |"
-                        f" {stats['Raid Completions']:>7,} / {(five_raids := max_characters * 15):>6}  |"
-                        f" {color_percentage(stats['Raid Completions'] / five_raids)}")
+                total_count += stats['Unique Raid Completions']
+                total_max += total_raids
+
+                #Overall total
+                overall_percentage = total_count / total_max
+                results.append(f"{reddy}{'Overall Total':>24}{stop}  | {total_count:7,} / {total_max:>6,}  | {color_percentage(overall_percentage)}")
                 return '\n'.join(results)
 
 
@@ -149,8 +165,6 @@ async def _register_completion(valor: Valor):
                 "Dungeon Completions": 0,
                 "Unique Raid Completions": 0,
                 "Raid Completions": 0,
-                "Mobs Killed": 0,
-                "Blocks Walked": 0,
             }
             char_totals = {}
 
@@ -220,32 +234,17 @@ async def _register_completion(valor: Valor):
                     "Dungeon Completions": dungeons_completed,
                     "Unique Raid Completions": len(wynn_char["raids"]["list"]),
                     "Raid Completions": raids_completed,
-                    "Mobs Killed": wynn_char["mobsKilled"],
-                    "Blocks Walked": wynn_char["blocksWalked"] if wynn_char["blocksWalked"] > 0 else wynn_char["blocksWalked"] + 4294967296,
                 }
 
                 if enforce_limits:
                     char_totals[char_uuid]["Discoveries"] = min(char_totals[char_uuid]["Discoveries"], 655)
                 
-                if max_useful:
-                    # Total
-                    char_totals[char_uuid]["Level"] = min(char_totals[char_uuid]["Level"], 1369)
-                    # Combat
-                    char_totals[char_uuid]["Combat"] = min(char_totals[char_uuid]["Combat"], 105)
-                    # Gatherings
-                    for prof in ["Farming", "Fishing", "Mining", "Woodcutting"]:
-                        char_totals[char_uuid][prof] = min(char_totals[char_uuid][prof], 110)
-                    # Craftings
-                    for prof in ["Alchemism", "Armouring", "Cooking", "Jeweling", "Scribing", "Tailoring", "Weaponsmithing", "Woodworking"]:
-                        char_totals[char_uuid][prof] = min(char_totals[char_uuid][prof], 103)
                     
 
                 for key, value in account_total.items():
                     account_total[key] = value + char_totals[char_uuid][key]
                 
-                shamans.append(tuple(cur_char))
 
-            shamans.sort(key=lambda x: -x[1])
             stop = "\033[0m"
             bold = "\033[1m"
 
