@@ -7,6 +7,7 @@ import datetime
 import time
 import uuid
 import os
+from sql import ValorSQL
 
 
 async def _register_sus(valor: Valor):
@@ -48,6 +49,16 @@ async def _register_sus(valor: Valor):
         wynn_playtime_sus = round(max(0, (wynn_playtime - 800) * -1) * 100 / 800, 1)
         wynn_quest_sus = round(max(0, (wynn_quest - 150) * -1) * 100 / 150, 1)
 
+        # tweedle dum blacklist check
+        query = f"SELECT * FROM player_blacklist WHERE uuid='{dashed_uuid}'"
+        blacklisted = await ValorSQL._execute(query)
+        if blacklisted:
+            blacklisted = "**BLACKLISTED**"
+            blacklisted_sus = 100.0
+        else:
+            blacklisted = "False"
+            blacklisted_sus = 0
+        
         if wynn_rank == "veteran" or wynn_rank == "champion" or wynn_rank == "hero" or wynn_rank == "vipplus":
             wynn_rank_sus = 0.0
         elif wynn_rank == "vip":
@@ -65,7 +76,15 @@ async def _register_sus(valor: Valor):
         embed.add_field(name="Wynncraft Quests", value=f"{wynn_quest}\n{wynn_quest_sus}%", inline=True)
         embed.add_field(name="Wynncraft Rank", value=f"{wynn_rank}\n{wynn_rank_sus}%", inline=True)
         embed.add_field(name="Minecraft First Seen", value=f"""{first_seen_time}\n{first_seen_sus}%""", inline=True)
-        await ctx.send(embed=embed)
+        if blacklisted != "False":
+            overall_sus = 100.0
+            embed.color = discord.Color.red()
+            embed.title = f"Suspicousness of {name}: {overall_sus}% \n ⚠ Player is blacklisted ⚠"
+            embed.add_field(name="Blacklisted?", value=f"{blacklisted}\n{blacklisted_sus}%", inline=True)
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(embed=embed)
+
 
 
     @valor.help_override.command()
