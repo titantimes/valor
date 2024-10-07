@@ -15,7 +15,7 @@ class ErrorEmbed(discord.Embed):
 async def _register_HQ(valor: Valor):
     desc = "Displays stats of an HQ at specified conns/exts"
     #HQ conn calculator
-    @valor.command()
+    @valor.command(name='HQ', aliases=['hq', 'Hq', 'hQ'])
     async def HQ(ctx: Context, conns: str = None, externals: str = None):
         if conns is None or externals is None:
             await ctx.send(embed=ErrorEmbed())
