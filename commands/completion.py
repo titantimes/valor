@@ -79,7 +79,7 @@ async def _register_completion(valor: Valor):
                 results.append(f"{other_blue}{('Combat'):>24}{stop}  | {stats['Combat']:>7,} / {(max_combat := max_stats['combat'] * max_characters):>6,}  |"
                     f" {color_percentage(stats['Combat'] / max_combat)}")
                 total_count += stats['Combat']
-                total += max_combat
+                total_max += max_combat
                 
                 # Profs
                 for prof in ["Farming", "Fishing", "Mining", "Woodcutting"]:
