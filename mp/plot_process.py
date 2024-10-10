@@ -39,6 +39,7 @@ def plot_process(lock, opt, query):
 
                 b = np.linspace(b.min(), b.max(), 500)
                 a = spline(b)
+                a = np.clip(a, 0, None)
 
             plt.plot([datetime.fromtimestamp(x) for x in b], a, label=name)
             plt.legend(loc="upper left")
@@ -73,6 +74,7 @@ Min: {min(a)}```"""
 
             b = np.linspace(b.min(), b.max(), 500)
             a = spline(b)
+            a = np.clip(a, 0, None)
 
         plt.plot([datetime.fromtimestamp(x) for x in b], a) 
 
