@@ -9,6 +9,7 @@ import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
 import time
 import argparse
+import os
 
 load_dotenv()
 async def _register_plot2(valor: Valor):
@@ -56,6 +57,15 @@ async def _register_plot2(valor: Valor):
         else:
             query += f" AND time >= {start-3600*24*7}"
         query += " ORDER BY time ASC"
+
+        if opt.range:
+            start_time = int(start - 3600 * 24 * float(opt.range[0]))
+            end_time = int(start - 3600 * 24 * float(opt.range[1]))
+
+        COUNCILID = os.getenv('COUNCILID')
+        if (end_time - start_time) > (365 *24 * 3600) and COUNCILID not in roles:
+            return await LongTextEmbed.send_message(valor, ctx, "Plot2 Error", f" Maximum time range exceeded (365 days), ask a council member if you need a longer timeframe.", color=0xFF0000)
+
 
         pool = ProcessPoolExecutor(max_workers=4)
         data_pts, content = await valor.loop.run_in_executor(pool, plot_process, valor.db_lock, opt, query)

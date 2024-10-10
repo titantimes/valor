@@ -13,6 +13,7 @@ import numpy as np
 import time
 import argparse
 import gc
+import os
 
 load_dotenv()
 async def _register_avg(valor: Valor):
@@ -50,6 +51,17 @@ async def _register_avg(valor: Valor):
             query += f"time >= {start-3600*24*float(opt.range[0])} AND time <= {start-3600*24*float(opt.range[1])}"
         else:
             query += f"time >= {start-3600*24*7}"
+
+        if opt.range:
+           start_time = int(start - 3600 * 24 * float(opt.range[0]))
+           end_time = int(start - 3600 * 24 * float(opt.range[1]))
+
+
+        COUNCILID = os.getenv('COUNCILID')
+        if (end_time - start_time) > (365 *24 * 3600) and COUNCILID not in roles:
+           return await LongTextEmbed.send_message(valor, ctx, "avg Error", f" Maximum time range exceeded (365 days), ask a council member if you need a longer timeframe.", color=0xFF0000)
+
+
 
         pool = ProcessPoolExecutor(max_workers=4)
         data_pts, content = await valor.loop.run_in_executor(pool, avg_process, valor.db_lock, query)
