@@ -46,7 +46,10 @@ async def _register_avg(valor: Valor):
             if not guild_names:
                 return await LongTextEmbed.send_message(
                     valor, ctx, f"Average Error", f"{unidentified} unknown", color=0xFF0000)
-
+                
+        start_time = start - 3600 * 24 * 7 #these should mimic default values if they ever change
+        end_time = start
+        
         if opt.range:
             query += f"time >= {start-3600*24*float(opt.range[0])} AND time <= {start-3600*24*float(opt.range[1])}"
         else:
