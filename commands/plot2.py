@@ -58,6 +58,9 @@ async def _register_plot2(valor: Valor):
             query += f" AND time >= {start-3600*24*7}"
         query += " ORDER BY time ASC"
 
+        start_time = start - 3600 * 24 * 7 #should mimic default values
+        end_time = start
+        
         if opt.range:
             start_time = int(start - 3600 * 24 * float(opt.range[0]))
             end_time = int(start - 3600 * 24 * float(opt.range[1]))
