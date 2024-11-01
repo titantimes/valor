@@ -3,7 +3,7 @@ from sql import ValorSQL
 from discord.ext.commands import Context
 from util import ErrorEmbed, LongTextEmbed, LongTextMessage
 from commands.common import get_uuid, from_uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import requests
 
@@ -47,14 +47,22 @@ async def _register_history(valor: Valor):
 
         combined_data.sort(key=lambda x: x[2], reverse=True) 
 
-        filtered_data = []
-        current_guild = None
         earliest_timestamp = None
+        current_guild = None
+        filtered_data = []
 
-        for entry in combined_data:
+        def merger_merger_merger(ts1, ts2):
+            return abs(ts1 - ts2) < timedelta(hours=1).total_seconds()
+
+        for i, entry in enumerate(combined_data):
             guild, rank, timestamp, joined = entry
             if earliest_timestamp is None or timestamp < earliest_timestamp:
                 earliest_timestamp = timestamp
+
+            if i > 0 and merger_merger_merger(timestamp, combined_data[i-1][2]):
+                # Merger
+                continue
+
             if current_guild is None:
                 # First entry, consider it a join
                 filtered_data.append((guild, rank, None, None))  # (guild, rank, join_date, leave_date)
