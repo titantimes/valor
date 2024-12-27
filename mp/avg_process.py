@@ -1,11 +1,10 @@
 from sql import ValorSQL
 
-def avg_process(lock, query):
+async def avg_process(query):
     guilds = {}
     content = "```"
 
-    with lock:
-        res = ValorSQL.execute_sync(query)
+    res = await ValorSQL._execute(query)
 
     data_pts = len(res)
     for x in res:

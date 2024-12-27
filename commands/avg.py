@@ -64,11 +64,7 @@ async def _register_avg(valor: Valor):
         if (end_time - start_time) > (365 *24 * 3600) and COUNCILID not in roles:
            return await LongTextEmbed.send_message(valor, ctx, "avg Error", f" Maximum time range exceeded (365 days), ask a council member if you need a longer timeframe.", color=0xFF0000)
 
-
-
-        pool = ProcessPoolExecutor(max_workers=4)
-        data_pts, content = await valor.loop.run_in_executor(pool, avg_process, valor.db_lock, query)
-        pool.shutdown()
+        data_pts, content = await avg_process(query)
         
         end = time.time()
 
