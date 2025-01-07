@@ -7,6 +7,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from .common import get_left_right, guild_names_from_tags
 import argparse
+from datetime import datetime, timedelta
 
 load_dotenv()
 async def _register_graids(valor: Valor):
@@ -86,7 +87,13 @@ FROM
         # rows = [(name_to_ranking[name], name, guild_to_tag.get(player_to_guild[name], ("None", -1))[0], *player_warcounts[name], sum(player_warcounts[name])) for name in player_warcounts]
         # rows.sort(key=lambda x: x[-1], reverse=True)
 
-        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
+        now = datetime.now()
+        start_date = now - timedelta(days=float(opt.range[0]))
+        end_date = now - timedelta(days=float(opt.range[1]))
+
+        time_range_str = f"{start_date.strftime('%d/%m/%Y %H:%M')} until {end_date.strftime('%d/%m/%Y %H:%M')}"
+
+        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}\nRange: {time_range_str}"
         await LongTextTable.send_message(valor, ctx, header, res, opt_after)
 
     @valor.help_override.command()
