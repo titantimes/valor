@@ -5,7 +5,7 @@ from sql import ValorSQL
 import mongo
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, LongTextTable, get_war_rank, get_xp_rank
 from discord.ext.commands import Context
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 from commands.common import get_uuid, get_left_right, guild_names_from_tags, guild_tags_from_names
@@ -20,11 +20,13 @@ async def _register_warcount(valor: Valor):
     parser = argparse.ArgumentParser(description='Warcount Command')
     parser.add_argument('-n', '--names', nargs='+', default=[])
     parser.add_argument('-a', '--guild_aggregate', action="store_true", default=False)
-    parser.add_argument('-t', '--territory_captures', action="store_true", default=False)
+    parser.add_argument('-w', '--guild_wise', action="store_true", default=False)
     parser.add_argument('-g', '--guild', nargs='+', default=[]) # this one is filter players only in guilds, Callum: 100
     parser.add_argument('-c', '--classes', nargs='+', default=[])
     parser.add_argument('-r', '--range', nargs='+', default=None)
     parser.add_argument('-rk', '--rank', type=str, default="global")
+
+
 
     async def do_guild_aggregate_warcount(ctx: Context, opt):
         query = """
@@ -50,8 +52,16 @@ FROM
 
         rows = await ValorSQL.exec_param(query, (left, right))
 
+        now = datetime.now()
+        if opt.range:
+            start_date = now - timedelta(days=float(opt.range[0]))
+            end_date = now - timedelta(days=float(opt.range[1]))
+        else:
+            start_date = now - timedelta(days=7)  # Default to the last 7 days
+            end_date = now
+        time_range_str = f"{start_date.strftime('%d/%m/%Y %H:%M')} until {end_date.strftime('%d/%m/%Y %H:%M')}"
         delta_time = time.time() - start
-        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
+        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}\nRange: {time_range_str}"
         header = ['   ',  " Tag ", " "*16+"Guild ", "  Wars  "]
 
         return await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
@@ -80,8 +90,16 @@ FROM
 
         rows = await ValorSQL.exec_param(query, (left, right))
 
+        now = datetime.now()
+        if opt.range:
+            start_date = now - timedelta(days=float(opt.range[0]))
+            end_date = now - timedelta(days=float(opt.range[1]))
+        else:
+            start_date = now - timedelta(days=7)
+            end_date = now
+        time_range_str = f"{start_date.strftime('%d/%m/%Y %H:%M')} until {end_date.strftime('%d/%m/%Y %H:%M')}"
         delta_time = time.time() - start
-        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
+        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}\nRange: {time_range_str}"
         header = ['   ',  " Tag ", " "*16+"Guild ", "  Captures  "]
 
         return await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
@@ -95,7 +113,7 @@ FROM
     
         if opt.guild_aggregate:
             return await do_guild_aggregate_warcount(ctx, opt)
-        elif opt.territory_captures:
+        elif opt.guild_wise:
             return await do_guild_aggregate_captures(ctx, opt)
         
         listed_classes = real_classes if not opt.classes else opt.classes
@@ -190,7 +208,11 @@ ORDER BY all_wars DESC;'''
         if not rows:
             return await ctx.send(embed=ErrorEmbed("No results, wrong username? have they done no wars?"))
 
-        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}"
+        now = datetime.now()
+        start_date = now - timedelta(days=float(opt.range[0]))
+        end_date = now - timedelta(days=float(opt.range[1]))
+        time_range_str = f"{start_date.strftime('%d/%m/%Y %H:%M')} until {end_date.strftime('%d/%m/%Y %H:%M')}"
+        opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}\nRange: {time_range_str}"
         await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
 
     @valor.help_override.command()
