@@ -209,8 +209,12 @@ ORDER BY all_wars DESC;'''
             return await ctx.send(embed=ErrorEmbed("No results, wrong username? have they done no wars?"))
 
         now = datetime.now()
-        start_date = now - timedelta(days=float(opt.range[0]))
-        end_date = now - timedelta(days=float(opt.range[1]))
+        if opt.range:
+            start_date = now - timedelta(days=float(opt.range[0]))
+            end_date = now - timedelta(days=float(opt.range[1]))
+        else:
+            start_date = now - timedelta(days=7)  # Default to the last 7 days
+            end_date = now
         time_range_str = f"{start_date.strftime('%d/%m/%Y %H:%M')} until {end_date.strftime('%d/%m/%Y %H:%M')}"
         opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}\nRange: {time_range_str}"
         await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
