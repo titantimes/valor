@@ -66,7 +66,7 @@ async def _register_profile(valor: Valor):
 
         warcount = valor.warcount119.get(username.lower(), 0)
         res = await ValorSQL.exec_param("SELECT SUM(warcount) FROM cumu_warcounts WHERE uuid=%s", uuid)
-        warcount += (res[0][0] if res else 0)
+        warcount += (res[0][0] if res and res[0][0] is not None else 0)
         war_ranking = get_war_rank(warcount)
         
         res = await ValorSQL.exec_param("""
