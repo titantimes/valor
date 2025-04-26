@@ -123,7 +123,7 @@ async def get_leaderboard(stat, page, is_fancy: bool):
     right_margin = 630
 
     font = ImageFont.truetype("Ubuntu-B.ttf", 20)
-    board = Image.open("assets/leaderboard.png")
+    board = Image.new("RGBA", (720, 730), (255, 0, 0, 0))
     overlay = Image.open("assets/overlay.png")
     draw = ImageDraw.Draw(board)
 
