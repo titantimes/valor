@@ -1,10 +1,8 @@
-import aiohttp
-import asyncio
-import time
+import aiohttp, asyncio, time
 from valor import Valor
 from sql import ValorSQL
 import discord
-from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, LongTextTable, get_war_rank, get_xp_rank
+from util import ErrorEmbed, LongTextEmbed, LongTextTable
 from discord.ext.commands import Context
 from discord.ui import View
 from discord import File
@@ -12,7 +10,7 @@ from datetime import datetime, timedelta
 from PIL import Image, ImageFont, ImageDraw
 from dotenv import load_dotenv
 import math, os
-from commands.common import get_uuid, get_left_right, guild_names_from_tags, guild_tags_from_names
+from commands.common import get_left_right, guild_names_from_tags
 import argparse
 
 load_dotenv()
@@ -131,6 +129,7 @@ FROM
                 if i != len(row) - 1:
                     line += " ┃ "
             lines.append(line)
+
         lines.append(separator)
         lines.append(footer)
 
@@ -144,7 +143,6 @@ FROM
                     content = await response.read()
                     with open(filename, "wb") as f:
                         f.write(content)
-                    print(f"Downloaded {url}")
                 else:
                     print(f"Failed to fetch {url}: {response.status}")
         except Exception as e:
@@ -157,7 +155,7 @@ FROM
             for row in rows:
                 filename = f"/tmp/{row[1]}_model.png"
                 url = model_base + row[1] + '.png'
-                # Only download if missing or too old
+
                 if not os.path.exists(filename) or now - os.path.getmtime(filename) > 24 * 3600:
                     tasks.append(download_model(session, url, filename))
             await asyncio.gather(*tasks)  # Run all downloads in parallel
@@ -183,6 +181,7 @@ FROM
         i = 1
         for row in sliced:
             y = ((57*(i/2))+(59*(i/2)))+27
+
             color = "white"
             match row[0]:
                 case 1:
@@ -199,6 +198,8 @@ FROM
                 model_img = Image.open(f"/tmp/{row[1]}_model.png", 'r')
                 model_img = model_img.resize((54, 54))
             except Exception as e:
+                model_img = Image.open(f"assets/unknown_model.png", 'r')
+                model_img = model_img.resize((54, 54))
                 print(f"Error loading image: {e}")
 
             img.paste(model_img, (84, int(y)-29), model_img)
@@ -210,7 +211,7 @@ FROM
             draw.text((658, y), str(row[5]), "white", text_font, anchor="mm")
             draw.text((718, y), str(row[6]), "white", text_font, anchor="mm")
             draw.text((780, y), str(row[7]), "white", text_font, anchor="mm")
-            draw.text((827, y), str(row[8]), "white", text_font, anchor="lm")
+            draw.text((827, y), str(row[8]), "white", total_font, anchor="lm")
 
             i += 1
         
