@@ -16,18 +16,27 @@ class LeaderboardSelect(Select):
     
     async def callback(self, interaction: discord.Interaction):
         self.view.page = 0
-        board = await get_leaderboard(self.values[0], self.view.page)
+        self.is_fancy = self.view.is_fancy
+        board = await get_leaderboard(self.values[0], self.view.page, self.is_fancy)
 
         self.embed.title = f"Leaderboard for {self.values[0]}"
-        self.embed.set_image(url="attachment://leaderboard.png")
         self.embed.set_footer(text=f"Page {self.view.page+1} | Use arrow buttons to switch between pages.")
+        if self.is_fancy:
+            self.embed.set_image(url="attachment://leaderboard.png")
+            self.embed.description = ""
+            await interaction.response.edit_message(embed=self.embed, view=self.view, attachments=[board])
+        else:
+            self.embed.description = board
+            self.embed.set_image(url=None)
+            await interaction.response.edit_message(embed=self.embed, view=self.view, attachments=[])
 
-        await interaction.response.edit_message(embed=self.embed, view=self.view, attachments=[board])
+
 
 class LeaderboardView(View):
     def __init__(self, default, stat_set):
         super().__init__()
         self.page = 0
+        self.is_fancy = False
 
         self.stats = [stat_set[i:i + 25] for i in range(0, len(stat_set), 25)] # split into pages of 25 because discord limits select menus to 25 options
         self.max_page = 4
@@ -59,19 +68,31 @@ class LeaderboardView(View):
             await interaction.response.send_message("You are at the last page!", ephemeral=True)
         else:
             await self.update(interaction)
+    
+    @discord.ui.button(emoji="✨", row=1)
+    async def fancy(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.is_fancy = not self.is_fancy
+        await self.update(interaction)
 
     async def update(self, interaction: discord.Interaction):
         self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[0]]
         self.select.embed.set_footer(text=f"Page {self.page+1} | Use arrow buttons to switch between pages.")
-        board = await get_leaderboard(self.select.values[0], self.page)
+        board = await get_leaderboard(self.select.values[0], self.page, self.is_fancy)
         self.embed = self.select.embed
 
         self.embed.title = f"Leaderboard for {self.select.values[0]}"
-        self.embed.set_image(url="attachment://leaderboard.png")
+        if self.is_fancy:
+            self.embed.set_image(url="attachment://leaderboard.png")
+            self.embed.description = ""
+            await interaction.response.edit_message(embed=self.embed, view=self, attachments=[board])
+        else:
+            self.embed.description = board
+            self.embed.set_image(url=None)
+            await interaction.response.edit_message(embed=self.embed, view=self, attachments=[])
 
-        await interaction.response.edit_message(embed=self.embed, view=self, attachments=[board])
+        
 
-async def get_leaderboard(stat, page):
+async def get_leaderboard(stat, page, is_fancy: bool):
     if stat == "raids":
         res = await ValorSQL._execute("SELECT uuid_name.name, uuid_name.uuid, player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs FROM player_stats LEFT JOIN uuid_name ON uuid_name.uuid=player_stats.uuid ORDER BY player_stats.the_canyon_colossus + player_stats.nexus_of_light + player_stats.the_nameless_anomaly + player_stats.nest_of_the_grootslangs DESC LIMIT 50")
     elif stat == "dungeons":
@@ -84,6 +105,13 @@ async def get_leaderboard(stat, page):
             stats.append((await from_uuid(m[1]), m[2]))
         else:
             stats.append((m[0] if m[0] else "can't find name", m[2]))
+    
+    if not is_fancy:
+        start = page * 10
+        end = start + 10
+        return "```\n" + '\n'.join("%3d. %24s %5d" % (i+1, stats[i][0], stats[i][1]) for i in range(start, min(end, len(stats)))) + "\n```"
+
+    
         
     stats_list = []
     for i in range(len(stats)):
@@ -95,7 +123,7 @@ async def get_leaderboard(stat, page):
     right_margin = 630
 
     font = ImageFont.truetype("Ubuntu-B.ttf", 20)
-    board = Image.open("assets/leaderboard.png")
+    board = Image.new("RGBA", (720, 730), (255, 0, 0, 0))
     overlay = Image.open("assets/overlay.png")
     draw = ImageDraw.Draw(board)
 
@@ -140,16 +168,15 @@ async def _register_leaderboard(valor: Valor):
         view.select.values[0] = stat
         view.page = 0
 
-        board = await get_leaderboard(stat, 0)
+        board = await get_leaderboard(stat, 0, view.is_fancy)
         
         view.select.embed = discord.Embed(
             title=f"Leaderboard for {stat}",
+            description=board,
             color=0x11FFBB,
         )
-        view.select.embed.set_image(url="attachment://leaderboard.png")
         view.select.embed.set_footer(text=f"Page {view.page+1} | Use arrow buttons to switch between pages.")
-
-        await ctx.send(embed=view.select.embed, view=view, file=board)
+        await ctx.send(embed=view.select.embed, view=view)
 
     @leaderboard.error
     async def cmd_error(ctx, error: Exception):
