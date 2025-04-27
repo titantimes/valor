@@ -2,12 +2,15 @@ import requests
 import time
 from valor import Valor
 from sql import ValorSQL
-import mongo
+import discord
 from util import ErrorEmbed, HelpEmbed, LongFieldEmbed, LongTextEmbed, LongTextTable, get_war_rank, get_xp_rank
 from discord.ext.commands import Context
+from discord.ui import View
+from discord import File
 from datetime import datetime, timedelta
+from PIL import Image, ImageFont, ImageDraw
 from dotenv import load_dotenv
-import os
+import math, os
 from commands.common import get_uuid, get_left_right, guild_names_from_tags, guild_tags_from_names
 import argparse
 
@@ -26,6 +29,7 @@ async def _register_warcount(valor: Valor):
     parser.add_argument('-r', '--range', nargs='+', default=None)
     parser.add_argument('-rk', '--rank', type=str, default="global")
 
+    model_base = "https://visage.surgeplay.com/bust/"
 
 
     async def do_guild_aggregate_warcount(ctx: Context, opt):
@@ -103,6 +107,131 @@ FROM
         header = ['   ',  " Tag ", " "*16+"Guild ", "  Captures  "]
 
         return await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
+    
+    def basic_table(header: list[str], data: list[tuple], page: int, footer: str) -> str:
+        start = page * 10
+        end = start + 10
+        sliced = data[start:end]
+
+        col_widths = [len(h) for h in header]
+        lines = []
+
+        fmt = ' ┃ '.join(f"%{len(x)}s" for x in header)
+        header_line = fmt % tuple(header)
+        lines.append(header_line)
+
+        separator = ''.join('╋' if x == '┃' else '━' for x in header_line)
+        lines.append(separator)
+
+        for row in sliced:
+            line = ""
+            for i, cell in enumerate(row):
+                line += str(cell).rjust(col_widths[i])
+                if i != len(row) - 1:
+                    line += " ┃ "
+            lines.append(line)
+        lines.append(separator)
+        lines.append(footer)
+
+        return "```" + "\n".join(lines) + "```"
+
+    def fancy_table(data: list[tuple], page: int):
+        start = page * 10
+        end = start + 10
+        sliced = data[start:end]
+
+        img = Image.open("assets/warcount_template.png")
+        draw = ImageDraw.Draw(img)
+
+        name_fontsize = 20
+        text_fontsize = 16
+        total_fontsize = 18
+        name_font = ImageFont.truetype("assets/MinecraftRegular.ttf", name_fontsize)
+        text_font = ImageFont.truetype("assets/MinecraftRegular.ttf", text_fontsize)
+        total_font = ImageFont.truetype("assets/MinecraftRegular.ttf", total_fontsize)
+
+        i = 1
+        for row in sliced:
+            y = ((57*(i/2))+(59*(i/2)))+27
+            color = "white"
+            match row[0]:
+                case 1:
+                    color = "yellow"
+                case 2:
+                    color = (170,169,173,255)
+                case 3:
+                    color = (169,113,66,255)
+
+            draw.text((62, y), f"{row[0]}.", color, total_font, anchor="rm")
+            draw.text((153, y), row[1], color, name_font, anchor="lm")
+
+            if not os.path.exists(f"/tmp/{row[1]}_model.png") or time.time() - os.path.getmtime(f"/tmp/{row[1]}_model.png") > (24 * 3600):
+                user_agent = {'User-Agent': 'valor-bot/1.0'}
+                model = requests.get(model_base+row[1]+'.png', headers=user_agent).content
+                print(model_base+row[1]+'.png')
+                with open(f"/tmp/{row[1]}_model.png", "wb") as f:
+                    f.write(model)
+            model_img = Image.open(f"/tmp/{row[1]}_model.png", 'r')
+            model_img = model_img.resize((54, 54))
+            img.paste(model_img, (84, int(y)-29), model_img)
+
+            draw.text((445, y), row[2], "white", total_font, anchor="mm")
+            
+            draw.text((532, y), str(row[3]), "white", text_font, anchor="mm")
+            draw.text((593, y), str(row[4]), "white", text_font, anchor="mm")
+            draw.text((658, y), str(row[5]), "white", text_font, anchor="mm")
+            draw.text((718, y), str(row[6]), "white", text_font, anchor="mm")
+            draw.text((780, y), str(row[7]), "white", text_font, anchor="mm")
+            draw.text((827, y), str(row[8]), "white", text_font, anchor="lm")
+
+            i += 1
+        
+        img.save("/tmp/warcount.png")
+        file = File("/tmp/warcount.png", filename="warcount.png")
+        return file
+
+    class WarcountView(View):
+        def __init__(self, ctx, header, rows, footer, timeout=60):
+            super().__init__(timeout=timeout)
+            self.ctx = ctx
+            self.is_fancy = False
+
+            self.page = 0
+            self.header = header
+            self.data = rows
+            self.footer = footer
+            
+            self.max_pages = math.ceil(len(rows) / 10)
+
+        async def update_message(self, interaction: discord.Interaction):
+            if self.is_fancy:
+                content = fancy_table(self.data, self.page)
+                await interaction.response.edit_message(content="", view=self, attachments=[content])
+            else:
+                content = basic_table(self.header, self.data, self.page, self.footer)
+                await interaction.response.edit_message(content=content, view=self, attachments=[])
+
+        @discord.ui.button(label="⬅️")
+        async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
+            if self.page > 0:
+                self.page -= 1
+                await self.update_message(interaction)
+            else:
+                await interaction.response.defer()
+
+        @discord.ui.button(label="➡️")
+        async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
+            if self.page < self.max_pages - 1:
+                self.page += 1
+                await self.update_message(interaction)
+            else:
+                await interaction.response.defer()
+        
+        @discord.ui.button(label="✨")
+        async def fancy(self, interaction: discord.Interaction, button: discord.ui.Button):
+            self.is_fancy = not self.is_fancy
+            await self.update_message(interaction)
+            
 
     @valor.command()
     async def warcount(ctx: Context, *options):
@@ -217,7 +346,8 @@ ORDER BY all_wars DESC;'''
             end_date = now
         time_range_str = f"{start_date.strftime('%d/%m/%Y %H:%M')} until {end_date.strftime('%d/%m/%Y %H:%M')}"
         opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}\nRange: {time_range_str}"
-        await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
+        view = WarcountView(ctx, header, rows, opt_after)
+        await ctx.send(content=basic_table(header, rows, 0, opt_after), view=view)
 
     @valor.help_override.command()
     async def warcount(ctx: Context):
