@@ -1,4 +1,5 @@
-import requests
+import aiohttp
+import asyncio
 import time
 from valor import Valor
 from sql import ValorSQL
@@ -135,7 +136,34 @@ FROM
 
         return "```" + "\n".join(lines) + "```"
 
-    def fancy_table(data: list[tuple], page: int):
+    async def download_model(session, url, filename):
+        user_agent = {'User-Agent': 'valor-bot/1.0'}
+        try:
+            async with session.get(url, headers=user_agent) as response:
+                if response.status == 200:
+                    content = await response.read()
+                    with open(filename, "wb") as f:
+                        f.write(content)
+                    print(f"Downloaded {url}")
+                else:
+                    print(f"Failed to fetch {url}: {response.status}")
+        except Exception as e:
+            print(f"Error fetching {url}: {e}")
+
+    async def fetch_all_models(rows):
+        tasks = []
+        now = time.time()
+        async with aiohttp.ClientSession() as session:
+            for row in rows:
+                filename = f"/tmp/{row[1]}_model.png"
+                url = model_base + row[1] + '.png'
+                # Only download if missing or too old
+                if not os.path.exists(filename) or now - os.path.getmtime(filename) > 24 * 3600:
+                    tasks.append(download_model(session, url, filename))
+            await asyncio.gather(*tasks)  # Run all downloads in parallel
+
+
+    async def fancy_table(data: list[tuple], page: int):
         start = page * 10
         end = start + 10
         sliced = data[start:end]
@@ -149,6 +177,8 @@ FROM
         name_font = ImageFont.truetype("assets/MinecraftRegular.ttf", name_fontsize)
         text_font = ImageFont.truetype("assets/MinecraftRegular.ttf", text_fontsize)
         total_font = ImageFont.truetype("assets/MinecraftRegular.ttf", total_fontsize)
+
+        await fetch_all_models(sliced)
 
         i = 1
         for row in sliced:
@@ -165,14 +195,12 @@ FROM
             draw.text((62, y), f"{row[0]}.", color, total_font, anchor="rm")
             draw.text((153, y), row[1], color, name_font, anchor="lm")
 
-            if not os.path.exists(f"/tmp/{row[1]}_model.png") or time.time() - os.path.getmtime(f"/tmp/{row[1]}_model.png") > (24 * 3600):
-                user_agent = {'User-Agent': 'valor-bot/1.0'}
-                model = requests.get(model_base+row[1]+'.png', headers=user_agent).content
-                print(model_base+row[1]+'.png')
-                with open(f"/tmp/{row[1]}_model.png", "wb") as f:
-                    f.write(model)
-            model_img = Image.open(f"/tmp/{row[1]}_model.png", 'r')
-            model_img = model_img.resize((54, 54))
+            try:
+                model_img = Image.open(f"/tmp/{row[1]}_model.png", 'r')
+                model_img = model_img.resize((54, 54))
+            except Exception as e:
+                print(f"Error loading image: {e}")
+
             img.paste(model_img, (84, int(y)-29), model_img)
 
             draw.text((445, y), row[2], "white", total_font, anchor="mm")
@@ -205,8 +233,9 @@ FROM
 
         async def update_message(self, interaction: discord.Interaction):
             if self.is_fancy:
-                content = fancy_table(self.data, self.page)
-                await interaction.response.edit_message(content="", view=self, attachments=[content])
+                await interaction.response.defer()
+                content = await fancy_table(self.data, self.page)
+                await interaction.edit_original_response(content="", view=self, attachments=[content])
             else:
                 content = basic_table(self.header, self.data, self.page, self.footer)
                 await interaction.response.edit_message(content=content, view=self, attachments=[])
