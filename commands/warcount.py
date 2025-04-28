@@ -206,8 +206,7 @@ FROM
 
             draw.text((445, y), row[2], "white", total_font, anchor="mm")
             x = 0
-            print(listed_classes)
-            print(row)
+
             if "ARCHER" in listed_classes:
                 draw.text((532, y), str(row[3+x]), "white", text_font, anchor="mm")
                 x += 1
