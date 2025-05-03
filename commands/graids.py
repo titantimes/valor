@@ -127,7 +127,7 @@ async def _register_graids(valor: Valor):
         rank_margin = 40
         model_margin = 110
         name_margin = 200
-        value_margin = 650
+        value_margin = 680
 
         font = ImageFont.truetype("MinecraftRegular.ttf", 20)
         board = Image.new("RGBA", (720, 730), (255, 0, 0, 0))
@@ -160,7 +160,7 @@ async def _register_graids(valor: Valor):
             board.paste(model_img, (model_margin, height), model_img)
             draw.text((rank_margin, height+22), "#"+str(row[0]), fill=color, font=font)
             draw.text((name_margin, height+22), str(row[1]), font=font)
-            draw.text((value_margin, height+22), str(row[2]), font=font, align="right")
+            draw.text((value_margin, height+22), str(row[2]), font=font, anchor="rt")
 
             i += 1
 

@@ -192,7 +192,7 @@ FROM
                     color = (169,113,66,255)
 
             draw.text((62, y), f"{row[0]}.", color, total_font, anchor="rm")
-            draw.text((153, y), row[1], color, name_font, anchor="lm")
+            draw.text((153, y), row[1], "white", name_font, anchor="lm")
 
             try:
                 model_img = Image.open(f"/tmp/{row[1]}_model.png", 'r')

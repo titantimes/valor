@@ -146,7 +146,7 @@ async def get_leaderboard(stat, page, is_fancy: bool):
     rank_margin = 40
     model_margin = 110
     name_margin = 200
-    value_margin = 630
+    value_margin = 680
 
     font = ImageFont.truetype("MinecraftRegular.ttf", 20)
     board = Image.new("RGBA", (720, 730), (255, 0, 0, 0))
@@ -177,9 +177,9 @@ async def get_leaderboard(stat, page, is_fancy: bool):
             print(f"Error loading image: {e}")
 
         board.paste(model_img, (model_margin, height), model_img)
-        draw.text((rank_margin, height+20), "#"+str(stat[0]), fill=color, font=font)
-        draw.text((name_margin, height+20), str(stat[1]), font=font)
-        draw.text((value_margin, height+20), str(stat[2]), font=font, align="right")
+        draw.text((rank_margin, height+22), "#"+str(stat[0]), fill=color, font=font)
+        draw.text((name_margin, height+22), str(stat[1]), font=font)
+        draw.text((value_margin, height+22), str(stat[2]), font=font, anchor="rt")
 
 
     board.save("/tmp/leaderboard.png")
