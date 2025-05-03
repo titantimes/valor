@@ -2,7 +2,7 @@ from valor import Valor
 from discord.ext.commands import Context
 from discord.ui import Select, View
 from discord import File
-import discord
+import discord, asyncio, time, os, aiohttp
 from util import ErrorEmbed, LongTextEmbed
 from PIL import Image
 from PIL import ImageFont
@@ -77,6 +77,7 @@ class LeaderboardView(View):
     async def update(self, interaction: discord.Interaction):
         self.select.options = [discord.SelectOption(label=stat) for stat in self.stats[0]]
         self.select.embed.set_footer(text=f"Page {self.page+1} | Use arrow buttons to switch between pages.")
+        await interaction.response.defer()
         board = await get_leaderboard(self.select.values[0], self.page, self.is_fancy)
         self.embed = self.select.embed
 
@@ -84,13 +85,37 @@ class LeaderboardView(View):
         if self.is_fancy:
             self.embed.set_image(url="attachment://leaderboard.png")
             self.embed.description = ""
-            await interaction.response.edit_message(embed=self.embed, view=self, attachments=[board])
+            await interaction.edit_original_response(embed=self.embed, view=self, attachments=[board])
         else:
             self.embed.description = board
             self.embed.set_image(url=None)
-            await interaction.response.edit_message(embed=self.embed, view=self, attachments=[])
+            await interaction.edit_original_response(embed=self.embed, view=self, attachments=[])
 
-        
+async def download_model(session, url, filename):
+    user_agent = {'User-Agent': 'valor-bot/1.0'}
+    try:
+        async with session.get(url, headers=user_agent) as response:
+            if response.status == 200:
+                content = await response.read()
+                with open(filename, "wb") as f:
+                    f.write(content)
+            else:
+                print(f"Failed to fetch {url}: {response.status}")
+    except Exception as e:
+        print(f"Error fetching {url}: {e}")
+
+async def fetch_all_models(rows):
+    model_base = "https://visage.surgeplay.com/bust/"
+    tasks = []
+    now = time.time()
+    async with aiohttp.ClientSession() as session:
+        for row in rows:
+            filename = f"/tmp/{row[0]}_model.png"
+            url = model_base + row[0] + '.png'
+
+            if not os.path.exists(filename) or now - os.path.getmtime(filename) > 24 * 3600:
+                tasks.append(download_model(session, url, filename))
+        await asyncio.gather(*tasks)  # Run all downloads in parallel
 
 async def get_leaderboard(stat, page, is_fancy: bool):
     if stat == "raids":
@@ -118,14 +143,17 @@ async def get_leaderboard(stat, page, is_fancy: bool):
         stats_list.append([i+1, stats[i][0], stats[i][1]])
 
         
-    left_margin = 40
-    middle_margin = 120
-    right_margin = 630
+    rank_margin = 40
+    model_margin = 110
+    name_margin = 200
+    value_margin = 630
 
-    font = ImageFont.truetype("Ubuntu-B.ttf", 20)
+    font = ImageFont.truetype("MinecraftRegular.ttf", 20)
     board = Image.new("RGBA", (720, 730), (255, 0, 0, 0))
     overlay = Image.open("assets/overlay.png")
     draw = ImageDraw.Draw(board)
+
+    await fetch_all_models(stats)
 
     for i in range(1, 11):
         stat = stats_list[(i-1)+(page*10)]
@@ -140,9 +168,18 @@ async def get_leaderboard(stat, page, is_fancy: bool):
                 color = (169,113,66,255)
             case _:
                 color = "white"
-        draw.text((left_margin, height+20), "#"+str(stat[0]), fill=color, font=font)
-        draw.text((middle_margin, height+20), str(stat[1]), font=font)
-        draw.text((right_margin, height+20), str(stat[2]), font=font, align="right")
+        try:
+            model_img = Image.open(f"/tmp/{stat[1]}_model.png", 'r')
+            model_img = model_img.resize((64, 64))
+        except Exception as e:
+            model_img = Image.open(f"assets/unknown_model.png", 'r')
+            model_img = model_img.resize((64, 64))
+            print(f"Error loading image: {e}")
+
+        board.paste(model_img, (model_margin, height), model_img)
+        draw.text((rank_margin, height+20), "#"+str(stat[0]), fill=color, font=font)
+        draw.text((name_margin, height+20), str(stat[1]), font=font)
+        draw.text((value_margin, height+20), str(stat[2]), font=font, align="right")
 
 
     board.save("/tmp/leaderboard.png")
