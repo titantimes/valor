@@ -161,7 +161,7 @@ FROM
             await asyncio.gather(*tasks)  # Run all downloads in parallel
 
 
-    async def fancy_table(data: list[tuple], page: int):
+    async def fancy_table(data: list[tuple], listed_classes: list, page: int):
         start = page * 10
         end = start + 10
         sliced = data[start:end]
@@ -192,7 +192,7 @@ FROM
                     color = (169,113,66,255)
 
             draw.text((62, y), f"{row[0]}.", color, total_font, anchor="rm")
-            draw.text((153, y), row[1], color, name_font, anchor="lm")
+            draw.text((153, y), row[1], "white", name_font, anchor="lm")
 
             try:
                 model_img = Image.open(f"/tmp/{row[1]}_model.png", 'r')
@@ -205,13 +205,25 @@ FROM
             img.paste(model_img, (84, int(y)-29), model_img)
 
             draw.text((445, y), row[2], "white", total_font, anchor="mm")
-            
-            draw.text((532, y), str(row[3]), "white", text_font, anchor="mm")
-            draw.text((593, y), str(row[4]), "white", text_font, anchor="mm")
-            draw.text((658, y), str(row[5]), "white", text_font, anchor="mm")
-            draw.text((718, y), str(row[6]), "white", text_font, anchor="mm")
-            draw.text((780, y), str(row[7]), "white", text_font, anchor="mm")
-            draw.text((827, y), str(row[8]), "white", total_font, anchor="lm")
+            x = 0
+
+            if "ARCHER" in listed_classes:
+                draw.text((532, y), str(row[3+x]), "white", text_font, anchor="mm")
+                x += 1
+            if "WARRIOR" in listed_classes:
+                draw.text((593, y), str(row[3+x]), "white", text_font, anchor="mm")
+                x += 1
+            if "MAGE" in listed_classes:
+                draw.text((658, y), str(row[3+x]), "white", text_font, anchor="mm")
+                x += 1
+            if "ASSASSIN" in listed_classes:
+                draw.text((718, y), str(row[3+x]), "white", text_font, anchor="mm")
+                x += 1
+            if "SHAMAN" in listed_classes:
+                draw.text((780, y), str(row[3+x]), "white", text_font, anchor="mm")
+                x += 1
+
+            draw.text((827, y), str(row[3+x]), "white", total_font, anchor="lm")
 
             i += 1
         
@@ -220,10 +232,11 @@ FROM
         return file
 
     class WarcountView(View):
-        def __init__(self, ctx, header, rows, footer, timeout=60):
+        def __init__(self, ctx, header, rows, listed_classes, footer, timeout=60):
             super().__init__(timeout=timeout)
             self.ctx = ctx
             self.is_fancy = False
+            self.listed_classes = listed_classes
 
             self.page = 0
             self.header = header
@@ -235,7 +248,7 @@ FROM
         async def update_message(self, interaction: discord.Interaction):
             if self.is_fancy:
                 await interaction.response.defer()
-                content = await fancy_table(self.data, self.page)
+                content = await fancy_table(self.data, self.listed_classes, self.page)
                 await interaction.edit_original_response(content="", view=self, attachments=[content])
             else:
                 content = basic_table(self.header, self.data, self.page, self.footer)
@@ -376,7 +389,7 @@ ORDER BY all_wars DESC;'''
             end_date = now
         time_range_str = f"{start_date.strftime('%d/%m/%Y %H:%M')} until {end_date.strftime('%d/%m/%Y %H:%M')}"
         opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}\nRange: {time_range_str}"
-        view = WarcountView(ctx, header, rows, opt_after)
+        view = WarcountView(ctx, header, rows, listed_classes, opt_after)
         await ctx.send(content=basic_table(header, rows, 0, opt_after), view=view)
 
     @valor.help_override.command()
