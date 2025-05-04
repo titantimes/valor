@@ -153,11 +153,12 @@ FROM
         now = time.time()
         async with aiohttp.ClientSession() as session:
             for row in rows:
-                filename = f"/tmp/{row[1]}_model.png"
-                url = model_base + row[1] + '.png'
+                if row[1]:
+                    filename = f"/tmp/{row[1]}_model.png"
+                    url = model_base + row[1] + '.png'
 
-                if not os.path.exists(filename) or now - os.path.getmtime(filename) > 24 * 3600:
-                    tasks.append(download_model(session, url, filename))
+                    if not os.path.exists(filename) or now - os.path.getmtime(filename) > 24 * 3600:
+                        tasks.append(download_model(session, url, filename))
             await asyncio.gather(*tasks)  # Run all downloads in parallel
 
 
