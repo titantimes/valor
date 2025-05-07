@@ -9,6 +9,9 @@ from sql import ValorSQL
 from commands.common import get_uuid, from_uuid
 import time
 import argparse
+import os
+from dotenv import load_dotenv  
+load_dotenv()
 
 async def _register_coolness(valor: Valor):
     desc = "The leaderboard (but for coolness)"
@@ -20,11 +23,18 @@ async def _register_coolness(valor: Valor):
 
     @valor.command()
     async def coolness(ctx: Context, *options):
+        roles = {x.id for x in ctx.author.roles}
         try:
             opt = parser.parse_args(options)
         except:
             return await LongTextEmbed.send_message(valor, ctx, "coolness", parser.format_help().replace("main.py", "-coolness"), color=0xFF00)
         
+        COUNCILID = os.getenv('COUNCILID')
+        if opt.range:
+            t_range = float(opt.range[0]) - float(opt.range[1])
+            if t_range > 100 and COUNCILID not in roles:
+                return await LongTextEmbed.send_message(valor, ctx, "coolness Error", f" Maximum time range exceeded (100 days), ask an ANO chief if you need a longer timeframe.", color=0xFF0000)
+
         start = time.time()
         query = "SELECT name, guild FROM activity_members WHERE "
         if opt.range:
@@ -34,7 +44,7 @@ async def _register_coolness(valor: Valor):
 
         res = await ValorSQL._execute(query)
         end = time.time()
-        
+
         count = {}
         name_to_guild = {}
 
