@@ -8,6 +8,7 @@ import time
 import uuid
 import os
 from sql import ValorSQL
+import discord
 
 
 async def _register_sus(valor: Valor):
