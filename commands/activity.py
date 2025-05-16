@@ -37,6 +37,45 @@ async def _register_activity(valor: Valor):
     parser.add_argument('-g', '--guild', type=str)
 
     @valor.command()
+    async def activity2(ctx: Context, *options):
+        try:
+            opt = parser.parse_args(options)
+        except:
+            return await LongTextEmbed.send_message(valor, ctx, "activity", parser.format_help().replace("main.py", "-activity"), color=0xFF00)
+        
+        if not opt.guild:
+            return await LongTextEmbed.send_message(valor, ctx, "activity", parser.format_help().replace("main.py", "-activity"), color=0xFF00)
+        
+        guild_name = await guild_name_from_tag(opt.guild)
+
+        guild_members_data = requests.get(uri+guild_name).json()["members"]
+        guild_members_data = requests.get(uri+guild_name).json()["members"]
+        member_set = set()
+        for rank in guild_members_data:
+            if type(guild_members_data[rank]) != dict: continue
+
+            member_set |= {x for x in guild_members_data[rank]}
+        
+        members_list = list(member_set)
+
+        query = f"SELECT name, lastjoin FROM player_last_join WHERE name IN ({('%s,'*len(members_list))[:-1]})"
+        res = dict(await ValorSQL.exec_param(query, members_list))
+
+        content = []
+        for name in members_list:
+            if name in res:
+                time_delta = datetime.utcnow() - datetime.utcfromtimestamp(res[name])
+                content.append((time_delta, name.replace('_', '\\_'), f'{time_delta.days}d{time_delta.seconds // 3600}h'))
+            else:
+                time_delta = datetime.utcnow() - datetime.utcfromtimestamp(0)
+                content.append((time_delta, name.replace('_', '\\_'), "30d+"))
+
+        content.sort(reverse=True)
+        content = [(x[1], x[2]) for x in content]
+
+        await LongFieldEmbed.send_message(valor, ctx, f"Player Last Join of {guild_name} ({len(members_list)})", content)
+
+    @valor.command()
     async def activity(ctx: Context, *options):
         try:
             opt = parser.parse_args(options)
@@ -90,7 +129,7 @@ async def _register_activity(valor: Valor):
 
         # quickly respond to the command
         await LongFieldEmbed.send_message(valor, ctx, f"Player Last Join of {guild_name} ({len(members)})", content)
-        
+    
     @activity.error
     async def cmd_error(ctx, error: Exception):
         await ctx.send(embed=ErrorEmbed(err=error))
