@@ -78,24 +78,27 @@ async def _register_gxp(valor: Valor):
         end = start + 10
         sliced = data[start:end]
 
-        rank_margin = 40
-        model_margin = 110
-        name_margin = 200
-        value_margin = 680
+        rank_margin = 45
+        model_margin = 115
+        name_margin = 205
+        value_margin = 685
 
         font = ImageFont.truetype("MinecraftRegular.ttf", 20)
-        board = Image.new("RGBA", (720, 730), (255, 0, 0, 0))
+        board = Image.new("RGBA", (730, 695), (110, 110, 110))
         overlay = Image.open("assets/overlay.png")
+        overlay2 = Image.open("assets/overlay2.png")
+        overlay_toggle = True
         draw = ImageDraw.Draw(board)
 
         await fetch_all_models(sliced)
 
-        i = 1
+        i = 0
         rank = 1+(page*10)
         for stat in sliced:
 
-            height = (i*74)-74
-            board.paste(overlay, (0, height))
+            height = (i*69)+5
+            board.paste(overlay if overlay_toggle else overlay2, (5, height), overlay)
+            overlay_toggle = not overlay_toggle
             match rank:
                 case 1:
                     color = "yellow"
