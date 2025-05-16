@@ -135,7 +135,7 @@ async def get_leaderboard(stat, page, is_fancy: bool):
     if not is_fancy:
         start = page * 10
         end = start + 10
-        return "```\n" + '\n'.join("%3d. %24s %5d" % (i+1, stats[i][0], stats[i][1]) for i in range(start, min(end, len(stats)))) + "\n```"
+        return "```isbl\n" + '\n'.join("%3d. %24s %5d" % (i+1, stats[i][0], stats[i][1]) for i in range(start, min(end, len(stats)))) + "\n```"
 
     
         
@@ -144,22 +144,25 @@ async def get_leaderboard(stat, page, is_fancy: bool):
         stats_list.append([i+1, stats[i][0], stats[i][1]])
 
         
-    rank_margin = 40
-    model_margin = 110
-    name_margin = 200
-    value_margin = 680
+    rank_margin = 45
+    model_margin = 115
+    name_margin = 205
+    value_margin = 685
 
     font = ImageFont.truetype("MinecraftRegular.ttf", 20)
-    board = Image.new("RGBA", (720, 730), (255, 0, 0, 0))
+    board = Image.new("RGBA", (730, 695), (110, 110, 110))
     overlay = Image.open("assets/overlay.png")
+    overlay2 = Image.open("assets/overlay2.png")
+    overlay_toggle = True
     draw = ImageDraw.Draw(board)
 
     await fetch_all_models(stats)
 
     for i in range(1, 11):
         stat = stats_list[(i-1)+(page*10)]
-        height = (i*74)-74
-        board.paste(overlay, (0, height))
+        height = ((i-1)*69)+5
+        board.paste(overlay if overlay_toggle else overlay2, (5, height), overlay)
+        overlay_toggle = not overlay_toggle
         match stat[0]:
             case 1:
                 color = "yellow"
@@ -211,7 +214,7 @@ async def _register_leaderboard(valor: Valor):
         view.select.embed = discord.Embed(
             title=f"Leaderboard for {stat}",
             description=board,
-            color=0x11FFBB,
+            color=0x333333,
         )
         view.select.embed.set_footer(text=f"Page {view.page+1} | Use arrow buttons to switch between pages.")
         await ctx.send(embed=view.select.embed, view=view)

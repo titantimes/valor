@@ -2,7 +2,7 @@ from valor import Valor
 from discord.ext.commands import Context
 from util import ErrorEmbed, LongTextEmbed, LongFieldEmbed
 from .common import guild_name_from_tag
-import random
+import discord
 import argparse
 import requests
 
@@ -33,19 +33,34 @@ async def _register_online(valor: Valor):
         
         if not len(online_rn):
             return await LongTextEmbed.send_message(valor, ctx, f"{guild} Members Online", "There are no members online.", color = 0xFF)
+        print(online_rn)
 
-        grouped = {}
-        for p, k, rank in online_rn:
-            if not k in grouped:
-                grouped[k] = []
-            grouped[k].append((p, k, rank))
-            grouped[k].sort(key=lambda x: rank_order[x[2]])
-        grouped = [x[1] for x in sorted(grouped.items(), key=lambda v: len(v[1]), reverse=True)]
-        return await LongTextEmbed.send_message(valor, ctx, f"Members of {guild} online ({len(online_rn)})", '```' +
-            '-'*17+'+'+'-'*7+'+'+'-'*12+'\n'+
-            '\n'.join('\n'.join(('%16s | %5s | %10s' % x) for x in y)+'\n' for y in grouped) + '```',
-            color=0xa1ffe1    
-        )
+        rank_dict = {
+            "recruit": "",
+            "recruiter": "*",
+            "captain": "**",
+            "strategist": "***",
+            "chief": "****",
+            "owner": "*****"
+        }
+
+        desc = "```isbl\n"
+        desc += "Name            ┃ Rank  ┃ World\n"
+        desc += "━━━━━━━━━━━━━━━━╋━━━━━━━╋━━━━━━\n"
+        for player in online_rn:
+            t = player[0]
+            t += (16 - len(player[0])) * " "
+            t += "┃ " + rank_dict[player[2]]
+            t += (5 - len(rank_dict[player[2]])) * " "
+            t += " ┃ " + player[1] + "\n"
+            
+            desc += t
+        desc += "```"
+
+
+        embed = discord.Embed(title=f"Members of {guild} online ({len(online_rn)})", description=desc, color=0x7785cc)
+        await ctx.send(embed=embed)
+
     
     
     @online.error
