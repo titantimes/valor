@@ -17,6 +17,7 @@ from .avg import _register_avg
 from .link import _register_link
 from .leaderboard import _register_leaderboard
 from .leaderboard_old import _register_leaderboard_old
+from .map_old import _register_map_old
 from .map import _register_map
 from .coolness import _register_coolness
 from .uniform import _register_uniform
@@ -81,6 +82,7 @@ async def register_all(valor: Valor):
     await _register_info(valor)
     await _register_history(valor)
     await _register_warcount_old(valor)
+    await _register_map_old(valor)
     await _register_map(valor)
     await _register_rank(valor)
     await _register_wipe(valor)
