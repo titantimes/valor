@@ -45,6 +45,7 @@ from .raids import _register_raids
 from .completion import _register_completion
 from .HQ import _register_HQ
 from .graids import _register_graids
+from .lootpool import _register_lootpool
 from valor import Valor
 from discord.ext.commands.hybrid import HybridCommand
 
@@ -99,4 +100,5 @@ async def register_all(valor: Valor):
     await _register_completion(valor)
     await _register_HQ(valor)
     await _register_graids(valor)
+    await _register_lootpool(valor)
     
