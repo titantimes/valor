@@ -116,7 +116,7 @@ async def _register_graids(valor: Valor):
         lines.append(separator)
         lines.append(footer)
 
-        return "```isbl" + "\n".join(lines) + "```"
+        return "```isbl\n" + "\n".join(lines) + "```"
     
     async def fancy_table(stats, page):
         start = page * 10
