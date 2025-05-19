@@ -99,7 +99,7 @@ async def _register_lootpool(valor: Valor):
                         icon = EMOJIS[ITEM_TO_EMOJI_MAP[item]]
                         field_text += f"- {icon} {item}\n"
 
-                embed.add_field(name=display_name, value=field_text, inline=False)
+                embed.add_field(name=f"{display_name} Mythics", value=field_text, inline=False)
                 embed.set_thumbnail(url=LOOTRUN_ICON_URL)
             return embed
 

@@ -83,7 +83,7 @@ async def _register_aspectpool(valor: Valor):
                     text += f"- {icon} {item}\n"
 
                 if text:
-                    embed.add_field(name=display_name, value=text, inline=False)
+                    embed.add_field(name=f"{display_name} Mythic Aspects", value=text, inline=False)
 
             embed.set_thumbnail(url=ASPECT_ICON_URL)
             return embed
@@ -106,7 +106,7 @@ async def _register_aspectpool(valor: Valor):
             for item in items:
                 icon = EMOJIS[ASPECT_TO_EMOJI_MAP[aspect_data["Icon"][item]]]
                 field_text += f"- {icon} {item}\n"
-            embed.add_field(name=rarity, value=field_text, inline=False)
+            embed.add_field(name=f"{rarity} Aspects", value=field_text, inline=False)
 
         embed.set_thumbnail(url=ASPECT_ICON_URL)
         return embed
