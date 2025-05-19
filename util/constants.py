@@ -67,6 +67,19 @@ ITEM_TO_EMOJI_MAP = {
     "Inferno": "daggerfire3"
 }
 
+ASPECT_TO_EMOJI_MAP = {
+    "static_mage.png": "mageaspect",
+    "static_warrior.png": "warrioraspect",
+    "static_shaman.png": "shamanaspect",
+    "static_assassin.png": "assassinaspect",
+    "static_archer.png": "archeraspect",
+    "aspect_mage.gif": "mageaspect",
+    "aspect_warrior.gif": "warrioraspect",
+    "aspect_shaman.gif": "shamanaspect",
+    "aspect_assassin.gif": "assassinaspect",
+    "aspect_archer.gif": "archeraspect",
+}
+
 EMOJIS = {
     "shiny": "<:shiny:1373802935628075078>",
     "bowbasicGold": "<:bowbasicGold:1373920955470053417>",
@@ -107,5 +120,10 @@ EMOJIS = {
     "diamondchestplate": "<:diamondchestplate:1373927161433686027>",
     "diamondboots": "<:diamondboots:1373922078608199731>",
     "corkianinsulator": "<:corkianinsulator:1373934409597583400>",
-    "corkiansimulator": "<:corkiansimulator:1373934436374282271>"
+    "corkiansimulator": "<:corkiansimulator:1373934436374282271>",
+    "archeraspect": "<:archeraspect:1373982815426707528>",
+    "assassinaspect": "<:assassinaspect:1373982817360543764>",
+    "mageaspect": "<:mageaspect:1373982896250945597>",
+    "shamanaspect": "<:shamanaspect:1373982898352295976>",
+    "warrioraspect": "<:warrioraspect:1373982900386791454>"
 }
