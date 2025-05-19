@@ -71,7 +71,7 @@ async def _register_aspectpool(valor: Valor):
         if raid is None:
             embed = discord.Embed(
                 title="Aspect Pool Overview",
-                color=discord.Colour.from_rgb(74, 86, 219)
+                color=discord.Colour.from_rgb(255, 71, 77)
             )
             for pool_key, display_name in POOL_NAME_MAP.items():
                 pool_name = POOL_NAME_TO_API_MAP[pool_key]
@@ -96,7 +96,7 @@ async def _register_aspectpool(valor: Valor):
 
         embed = discord.Embed(
             title=f"Aspect Pool: {POOL_NAME_MAP[raid]}",
-            color=discord.Colour.from_rgb(74, 86, 219)
+            color=discord.Colour.from_rgb(255, 71, 77)
         )
 
         for rarity in ("Mythic", "Fabled", "Legendary"):
