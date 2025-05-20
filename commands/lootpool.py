@@ -2,7 +2,7 @@ from valor import Valor
 from discord.ext.commands import Context
 from discord.ui import Select, View
 import discord, requests
-from util import ErrorEmbed, LongTextEmbed
+from util import ErrorEmbed, LongTextEmbed, EMOJIS, ITEM_TO_EMOJI_MAP
 
 
 async def _register_lootpool(valor: Valor):
@@ -24,6 +24,7 @@ async def _register_lootpool(valor: Valor):
         "molten_heights": "Molten"
     }
 
+    LOOTRUN_ICON_URL = "https://static.wikia.nocookie.net/wynncraft_gamepedia_en/images/f/f0/LootrunUpdateIcon.png/revision/latest"
     BASE_URL = "https://nori.fish"
     TOKEN_URL = f"{BASE_URL}/api/tokens"
     LOOTPOOL_URL = f"{BASE_URL}/api/lootpool"
@@ -34,8 +35,6 @@ async def _register_lootpool(valor: Valor):
                 placeholder="Choose a loot pool...",
                 options=[discord.SelectOption(label=v, value=k) for k, v in POOL_NAME_MAP.items()]
             )
-
-        
         async def callback(self, interaction: discord.Interaction):
             embed = await get_pool(self.values[0])
             await interaction.response.edit_message(embed=embed, view=self.view)
@@ -93,11 +92,15 @@ async def _register_lootpool(valor: Valor):
 
                 field_text = ""
                 if shiny:
-                    field_text += f"- **Shiny** {shiny['Item']} (Tracker: {shiny['Tracker']})\n"
+                    icon = EMOJIS[ITEM_TO_EMOJI_MAP[shiny['Item']]]
+                    field_text += f"- {EMOJIS["shiny"]}{icon} **Shiny** {shiny['Item']} (Tracker: {shiny['Tracker']})\n"
                 if mythics:
-                    field_text += "\n".join(f"- {item}" for item in mythics)
+                    for item in mythics:
+                        icon = EMOJIS[ITEM_TO_EMOJI_MAP[item]]
+                        field_text += f"- {icon} {item}\n"
 
-                embed.add_field(name=display_name, value=field_text, inline=False)
+                embed.add_field(name=f"{display_name} Mythics", value=field_text, inline=False)
+                embed.set_thumbnail(url=LOOTRUN_ICON_URL)
             return embed
 
 
@@ -112,15 +115,22 @@ async def _register_lootpool(valor: Valor):
         shiny = pool_info.pop("Shiny")
         mythics = pool_info.pop("Mythic")
 
+        field_text = ""
         if shiny:
-            shiny_str = f"- **Shiny** {shiny['Item']} \n(Tracker: {shiny['Tracker']})\n"
-        t = shiny_str + ("\n".join(f"- {item}" for item in mythics))
-        embed.add_field(name="Mythics", value=t, inline=False)
+            icon = EMOJIS[ITEM_TO_EMOJI_MAP[shiny['Item']]]
+            field_text += f"- {EMOJIS["shiny"]}{icon} **Shiny** {shiny['Item']} (Tracker: {shiny['Tracker']})\n"
+        if mythics:
+            for item in mythics:
+                icon = EMOJIS[ITEM_TO_EMOJI_MAP[item]]
+                field_text += f"- {icon} {item}\n"
+
+        embed.add_field(name="Mythics", value=field_text, inline=False)
 
         for rarity, items in pool_info.items():
             t = "\n".join(f"- {item}" for item in items)
             embed.add_field(name=rarity, value=t, inline=False)
-
+        
+        embed.set_thumbnail(url=LOOTRUN_ICON_URL)
         return embed
 
 
