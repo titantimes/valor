@@ -93,7 +93,7 @@ async def _register_lootpool(valor: Valor):
                 field_text = ""
                 if shiny:
                     icon = EMOJIS[ITEM_TO_EMOJI_MAP[shiny['Item']]]
-                    field_text += f"- {EMOJIS["shiny"]}{icon} **Shiny** {shiny['Item']} (Tracker: {shiny['Tracker']})\n"
+                    field_text += f"- {EMOJIS['shiny']}{icon} **Shiny** {shiny['Item']} (Tracker: {shiny['Tracker']})\n"
                 if mythics:
                     for item in mythics:
                         icon = EMOJIS[ITEM_TO_EMOJI_MAP[item]]
@@ -118,7 +118,7 @@ async def _register_lootpool(valor: Valor):
         field_text = ""
         if shiny:
             icon = EMOJIS[ITEM_TO_EMOJI_MAP[shiny['Item']]]
-            field_text += f"- {EMOJIS["shiny"]}{icon} **Shiny** {shiny['Item']} (Tracker: {shiny['Tracker']})\n"
+            field_text += f"- {EMOJIS['shiny']}{icon} **Shiny** {shiny['Item']} (Tracker: {shiny['Tracker']})\n"
         if mythics:
             for item in mythics:
                 icon = EMOJIS[ITEM_TO_EMOJI_MAP[item]]
