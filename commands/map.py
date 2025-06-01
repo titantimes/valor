@@ -121,8 +121,11 @@ async def _register_map(valor: Valor):
             loc = data["location"]
             guild_name = data["guild"]
             prefix = data["guildPrefix"]
-            color = data.get("guildColor") or guild_color_lookup.get(guild_name, "#888888")
-            rgb = hex_to_rgb(color)
+            if prefix == "None":
+                rgb = (255, 255, 255)
+            else:
+                color = data.get("guildColor") or guild_color_lookup.get(guild_name, "#888888")
+                rgb = hex_to_rgb(color)
             fill_color = rgb + (90,)
             border_color = rgb + (255,)
 
