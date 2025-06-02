@@ -49,6 +49,8 @@ from .lootpool import _register_lootpool
 from .aspectpool import _register_aspectpool
 from valor import Valor
 from discord.ext.commands.hybrid import HybridCommand
+from .oceantrials import _register_oceantrials
+
 
 async def register_all(valor: Valor):
     """
@@ -103,4 +105,5 @@ async def register_all(valor: Valor):
     await _register_graids(valor)
     await _register_lootpool(valor)
     await _register_aspectpool(valor)
-    
+    await _register_oceantrials(valor)
+
