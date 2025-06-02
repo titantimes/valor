@@ -78,7 +78,7 @@
             "Nodguj Nation",
             "Mage Island",
             "Selchar",
-            "Durum Isles Center"
+            "Durum Isles Barn"
         ]
     },
     "Selchar": {
@@ -91,7 +91,7 @@
         },
         "Trading Routes": [
             "Skien's Island",
-            "Durum Isles Center",
+            "Durum Isles Barn",
             "Durum Barley Islet",
             "Durum Malt Islet",
             "Rooster Island"
@@ -691,7 +691,7 @@
             "Active Volcano"
         ]
     },
-    "Durum Isles Center": {
+    "Durum Isles Barn": {
         "resources": {
             "emeralds": "9000",
             "ore": "0",
@@ -715,7 +715,8 @@
             "wood": "0"
         },
         "Trading Routes": [
-            "Panda Kingdom"
+            "Panda Kingdom",
+            "Timeworn Arch"
         ]
     },
     "Gelibord Watermill": {
@@ -1023,7 +1024,7 @@
             "wood": "3600"
         },
         "Trading Routes": [
-            "Volcano Upper",
+            "Volcanic Isles",
             "Lost Atoll",
             "Light Peninsula"
         ]
@@ -1151,7 +1152,7 @@
             "wood": "3600"
         },
         "Trading Routes": [
-            "Durum Isles Center",
+            "Durum Isles Barn",
             "Rooster Island",
             "Selchar"
         ]
@@ -1489,7 +1490,7 @@
             "Sunrise Plateau"
         ]
     },
-    "Ava’s Workshop": {
+    "Ava's Workshop": {
         "resources": {
             "emeralds": "9000",
             "ore": "0",
@@ -1841,7 +1842,7 @@
             "Troll’s Challenge"
         ]
     },
-    "Volcano Upper": {
+    "Volcanic Isles": {
         "resources": {
             "emeralds": "9000",
             "ore": "3600",
@@ -2458,7 +2459,7 @@
         },
         "Trading Routes": [
             "Bloody Beach",
-            "Ava’s Workshop"
+            "Ava's Workshop"
         ]
     },
     "Lizardman Lake": {
@@ -2713,7 +2714,7 @@
             "wood": "0"
         },
         "Trading Routes": [
-            "Volcano Upper",
+            "Volcanic Isles",
             "Tree Island",
             "Pirate Town"
         ]
@@ -3637,7 +3638,7 @@
             "wood": "0"
         },
         "Trading Routes": [
-            "Volcano Upper",
+            "Volcanic Isles",
             "Light Peninsula",
             "Entrance to Gavel",
             "Bloody Beach"
@@ -4280,7 +4281,7 @@
             "wood": "3600"
         },
         "Trading Routes": [
-            "Volcano Upper",
+            "Volcanic Isles",
             "Tree Island",
             "Volcanic Excavation",
             "The Shiar"
@@ -4405,7 +4406,7 @@
         },
         "Trading Routes": [
             "Mage Island",
-            "Durum Isles Center"
+            "Durum Isles Barn"
         ]
     },
     "Entrance to Bucie": {
