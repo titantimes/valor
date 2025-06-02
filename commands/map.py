@@ -14,12 +14,12 @@ from .common import guild_name_from_tag, guild_tag_from_name
 import json, math, json, discord, time
 
 load_dotenv()
-with open("assets/map_regions.json") as f:
-    map_regions = json.load(f)
 
 async def _register_map(valor: Valor):
     desc = "100 percent an Athena knockoff"
     parser = argparse.ArgumentParser(description='Map command')
+    parser.add_argument('-g', '--guild', nargs='+')
+    parser.add_argument('-z', '--zone')
     main_map = Image.open("assets/main-map.png") # like 10MB ish
     font = ImageFont.truetype("MinecraftRegular.ttf", 16)
     map_width, map_height = main_map.size
@@ -93,6 +93,7 @@ async def _register_map(valor: Valor):
         draw_label = ImageDraw.Draw(label_layer)
 
         centers = {}
+        terr_owners = {}
 
         # First pass: determine centers of each terr
         for terr_name, data in terr_res["territories"].items():
@@ -105,24 +106,21 @@ async def _register_map(valor: Valor):
             cy = (top + bottom) / 2
             centers[terr_name] = (cx, cy)
 
-        # Draw the connections first, on base layer
-        for terr_name, conn in terr_conns.items():
-            center_start = centers.get(terr_name)
-            if not center_start:
-                continue
-            for target_name in conn.get("Trading Routes", []):
-                center_end = centers.get(target_name)
-                if not center_end:
-                    continue
-                draw_base.line([center_start, center_end], fill=(20, 20, 20), width=2)
-
         # Draw territory fills and labels
         for terr_name, data in terr_res["territories"].items():
             loc = data["location"]
             guild_name = data["guild"]
             prefix = data["guildPrefix"]
-            color = data.get("guildColor") or guild_color_lookup.get(guild_name, "#888888")
-            rgb = hex_to_rgb(color)
+            if opt.guild:
+                if not (prefix in opt.guild):
+                    continue
+            terr_owners[terr_name] = prefix
+
+            if prefix == "None":
+                rgb = (255, 255, 255)
+            else:
+                color = data.get("guildColor") or guild_color_lookup.get(guild_name, "#888888")
+                rgb = hex_to_rgb(color)
             fill_color = rgb + (90,)
             border_color = rgb + (255,)
 
@@ -145,10 +143,41 @@ async def _register_map(valor: Valor):
             text_height = bbox[3] - bbox[1]
             draw_text_with_outline(draw_label, (cx - text_width / 2, cy - text_height / 2), prefix, font, fill=border_color)
 
+        # Draw the connections on base layer
+        for terr_name, conn in terr_conns.items():
+            center_start = centers.get(terr_name)
+            if not center_start:
+                continue
+            for target_name in conn.get("Trading Routes", []):
+                try:
+                    if opt.guild:
+                        if terr_owners[target_name] in opt.guild and terr_owners[terr_name] in opt.guild:
+                            center_end = centers.get(target_name)
+                            if not center_end:
+                                continue
+                            draw_base.line([center_start, center_end], fill=(20, 20, 20), width=2)
+                    else:
+                        center_end = centers.get(target_name)
+                        if not center_end:
+                            continue
+                        draw_base.line([center_start, center_end], fill=(20, 20, 20), width=2)
+                except KeyError:
+                    pass
+
+
         # Composite in correct order
         composed = Image.alpha_composite(main_map.convert("RGBA"), base)
         composed = Image.alpha_composite(composed, territory_layer)
         final = Image.alpha_composite(composed, label_layer)
+
+        if opt.zone:
+            with open("assets/map_regions.json") as f:
+                map_regions = json.load(f)
+            region = map_regions[opt.zone]
+            x1, y1 = to_full_map_coord(region[0], region[1])
+            x2, y2 = to_full_map_coord(region[2], region[3])
+            pad = 50
+            final = final.crop((x1-pad, y1-pad, x2+pad, y2+pad))
 
         final.save("/tmp/map.png")
         await ctx.send(file=discord.File("/tmp/map.png"))
