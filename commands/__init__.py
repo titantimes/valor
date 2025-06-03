@@ -47,6 +47,7 @@ from .HQ import _register_HQ
 from .graids import _register_graids
 from .lootpool import _register_lootpool
 from .aspectpool import _register_aspectpool
+from .annihilation import _register_annihilation
 from valor import Valor
 from discord.ext.commands.hybrid import HybridCommand
 
@@ -103,4 +104,4 @@ async def register_all(valor: Valor):
     await _register_graids(valor)
     await _register_lootpool(valor)
     await _register_aspectpool(valor)
-    
+    await _register_annihilation(valor)

@@ -140,5 +140,8 @@ dmypy.json
 *.ttf
 !assets/MinecraftRegular.ttf
 
+# Annihiliation tracker
+assets/annihilation_tracker.json
+
 # Vscode
 .vscode/
