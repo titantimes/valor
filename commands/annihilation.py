@@ -48,6 +48,14 @@ async def _register_annihilation(valor: Valor):
                     has_permission = True
             if not has_permission:
                 return await ctx.send(embed=ErrorEmbed("You do not have permission to report an Annihilation time."))
+            
+            if opt.set == "none":
+                save_annihilation(0000000000)
+                return await ctx.send(embed=Embed(
+                    title="Annihilation Time Reported",
+                    description=f"Annihilation time has been deleted",
+                    color=ANNI_EMBED_COLOR
+                ))
 
             # Crazy regex function that parses time like "2h30m" or "2h 30m"
             match = re.match(r"(?:(\d+)\s*h)?\s*(?:(\d+)\s*m)?", opt.set.replace(" ", ""), re.IGNORECASE)
