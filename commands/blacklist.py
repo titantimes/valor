@@ -2,7 +2,8 @@ from sql import ValorSQL
 from valor import Valor
 from discord import Embed
 from discord.ext.commands import Context
-from util import ErrorEmbed, LongTextEmbed, tables
+from discord.ui import View
+from util import ErrorEmbed, LongTextEmbed
 import commands.common
 from datetime import datetime
 import time
@@ -11,9 +12,62 @@ import argparse
 from dotenv import load_dotenv
 from .common import from_uuid, get_uuid, guild_tag_from_name, current_guild_from_uuid
 import requests
+import math
+import discord
+
 
 load_dotenv()
 TEST = os.getenv("TEST")=="TRUE"
+
+# Table formatting for the embed description
+def build_blacklist_table(rows, page, per_page):
+    start = page * per_page
+    end = start + per_page
+    sliced = rows[start:end]
+    lines = [
+        f"{'Name':<18} {'Guild':<7} {'Added':>12}",
+        "-" * 40
+    ]
+    for name, guild, date in sliced:
+        lines.append(f"{name:<18} {guild:<7} {date:>12}")
+    return "```" + "\n".join(lines) + "```"
+
+class BlacklistView(View):
+    def __init__(self, ctx, rows, embed, per_page=15, timeout=60):
+        super().__init__(timeout=timeout)
+        self.ctx = ctx
+        self.rows = rows
+        self.embed = embed
+        self.per_page = per_page
+        self.page = 0
+        self.max_pages = max(1, math.ceil(len(rows) / per_page))
+
+    def build_description(self):
+        return build_blacklist_table(self.rows, self.page, self.per_page)
+
+    def get_footer(self):
+        return f"Page {self.page + 1} out of {self.max_pages}"
+
+    async def update_message(self, interaction):
+        self.embed.description = self.build_description()
+        self.embed.set_footer(text=self.get_footer())
+        await interaction.response.edit_message(embed=self.embed, view=self)
+
+    @discord.ui.button(label="⬅️")
+    async def previous(self, interaction, button):
+        if self.page > 0:
+            self.page -= 1
+            await self.update_message(interaction)
+        else:
+            await interaction.response.defer()
+
+    @discord.ui.button(label="➡️")
+    async def next(self, interaction, button):
+        if self.page < self.max_pages - 1:
+            self.page += 1
+            await self.update_message(interaction)
+        else:
+            await interaction.response.defer()
 
 async def _register_blacklist(valor: Valor):
     desc = "A list that shows untrustworthy/bad behaving players."
@@ -44,8 +98,17 @@ async def _register_blacklist(valor: Valor):
                 for uuid, timestamp in result
             ]
 
-            content = tables.fmt(["Name", "Guild", "Time added"], blacklist_rows)
-            return await LongTextEmbed.send_message(valor, ctx, title=f"Blacklist", content=content, color=0xFF10, code_block=True, footer="Ask any Titan+ with proof to add someone to the blacklist")
+            embed = Embed(
+                color=0xFF10,
+                title="Blacklist",
+                description=""
+            )
+            view = BlacklistView(ctx, blacklist_rows, embed)
+            embed.description = view.build_description()
+            embed.set_footer(text=view.get_footer())
+            embed.set_thumbnail(url="https://static.wikia.nocookie.net/wynncraft_gamepedia/images/7/77/Red_Exclamation_Mark.png/revision/latest?cb=20160708123648")
+            await ctx.send(embed=embed, view=view)
+            return
 
         elif opt.add:
             if not commands.common.role1(ctx.author) and not TEST:
@@ -115,6 +178,3 @@ async def _register_blacklist(valor: Valor):
     @valor.help_override.command()
     async def blacklist(ctx: Context):
         await LongTextEmbed.send_message(valor, ctx, "Blacklist command", desc, color=0xFF00)
-    
-    
-    
