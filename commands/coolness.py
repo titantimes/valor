@@ -32,21 +32,8 @@ async def _register_coolness(valor: Valor):
         COUNCILID = 702991927318020138
         if opt.range:
             t_range = float(opt.range[0]) - float(opt.range[1])
-            if t_range > 100 and COUNCILID not in roles:
+            if not os.environ["TEST"] and t_range > 100 and COUNCILID not in roles:
                 return await LongTextEmbed.send_message(valor, ctx, "coolness Error", f" Maximum time range exceeded (100 days), ask an ANO chief if you need a longer timeframe.", color=0xFF0000)
-
-        start = time.time()
-        query = "SELECT name, guild FROM activity_members WHERE "
-        if opt.range:
-            query += f" timestamp >= {start-3600*24*float(opt.range[0])} AND timestamp <= {start-3600*24*float(opt.range[1])}"
-        else:
-            query += f"  timestamp >= {start-3600*24*7}"
-
-        res = await ValorSQL._execute(query)
-        end = time.time()
-
-        count = {}
-        name_to_guild = {}
 
         guild_names, unidentified = await guild_names_from_tags(opt.guild)
         guild_names = set(guild_names)
@@ -54,48 +41,36 @@ async def _register_coolness(valor: Valor):
             return await LongTextEmbed.send_message(
                 valor, ctx, f"Coolness Error", f"{unidentified} unknown", color=0xFF0000)
 
-        guild_members = {g_name: {name 
-            for k, v in requests.get(f"https://api.wynncraft.com/v3/guild/{g_name}")
-                .json().get("members", {}).items() if k != "total" for name, _ in v.items()} for g_name in guild_names}
+        start = time.time()
+        sql_time_range_condition = "AND "
+        if opt.range:
+            sql_time_range_condition += f" timestamp >= {start-3600*24*float(opt.range[0])} AND timestamp <= {start-3600*24*float(opt.range[1])}"
+        else:
+            sql_time_range_condition += f" timestamp >= {start-3600*24*7}"
 
-        for guild in guild_members:
-            for member in guild_members[guild]:
-                count[member] = 0
-                name_to_guild[member] = guild
+        query = '''
+SELECT A.guild, B.name, A.coolness
+FROM
+  (SELECT guild, uuid, COUNT(*) as coolness 
+  FROM 
+    activity_members
+    WHERE guild IN %s
+    %s
+    GROUP BY uuid, guild) A
+  JOIN uuid_name B ON A.uuid=B.uuid  
+ORDER BY A.coolness DESC;
+''' % ("(" + ('%s,'*len(guild_names))[:-1] + ")", sql_time_range_condition)
+        
+        board = await ValorSQL.exec_param(query, guild_names)
+        end = time.time()
 
-        for row in res:
-            g_name = row[1]
-            if not g_name in guild_names or not row[0] in guild_members[g_name]:
-                continue
-            if not row[0] in count:
-                count[row[0]] = 0
-                name_to_guild[row[0]] = g_name
-            count[row[0]] += 1
-
-        board = sorted([*count.items()], key=lambda x: x[1], reverse=not opt.backwards)
-
-        # wow actually using a leetcode trick, let alone binary search in practice
-        # will end up making a splice copy anyways which involves same complexity as a linear search
-        # but leaving this here in case I think of an optimization
-        if opt.threshold != -1:
-            left = 0; mid = 0; right = len(board)-1
-            while left <= right:
-                mid = left + (right-left)//2
-                if board[mid][1] > opt.threshold+.5: right = mid-1
-                else: left = mid+1
-            board = board[:mid]
-
-        header = [" Guild" + ' '*(max(len(x) for x in name_to_guild.values())-5), "Username"+' '*(18-8), "Hours Online"]
-        table = [(name_to_guild[name], name, count) for name, count in board] 
+        header = [" Guild" + ' '*(max(len(x[0]) for x in board)-5), "Username"+' '*(18-8), "Hours Online"]
 
         if unidentified:
             unid_prefix = f"The following guilds are unidentified: {unidentified}\n" if unidentified else ""
             await LongTextEmbed.send_message(valor, ctx, "Unidentified Guilds", unid_prefix)
 
-        await LongTextTable.send_message(valor, ctx, header, table, f"Query took {end-start:.5}s - {len(res):,} rows")
-        # await LongTextEmbed.send_message(valor, ctx, "Leaderboard of Coolness", content=unid_prefix+table, code_block=True, color=0x11FFBB,
-        #     footer=f"Query took {end-start:.5}s - {len(res):,} rows"
-        # )
+        await LongTextTable.send_message(valor, ctx, header, board, f"Query took {end-start:.5}s - {len(board):,} rows")
 
     @coolness.error
     async def cmd_error(ctx, error: Exception):
