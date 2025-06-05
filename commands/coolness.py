@@ -29,7 +29,7 @@ async def _register_coolness(valor: Valor):
         except:
             return await LongTextEmbed.send_message(valor, ctx, "coolness", parser.format_help().replace("main.py", "-coolness"), color=0xFF00)
         
-        COUNCILID = os.getenv('COUNCILID')
+        COUNCILID = 702991927318020138
         if opt.range:
             t_range = float(opt.range[0]) - float(opt.range[1])
             if t_range > 100 and COUNCILID not in roles:
