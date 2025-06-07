@@ -26,7 +26,7 @@ async def _register_update_stats(valor: Valor):
     parser.add_argument('-a', '--above_threshold', type=int, default=8)
     parser.add_argument('-b', '--below_threshold', type=int, default=None)
     parser.add_argument('-z', '--no_threshold', action="store_true")
-    parser.add_argument('-u', '--username', nargs='+')
+    parser.add_argument('-n', '--username', nargs='+')
 
     @valor.command()
     async def update_stats(ctx: Context, *options):
