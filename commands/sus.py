@@ -16,11 +16,20 @@ async def _register_sus(valor: Valor):
 
     @valor.command()
     async def sus(ctx: Context, username):
+        # Try Mojang's old API first
         res = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{username}")
-        if res.status_code != 200:
-            return await ctx.send(embed=ErrorEmbed("Mojang API Issue"))
-        id = res.json()["id"]
-        name = res.json()["name"]
+        
+        if res.status_code == 200:
+            id = res.json()["id"]
+            name = res.json()["name"]
+        else:
+            # Fallback to Minecraft Services API
+            fallback_res = requests.get(f"https://api.minecraftservices.com/minecraft/profile/lookup/name/{username}")
+            if fallback_res.status_code != 200:
+                return await ctx.send(embed=ErrorEmbed("Both Mojang APIs failed. Username may not exist."))
+            id = fallback_res.json()["id"]
+            name = fallback_res.json()["name"]
+
         dashed_uuid = str(uuid.UUID(hex=id))
 
         headers = {'user-agent': 'ano_valor/0.0.0',"API-Key":os.environ["HYPIXEL_API_KEY"]}
@@ -62,7 +71,7 @@ async def _register_sus(valor: Valor):
             blacklisted = "False"
             blacklisted_sus = 0
         
-        if wynn_rank == "veteran" or wynn_rank == "champion" or wynn_rank == "hero" or wynn_rank == "vipplus":
+        if wynn_rank in ["veteran", "champion", "hero", "vipplus"]:
             wynn_rank_sus = 0.0
         elif wynn_rank == "vip":
             wynn_rank_sus = 25.0
@@ -82,11 +91,9 @@ async def _register_sus(valor: Valor):
         if blacklisted != "False":
             overall_sus = 100.0
             embed.color = discord.Color.red()
-            embed.title = f"Suspicousness of {name}: {overall_sus}% \n ⚠ Player is blacklisted ⚠"
+            embed.title = f"Suspiciousness of {name}: {overall_sus}% \n ⚠ Player is blacklisted ⚠"
             embed.add_field(name="Blacklisted?", value=f"{blacklisted}\n{blacklisted_sus}%", inline=True)
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
 
 
 
