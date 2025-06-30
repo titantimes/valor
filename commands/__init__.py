@@ -27,6 +27,7 @@ from .tickets import _register_tickets
 from .nuke import _register_nuke
 from .alliance import _register_alliance
 from .ffa import _register_ffa
+from .pings import _register_pings
 from .info import _register_info
 from .history import _register_history
 from .warcount_old import _register_warcount_old
@@ -84,6 +85,7 @@ async def register_all(valor: Valor):
     await _register_nuke(valor)
     await _register_alliance(valor)
     await _register_ffa(valor)
+    await _register_pings(valor)
     await _register_info(valor)
     await _register_history(valor)
     await _register_warcount_old(valor)
