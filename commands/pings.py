@@ -14,13 +14,13 @@ async def _register_pings(valor: Valor):
     PING_ROLES = {
         "ffa": {
             "name": "FFA",
-            "description": "<insert whatever the ffa copypasta is rn> to War!!! \nI'm using some insane algorithm to predict that Aiza is pinging this at 3am",
+            "description": "FFA run",
             "emoji": "⚔️",
             "role_id": 892884695199666187
         },
         "dps": {
             "name": "DPS",
-            "description": "DPS (damage per second) needed",
+            "description": "DPS players needed",
             "emoji": "💥",
             "role_id": 892885182300954624
         },
