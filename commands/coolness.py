@@ -18,6 +18,7 @@ async def _register_coolness(valor: Valor):
     parser = argparse.ArgumentParser(description='Coolness command')
     parser.add_argument('-r', '--range', nargs=2)
     parser.add_argument('-g', '--guild', nargs='+', default=["ANO"])
+    parser.add_argument('-gx', '--guild_exclusive', action='store_true')
     parser.add_argument('-b', '--backwards', action='store_true')
     parser.add_argument('-t', '--threshold', type=float, default=-1)
 
@@ -63,6 +64,50 @@ ORDER BY A.coolness DESC;
         
         board = await ValorSQL.exec_param(query, guild_names)
         end = time.time()
+
+        if opt.guild_exclusive:
+            filtered_board = []
+            for guild_name in guild_names:
+                try:
+                    api_url = f"https://api.wynncraft.com/v3/guild/{guild_name}"
+                    response = requests.get(api_url, timeout=10)
+                    
+                    if response.status_code == 200:
+                        guild_data = response.json()
+                        current_members = {}
+                        if 'members' in guild_data:
+                            for rank in ['owner', 'chief', 'strategist', 'captain', 'recruiter', 'recruit']:
+                                if rank in guild_data['members']:
+                                    for member_name, member_data in guild_data['members'][rank].items():
+                                        if 'uuid' in member_data:
+                                            current_members[member_data['uuid']] = member_name
+                        
+                        found_members = set()
+                        
+                        for row in board:
+                            if row[0] == guild_name:
+                                player_uuid = await get_uuid(row[1])
+                                if player_uuid and player_uuid in current_members:
+                                    filtered_board.append(row)
+                                    found_members.add(player_uuid)
+                        
+                        for member_uuid, member_name in current_members.items():
+                            if member_uuid not in found_members:
+                                filtered_board.append((guild_name, member_name, 0))
+                        
+                    else:
+                        await LongTextEmbed.send_message(valor, ctx, "coolness Error", f" Guild exclusive check failed", color=0xFF0000)
+                        for row in board:
+                            if row[0] == guild_name:
+                                filtered_board.append(row)
+                
+                except Exception as e:
+                    await LongTextEmbed.send_message(valor, ctx, "coolness Error", f" Guild exclusive check failed", color=0xFF0000)
+                    for row in board:
+                        if row[0] == guild_name:
+                            filtered_board.append(row)
+            
+            board = filtered_board
 
         header = [" Guild" + ' '*(max(len(x[0]) for x in board)-5), "Username"+' '*(18-8), "Hours Online"]
 
