@@ -1,8 +1,7 @@
 from valor import Valor
 from discord.ext.commands import Context
-import discord
-from util import ErrorEmbed, LongTextEmbed
-import commands.common, os
+from util import ErrorEmbed
+import commands.common, os, discord
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -46,7 +45,7 @@ async def _register_pings(valor: Valor):
 
     class PingsButtonView(discord.ui.View):
         def __init__(self, ctx: Context):
-            super().__init__(timeout=60)
+            super().__init__(timeout=30)
             self.ctx = ctx
             for key, data in PING_ROLES.items():
                 self.add_item(PingsButton(key))
@@ -58,6 +57,12 @@ async def _register_pings(valor: Valor):
             super().__init__(emoji=data["emoji"])
 
         async def callback(self, interaction: discord.Interaction):
+            # Only allow the command sender to press the button
+            if interaction.user.id != self.view.ctx.author.id:
+                return await interaction.response.send_message(
+                    "Only the user who used the command can interact with these buttons.",
+                    ephemeral=True
+                )
             if not commands.common.role1(interaction.user, allow={536068288606896128}) and not TEST:
                 return await interaction.response.send_message(embed=ErrorEmbed("No Permissions. (you need military role)"), ephemeral=True)
 
@@ -73,11 +78,11 @@ async def _register_pings(valor: Valor):
         if not commands.common.role1(ctx.author, allow={536068288606896128}) and not TEST:
             return await ctx.send(embed=ErrorEmbed("No Permissions. (you need military role)"))
     
-        embed = LongTextEmbed(
-            title="Available Role Pings",
-            content="\n".join(
-                f"{data['emoji']} **{data['name']}** — {data['description']}"
-                for data in PING_ROLES.values()
+        embed = discord.Embed(
+            title="Available Role Pings:",
+            description=("\n".join(
+                f"{data['emoji']} | **{data['name']}** — {data['description']}"
+                for data in PING_ROLES.values()) + "\n\n**Click a button to ping the role:**"
             ),
             color=0x00FFFF
         )
