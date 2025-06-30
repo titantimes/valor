@@ -70,28 +70,43 @@ FROM
         return await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
     
     async def do_guild_aggregate_captures(ctx: Context, opt):
-        query = """
-SELECT ROW_NUMBER() OVER(ORDER BY captures DESC) AS `rank`,B .tag, A.guild, CAST(A.captures AS UNSIGNED)
-FROM
-    (SELECT terr_exchange.attacker AS guild, COUNT(terr_exchange.attacker) AS captures
-    FROM
-        terr_exchange
-    WHERE time >= %s AND time <= %s
-    GROUP BY terr_exchange.attacker
-    ORDER BY captures DESC LIMIT 100) A
-    LEFT JOIN guild_tag_name B ON A.guild=B.guild;
-"""
         start = time.time()
+        
+        table_type = "cumu_warcounts" if not opt.range else "delta_warcounts"
+        table_count_column = "warcount" if not opt.range else "warcount_diff"
+        
         if opt.range:
             # opt.range = [2e9, 0]
             valid_range = await get_left_right(opt, start)
             if valid_range == "N/A":
                 return await ctx.send(embed=ErrorEmbed("Invalid season name input"))
             left, right = valid_range
+            
+            query = f"""
+SELECT ROW_NUMBER() OVER(ORDER BY captures DESC) AS `rank`, B.tag, A.guild, CAST(A.captures AS UNSIGNED)
+FROM
+    (SELECT player_stats.guild AS guild, SUM({table_type}.{table_count_column}) AS captures
+    FROM {table_type}
+    LEFT JOIN player_stats ON player_stats.uuid = {table_type}.uuid
+    WHERE {table_type}.time >= %s AND {table_type}.time <= %s AND player_stats.guild IS NOT NULL
+    GROUP BY player_stats.guild
+    ORDER BY captures DESC LIMIT 100) A
+    LEFT JOIN guild_tag_name B ON A.guild = B.guild;
+"""
+            rows = await ValorSQL.exec_param(query, (left, right))
         else:
-            left, right = start - 3600*24*7, start
-
-        rows = await ValorSQL.exec_param(query, (left, right))
+            query = f"""
+SELECT ROW_NUMBER() OVER(ORDER BY captures DESC) AS `rank`, B.tag, A.guild, CAST(A.captures AS UNSIGNED)
+FROM
+    (SELECT player_stats.guild AS guild, SUM({table_type}.{table_count_column}) AS captures
+    FROM {table_type}
+    LEFT JOIN player_stats ON player_stats.uuid = {table_type}.uuid
+    WHERE player_stats.guild IS NOT NULL
+    GROUP BY player_stats.guild
+    ORDER BY captures DESC LIMIT 100) A
+    LEFT JOIN guild_tag_name B ON A.guild = B.guild;
+"""
+            rows = await ValorSQL.exec_param(query, ())
 
         now = datetime.now()
         if opt.range:
@@ -103,7 +118,7 @@ FROM
         time_range_str = f"{start_date.strftime('%d/%m/%Y %H:%M')} until {end_date.strftime('%d/%m/%Y %H:%M')}"
         delta_time = time.time() - start
         opt_after = f"\nQuery took {delta_time:.3}s. Requested at {datetime.utcnow().ctime()}\nRange: {time_range_str}"
-        header = ['   ',  " Tag ", " "*16+"Guild ", "  Captures  "]
+        header = ['   ',  " Tag ", " "*16+"Guild ", "  Warcounts  "]
 
         return await LongTextTable.send_message(valor, ctx, header, rows, opt_after)
     
