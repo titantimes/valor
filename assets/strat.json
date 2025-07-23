@@ -3,14 +3,22 @@
     "2": "**Section 2**\n**For the following questions please list every single thing you would do, even if they appear to be terribly obvious**\nWhat steps would you take if Light Peninsula was taken by an attacking guild?\nWhat would you do if an attacking guild took Mage Island?\nIf an attacking guild took Zhight Island what would your course of action be?\nThe Corkus guild has been wiped by an attacker guild, what action should we take?",
     "3":"**Section 3 With Map #{}**\n**All of the questions below relate to the given map**\nWhere should the HQ be placed and why?\nWhat territories should be boosted for extra ressources and emeralds?\nWhat should the 8 most defended territories besides the hq be?\nCan you identify and explain which 3 territories that when taken individually would impact the economy the most? (besides the HQ)\nFor each of these 3 territories what would you do after it was taken?\nIs there a fatal flaw with the given claim(if yes, is there any way to fix it)?",
     "maps": [
-        "https://cdn.discordapp.com/attachments/892878955323994132/1011420947644956722/unknown.png",
+        "https://cdn.discordapp.com/attachments/892878955323994132/1011420947644956722/unknown.png", 
         "https://cdn.discordapp.com/attachments/892878955323994132/1011420317186531388/unknown.png",
         "https://cdn.discordapp.com/attachments/892878955323994132/1011420209724268584/unknown.png",
         "https://cdn.discordapp.com/attachments/892878955323994132/1011419341604007986/unknown.png",
-        "https://cdn.discordapp.com/attachments/892878955323994132/1011419086720344206/unknown.png",
         "https://cdn.discordapp.com/attachments/892878955323994132/1011418410657251348/unknown.png",
         "https://cdn.discordapp.com/attachments/892878955323994132/1011417790646849606/unknown.png",
         "https://cdn.discordapp.com/attachments/892878955323994132/1011416921075351683/unknown.png",
-        "https://cdn.discordapp.com/attachments/892878955323994132/1011416212422537296/unknown.png"
+
+        
+        "https://cdn.discordapp.com/attachments/892936089797537802/1385237962417242163/image.png",
+        "https://cdn.discordapp.com/attachments/892936089797537802/1385238108349530112/image.png", 
+        "https://cdn.discordapp.com/attachments/892936089797537802/1385237824227512350/image.png",
+        "https://cdn.discordapp.com/attachments/892936089797537802/1385238550790017135/image.png",
+        "https://cdn.discordapp.com/attachments/892936089797537802/1385238027873292440/image.png",
+        "https://cdn.discordapp.com/attachments/892878955323994132/1397565530205982891/image.png",
+        "https://cdn.discordapp.com/attachments/892878955323994132/1385244218834030612/image.png",
+        "https://cdn.discordapp.com/attachments/892878955323994132/1385244219282686054/image.png"
     ]
 }
