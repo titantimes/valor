@@ -208,7 +208,7 @@ FROM
 
         stats = [f'{data["playtime"]} Hours', 
                  f'{data["globalData"]["totalLevel"]} Levels',
-                 f'{data["globalData"]["killedMobs"]} Mobs',
+                 f'{data["globalData"]["mobsKilled"]} Mobs',
                  f'{data["globalData"]["chestsFound"]} Chests',
                  f'{data["globalData"]["completedQuests"]} Quests']
         i = 0
