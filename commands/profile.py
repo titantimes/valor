@@ -155,7 +155,10 @@ FROM
             draw.text((740, 229), data["server"], white, text_font, anchor="ma")
         else:
             draw.text((740, 209), 'Player last seen:', white, text_font, anchor="ma")
-            draw.text((740, 229), datetime.fromisoformat(data["lastJoin"][:-1]).strftime("%H:%M  %m/%d/%Y"), white, text_font, anchor="ma")
+            if "lastJoin" in data and data["lastJoin"] is not None:
+                draw.text((740, 229), datetime.fromisoformat(data["lastJoin"][:-1]).strftime("%H:%M  %m/%d/%Y"), white, text_font, anchor="ma")
+            else:
+                draw.text((740, 229), "Unknown", white, text_font, anchor="ma")
 
         rankings = data["ranking"]
         for rank in dict(rankings):
