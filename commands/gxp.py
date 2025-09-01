@@ -174,20 +174,6 @@ async def _register_gxp(valor: Valor):
 
     @valor.group()
     async def gxp(ctx: Context, guild="Titans Valor", player="", arg2 = "", arg3 = ""):
-        # schema = "https://" if os.getenv("USESSL") == "true" else "http://"
-        # if guild == "h":
-        #     # player is arg1
-        #     t1 = int(time.time()) if not arg3 else int(datetime.strptime(arg3, "%d/%m/%y").timestamp())
-        #     t0 = int(datetime.strptime(arg2, "%d/%m/%y").timestamp()) if arg2 else 0
-        #     uuid = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{player}").json()["id"]
-        #     # add hyphens
-        #     uuid = '-'.join([uuid[:8],uuid[8:12],uuid[12:16],uuid[16:20],uuid[20:]])
-        #     res = requests.get(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/incxp/{uuid}/{t0}/{t1}").json()["data"]
-        #     # print(schema+os.getenv("REMOTE")+os.getenv("RMPORT")+f"/incxp/{uuid}/{t0}/{t1}")
-        #     total = sum(x[0] for x in res["values"])
-        #     content = f"From {arg2 if arg2 else '17/04/2021'} to {arg3 if arg3 else 'Now'}\nContributed: {total:,} GXP"
-        #     return await LongTextEmbed.send_message(valor, ctx, f"{player}'s XP Contributions Over Time", content, color=0xF5b642)
-        
         if guild == "frame":
             now = int(time.time())
             t0 = now-to_seconds(player)

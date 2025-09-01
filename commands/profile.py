@@ -155,7 +155,10 @@ FROM
             draw.text((740, 229), data["server"], white, text_font, anchor="ma")
         else:
             draw.text((740, 209), 'Player last seen:', white, text_font, anchor="ma")
-            draw.text((740, 229), datetime.fromisoformat(data["lastJoin"][:-1]).strftime("%H:%M  %m/%d/%Y"), white, text_font, anchor="ma")
+            if "lastJoin" in data and data["lastJoin"] is not None:
+                draw.text((740, 229), datetime.fromisoformat(data["lastJoin"][:-1]).strftime("%H:%M  %m/%d/%Y"), white, text_font, anchor="ma")
+            else:
+                draw.text((740, 229), "Unknown", white, text_font, anchor="ma")
 
         rankings = data["ranking"]
         for rank in dict(rankings):
@@ -206,11 +209,11 @@ FROM
             draw.text((505, 390), "No Guild", white, text_font, anchor="ma")
 
 
-        stats = [f'{data["playtime"]} Hours', 
-                 f'{data["globalData"]["totalLevel"]} Levels',
-                 f'{data["globalData"]["killedMobs"]} Mobs',
-                 f'{data["globalData"]["chestsFound"]} Chests',
-                 f'{data["globalData"]["completedQuests"]} Quests']
+        stats = [f'{data.get("playtime", "N/A")} Hours', 
+                 f'{data.get("globalData", {"totalLevel": "N/A"}).get("totalLevel")} Levels',
+                 f'{data.get("globalData", {"mobsKilled": "N/A"}).get("mobsKilled")} Mobs',
+                 f'{data.get("globalData", {"chestsFound": "N/A"}).get("chestsFound")} Chests',
+                 f'{data.get("globalData", {"completedQuests": "N/A"}).get("completedQuests")} Quests']
         i = 0
         for stat in stats:
             draw.text((819, 333+(i*29)), stat, white, stat_text_font, anchor="ra")
