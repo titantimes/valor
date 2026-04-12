@@ -69,11 +69,23 @@ WHERE
         if opt.username:
             update_players.extend(opt.username)
 
-        async with grpc.aio.insecure_channel("localhost:50051") as channel:
-            stub = player_stats_update_pb2_grpc.PlayerStatsUpdaterStub(channel)
-            start = time.time()
-            response = await stub.UpdatePlayerStats(player_stats_update_pb2.Request(player_uuid=update_players))
-            end = time.time()
+        # Validate that we have players to update
+        if not update_players:
+            return await LongTextEmbed.send_message(valor, ctx, title=f"Player Stats Update", 
+                                                 content="No players found to update.", color=0xFF0000)
+        #proper error handling hopefully stops the command from crashing
+        try:
+            async with grpc.aio.insecure_channel("localhost:50051") as channel:
+                stub = player_stats_update_pb2_grpc.PlayerStatsUpdaterStub(channel)
+                start = time.time()
+                response = await stub.UpdatePlayerStats(player_stats_update_pb2.Request(player_uuid=update_players))
+                end = time.time()
+        except grpc.RpcError as e:
+            return await LongTextEmbed.send_message(valor, ctx, title=f"Player Stats Update Error", 
+                                                 content=f"gRPC connection failed: {e.code()}: {e.details()}", color=0xFF0000)
+        except Exception as e:
+            return await LongTextEmbed.send_message(valor, ctx, title=f"Player Stats Update Error", 
+                                                 content=f"Unexpected error during update: {str(e)}", color=0xFF0000)
 
         requested_players = set(update_players)
         failed_players = set(response.failures)
