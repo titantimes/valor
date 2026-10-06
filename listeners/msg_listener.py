@@ -43,18 +43,25 @@ async def _register_msg_listiner(valor: Valor):
 
         # for application processing
         apps = {"app", "cpt", "spir", "bril", "fury"}
+        if message.guild is None:
+            # DMs have no channel name; previously these crashed here, so commands never ran in DMs
+            return
+
         if message.author.id != int(os.environ["SELFID"]) and (message.channel.name.split('-')[0] in apps):
-            config = (await ValorSQL.get_server_config(message.guild.id))[0]
-            if message.channel.category_id == config[1] and message.author.id == int(message.channel.topic):
+            config = await ValorSQL.get_server_config(message.guild.id)
+            if config and message.channel.topic and message.channel.topic.isdigit() \
+                    and message.channel.category_id == config[0][1] and message.author.id == int(message.channel.topic):
                 ctx = await valor.get_context(message)
                 msg = await ctx.send(embed=LongTextEmbed("Click the green checkmark below to submit", "Send your application again if you messed up.\n**Your most recent message will be submitted**", color=0xFFFF, footer=f"Valor - {message.id}"))
                 await msg.add_reaction('✅')
             
         if message.author.id != int(os.environ["SELFID"]) and (message.channel.name.split('-')[0] == "strat"):
             # chn topic should be usr_id,stage
-            config = (await ValorSQL.get_server_config(message.guild.id))[0]
-            taker_id, stage = message.channel.topic.split(',')
-            taker_id = int(taker_id)
+            try:
+                taker_id, stage = (message.channel.topic or "").split(',')
+                taker_id = int(taker_id)
+            except ValueError:
+                return await valor.process_commands(message)
 
             if message.author.id != taker_id: return
             

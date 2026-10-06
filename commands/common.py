@@ -58,7 +58,10 @@ async def get_left_right(opt, start):
         opt.range[0] = res[0]
         opt.range.append(res[1])
 
-    left, right = start - float(opt.range[0])*24*3600, start - float(opt.range[1])*24*3600
+    try:
+        left, right = start - float(opt.range[0])*24*3600, start - float(opt.range[1])*24*3600
+    except (ValueError, TypeError, IndexError):
+        return "N/A"
     return left, right
 
 async def get_guild_names_from_group(guild_group: str) -> List[str]:
