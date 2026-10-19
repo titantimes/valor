@@ -44,7 +44,6 @@ async def _register_msg_listiner(valor: Valor):
         # for application processing
         apps = {"app", "cpt", "spir", "bril", "fury"}
         if message.guild is None:
-            # DMs have no channel name; previously these crashed here, so commands never ran in DMs
             return
 
         if message.author.id != int(os.environ["SELFID"]) and (message.channel.name.split('-')[0] in apps):
