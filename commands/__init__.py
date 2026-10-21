@@ -91,7 +91,7 @@ async def register_all(valor: Valor):
     await _register_history(valor)
     await _register_warcount_old(valor)
     await _register_map_old(valor)
-    await _register_map(valor)
+    #await _register_map(valor)
     await _register_rank(valor)
     await _register_wipe(valor)
     await _register_guildgroup(valor)
