@@ -7,6 +7,7 @@ import commands
 import listeners
 import ws
 import cron
+from cron.guild_feed import guildChangeFeed
 import logging
 import time
 from sql import ValorSQL
@@ -51,7 +52,8 @@ async def main():
         await asyncio.gather(
             asyncio.ensure_future(valor.run()),
             asyncio.ensure_future(cron.gxp_roles(valor)),
-            asyncio.ensure_future(cron.warcount_roles(valor))      
+            asyncio.ensure_future(cron.warcount_roles(valor)),
+            asyncio.ensure_future(guildChangeFeed(valor))
         )
         
 
