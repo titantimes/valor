@@ -19,6 +19,8 @@ def makeEmbed(event):
     player = discord.utils.escape_markdown(cleanValue(name) or uuid)
     if old_value == new_value:
         return None
+    if kind == "membership" and (old_value or "").casefold() == (new_value or "").casefold():
+        return None
     if kind == "name":
         if not old_value or not new_value:
             return None
