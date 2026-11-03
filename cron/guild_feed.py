@@ -75,11 +75,11 @@ async def guildChangeFeed(valor):
             channel = valor.get_channel(channel_id) or await valor.fetch_channel(channel_id)
             if not initialized:
                 await ValorSQL.exec_param(
-                    "INSERT IGNORE INTO discord_guild_feed_state VALUES (%s, UNIX_TIMESTAMP())",
+                    "INSERT IGNORE INTO dc_guildfeedS VALUES (%s, UNIX_TIMESTAMP())",
                     (channel_id,),
                 )
                 rows = await ValorSQL.exec_param(
-                    "SELECT started_at FROM discord_guild_feed_state WHERE channel_id = %s",
+                    "SELECT started_at FROM dc_guildfeedS WHERE channel_id = %s",
                     (channel_id,),
                 )
                 started_at = rows[0][0]
@@ -107,7 +107,7 @@ FROM (
         WHERE {time_column} >= %s
     ) AS changes
 ) AS pending
-LEFT JOIN discord_guild_feed_delivered AS delivered
+LEFT JOIN dc_guildfeedD AS delivered
     ON delivered.channel_id = %s AND delivered.event_id = pending.event_id
 LEFT JOIN uuid_name AS names ON names.uuid = pending.uuid
 WHERE delivered.event_id IS NULL
@@ -119,7 +119,7 @@ LIMIT 100
                 if embed is not None:
                     await channel.send(embed=embed, allowed_mentions=discord.AllowedMentions.none())
                 await ValorSQL.exec_param(
-                    "INSERT IGNORE INTO discord_guild_feed_delivered VALUES (%s, %s)",
+                    "INSERT IGNORE INTO dc_guildfeedD VALUES (%s, %s)",
                     (channel_id, event[6]),
                 )
         except Exception:
