@@ -314,15 +314,3 @@ async def _register_react_listener(valor: Valor):
                     message_format = "`Application #%d - %s` - <@%d>\n" 
                     await vote_chn.send(message_format % (int(rxn_chn.name.split('-')[1]), rxn_chn.name.split('-')[0], app_msg.author.id))
                     await vote_chn.send("%s" % (app_msg.content))
-
-            elif str(payload.emoji) == '👍':
-                config = await ValorSQL.get_server_config(payload.guild_id)
-                if not len(config):
-                    return
-                config = config[0]
-
-                if "ticket" in rxn_chn.name: return # so it doesn't delete regular react channels
-
-                if rxn_chn.category_id == config[1] and payload.member.guild_permissions.administrator:
-                    await rxn_chn.delete()
-
