@@ -6,6 +6,7 @@ from sql import ValorSQL
 import time
 import os
 from dotenv import load_dotenv
+from .captain import CAPTAINQUESTIONS, makeCaptainTopic, parseCaptainTopic
 
 load_dotenv()
 async def _register_msg_listiner(valor: Valor):
@@ -45,6 +46,25 @@ async def _register_msg_listiner(valor: Valor):
         apps = {"app", "cpt", "spir", "bril", "fury"}
         if message.guild is None:
             return
+        if message.author.id != int(os.environ["SELFID"]) and message.channel.name.split('-')[0] == "captain":
+            progress = parseCaptainTopic(message.channel.topic)
+            if not progress:
+                return await valor.process_commands(message)
+            applicantid, questionindex, pendinganswerid, answerids = progress
+            if message.author.id != applicantid or questionindex >= len(CAPTAINQUESTIONS):
+                return await valor.process_commands(message)
+
+            await message.channel.edit(topic=makeCaptainTopic(
+                applicantid, questionindex, message.id, answerids
+            ))
+            questionnumber = questionindex + 1
+            confirmation = await message.channel.send(embed=LongTextEmbed( #could put inside a codeblock inside an embed aesthetically i like it
+                f"Captain Checklist ({questionnumber}/{len(CAPTAINQUESTIONS)})",
+                "React with ✅ when your answer is ready. Your latest message will be submitted.",
+                color=0xFFFF,
+                footer=f"Valor - {message.id}",
+            ))
+            await confirmation.add_reaction('✅')
 
         if message.author.id != int(os.environ["SELFID"]) and (message.channel.name.split('-')[0] in apps):
             config = await ValorSQL.get_server_config(message.guild.id)

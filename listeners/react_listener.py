@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import json
 import os
 import random
+from .captain import CAPTAININTRO, CAPTAINQUESTIONS, buildCaptainReport, makeCaptainTopic, parseCaptainTopic
 
 load_dotenv()
 TEST = os.getenv("TEST") == "TRUE"
@@ -135,9 +136,22 @@ async def _register_react_listener(valor: Valor):
                     # payload.member: discord.PermissionOverwrite(send_messages=True),
                 }
 
-                chn = await guild.create_text_channel(f"cpt-{config[2]+1}", overwrites=overwrites, category=category, topic=str(payload.user_id))
+                prompt = f"{CAPTAININTRO}\n\n**1. {CAPTAINQUESTIONS[0]}**"
+                chn = await guild.create_text_channel(
+                    f"captain-{config[2]+1}",
+                    overwrites=overwrites,
+                    category=category,
+                    topic=makeCaptainTopic(payload.user_id, 0),
+                )
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
-                await chn.send(f"Hey, <@{payload.user_id}>", embed = LongTextEmbed("Fill This Out!", config[6], color=0xFFAA))
+                await chn.send(
+                    f"Hey, <@{payload.user_id}>",
+                    embed=LongTextEmbed(
+                        f"Captain Checklist (1/{len(CAPTAINQUESTIONS)})",
+                        prompt,
+                        color=0xFFAA,
+                    ),
+                )
             elif res[-1] == 'strategist' and (892881748646559754 in rls or TEST):
                 guild = valor.get_guild(payload.guild_id)
                 config = (await ValorSQL.get_server_config(payload.guild_id))[0]
@@ -176,8 +190,68 @@ async def _register_react_listener(valor: Valor):
                 config = config[0]
                 if rxn_chn.category_id == config[1]:
                     msg = await rxn_chn.fetch_message(payload.message_id)
-                    app_msg_id = int(msg.embeds[0].footer.text.split(' - ')[1])
                     app_type = msg.channel.name.split('-')[0]
+
+                    if app_type == "captain":
+                        progress = parseCaptainTopic(rxn_chn.topic)
+                        if not progress or not msg.embeds or not msg.embeds[0].footer.text:
+                            return
+                        try:
+                            answerid = int(msg.embeds[0].footer.text.split(' - ')[1])
+                        except (IndexError, ValueError):
+                            return
+
+                        applicantid, questionindex, pendinganswerid, answerids = progress
+                        if (payload.user_id != applicantid
+                                or questionindex >= len(CAPTAINQUESTIONS)
+                                or pendinganswerid != answerid):
+                            return
+
+                        answermessage = await rxn_chn.fetch_message(answerid)
+                        if answermessage.author.id != applicantid:
+                            return
+                        answerids = answerids + (answerid,)
+                        nextquestionindex = questionindex + 1
+
+                        if nextquestionindex < len(CAPTAINQUESTIONS):
+                            await rxn_chn.edit(topic=makeCaptainTopic(
+                                applicantid, nextquestionindex, answerids=answerids
+                            ))
+                            await msg.edit(embed=LongTextEmbed(
+                                f"Captain Checklist ({questionindex + 1}/{len(CAPTAINQUESTIONS)})",
+                                "Answer saved. The next question is below.",
+                                color=0xFF00,
+                            ))
+                            nextprompt = f"**{nextquestionindex + 1}. {CAPTAINQUESTIONS[nextquestionindex]}**"
+                            await rxn_chn.send(embed=LongTextEmbed(
+                                f"Captain Checklist ({nextquestionindex + 1}/{len(CAPTAINQUESTIONS)})",
+                                nextprompt,
+                                color=0xFFAA,
+                            ))
+                            return
+
+                        votechn = valor.get_channel(config[4])
+                        answermessages = [await rxn_chn.fetch_message(answerid) for answerid in answerids]
+                        answers = tuple(answer.content for answer in answermessages)
+                        report = buildCaptainReport(
+                            int(rxn_chn.name.split('-')[1]), applicantid, answers
+                        )
+                        for chunk in report:
+                            await votechn.send(chunk)
+
+                        await rxn_chn.edit(topic=makeCaptainTopic(
+                            applicantid, nextquestionindex, answerids=answerids
+                        ))
+                        await rxn_chn.set_permissions(payload.member, send_messages=False, read_messages=True)
+                        await msg.edit(embed=LongTextEmbed(
+                            "Captain Checklist Submitted",
+                            "You have completed the checklist. It is under review now.",
+                            color=0xFF00,
+                        ))
+                        await msg.add_reaction('👍')
+                        return
+
+                    app_msg_id = int(msg.embeds[0].footer.text.split(' - ')[1])
                     
                     if app_type == "strat":
                         vote_chn = valor.get_channel(config[4])

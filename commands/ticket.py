@@ -74,7 +74,7 @@ async def _register_ticket(valor: Valor):
         roles = {x.id for x in ctx.author.roles}
         if not COUNCIL in roles and not TEST: return await ctx.send(embed=ErrorEmbed("Skill Issue"))
 
-        msg = await ReactionEmbed.send_message(valor, ctx, "Captain or Strategist Application", "Select ⚔ for a captain application.\n"  
+        msg = await ReactionEmbed.send_message(valor, ctx, "Captain Checklist or Strategist Application", "Select ⚔ for a Captain Checklist.\n" #if we ever resend this again itll say checklist atleast
         "Select 🗺 for a strategist application.", color=0xBBBBFF, reactions=['⚔', '🗺'])
         await ValorSQL.create_react_msg(msg.id, int(time.time()+1576800000))
         valor.reaction_msg_ids[msg.id] = int(time.time()+1576800000)
