@@ -1,4 +1,5 @@
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
+CAPTAINSTATE: Dict[int, dict] = {}
 CAPTAININTRO = "**Answer all the following questions. If you don’t know an answer, ask your favorite strategist to explain!**"
 CAPTAINQUESTIONS = (
     "What is your IGN and why would you like to become a captain?",
@@ -19,21 +20,38 @@ CAPTAINQUESTIONS = (
     "While we are being attacked, who do you listen to? Where do you look for communication?",
 )
 
-def makeCaptainTopic(applicantid: int, questionindex: int, pendinganswerid: Optional[int] = None, answerids: Tuple[int, ...] = ()) -> str:
-    answeridstext = ",".join(str(answerid) for answerid in answerids)
-    return "|".join(("captain-checklist", str(applicantid), str(questionindex), str(pendinganswerid or 0), answeridstext))
+def startCaptain(channelid: int, applicantid: int) -> None:
+    CAPTAINSTATE[channelid] = {
+        "applicantid": applicantid,
+        "questionindex": 0,
+        "answerids": [],
+        "pendinganswerid": None,
+    }
 
-def parseCaptainTopic(topic: Optional[str]) -> Optional[Tuple[int, int, Optional[int], Tuple[int, ...]]]:
-    if not topic:
+def getCaptain(channelid: int) -> Optional[dict]:
+    return CAPTAINSTATE.get(channelid)
+
+def setCaptainPending(channelid: int, answerid: int) -> bool:
+    state = getCaptain(channelid)
+    if not state or state["questionindex"] >= len(CAPTAINQUESTIONS):
+        return False
+    state["pendinganswerid"] = answerid
+    return True
+
+def completeCaptainAnswer(channelid: int, applicantid: int, questionindex: int, answerid: int) -> Optional[dict]:
+    state = getCaptain(channelid)
+    if (not state
+            or state["applicantid"] != applicantid
+            or state["questionindex"] != questionindex
+            or state["pendinganswerid"] != answerid):
         return None
-    try:
-        prefix, applicantid, questionindex, pendinganswerid, answerids = topic.split("|", 4)
-        if prefix != "captain-checklist":
-            return None
-        parsedanswerids = tuple(int(answerid) for answerid in answerids.split(",") if answerid)
-        return int(applicantid), int(questionindex), int(pendinganswerid) or None, parsedanswerids
-    except ValueError:
-        return None
+    state["answerids"].append(answerid)
+    state["questionindex"] += 1
+    state["pendinganswerid"] = None
+    return state
+
+def finishCaptain(channelid: int) -> None:
+    CAPTAINSTATE.pop(channelid, None)
 
 def chunkCaptainReport(text: str, limit: int = 1900) -> Tuple[str, ...]:
     chunks = []

@@ -8,7 +8,15 @@ from dotenv import load_dotenv
 import json
 import os
 import random
-from .captain import CAPTAININTRO, CAPTAINQUESTIONS, buildCaptainReport, makeCaptainTopic, parseCaptainTopic
+from .captain import (
+    CAPTAININTRO,
+    CAPTAINQUESTIONS,
+    buildCaptainReport,
+    completeCaptainAnswer,
+    finishCaptain,
+    getCaptain,
+    startCaptain,
+)
 
 load_dotenv()
 TEST = os.getenv("TEST") == "TRUE"
@@ -141,8 +149,8 @@ async def _register_react_listener(valor: Valor):
                     f"captain-{config[2]+1}",
                     overwrites=overwrites,
                     category=category,
-                    topic=makeCaptainTopic(payload.user_id, 0),
                 )
+                startCaptain(chn.id, payload.user_id)
                 await ValorSQL.server_config_set_app_cnt(payload.guild_id, config[2]+1)
                 await chn.send(
                     f"Hey, <@{payload.user_id}>",
@@ -193,30 +201,34 @@ async def _register_react_listener(valor: Valor):
                     app_type = msg.channel.name.split('-')[0]
 
                     if app_type == "captain":
-                        progress = parseCaptainTopic(rxn_chn.topic)
-                        if not progress or not msg.embeds or not msg.embeds[0].footer.text:
+                        state = getCaptain(rxn_chn.id)
+                        if not state or not msg.embeds or not msg.embeds[0].footer.text:
                             return
                         try:
                             answerid = int(msg.embeds[0].footer.text.split(' - ')[1])
                         except (IndexError, ValueError):
                             return
 
-                        applicantid, questionindex, pendinganswerid, answerids = progress
+                        applicantid = state["applicantid"]
+                        questionindex = state["questionindex"]
+                        expectedtitle = f"Captain Checklist ({questionindex + 1}/{len(CAPTAINQUESTIONS)})"
                         if (payload.user_id != applicantid
                                 or questionindex >= len(CAPTAINQUESTIONS)
-                                or pendinganswerid != answerid):
+                                or state["pendinganswerid"] != answerid
+                                or msg.embeds[0].title != expectedtitle):
                             return
 
                         answermessage = await rxn_chn.fetch_message(answerid)
                         if answermessage.author.id != applicantid:
                             return
-                        answerids = answerids + (answerid,)
+                        state = completeCaptainAnswer(
+                            rxn_chn.id, applicantid, questionindex, answerid
+                        )
+                        if not state:
+                            return
                         nextquestionindex = questionindex + 1
 
                         if nextquestionindex < len(CAPTAINQUESTIONS):
-                            await rxn_chn.edit(topic=makeCaptainTopic(
-                                applicantid, nextquestionindex, answerids=answerids
-                            ))
                             await msg.edit(embed=LongTextEmbed(
                                 f"Captain Checklist ({questionindex + 1}/{len(CAPTAINQUESTIONS)})",
                                 "Answer saved. The next question is below.",
@@ -231,7 +243,7 @@ async def _register_react_listener(valor: Valor):
                             return
 
                         votechn = valor.get_channel(config[4])
-                        answermessages = [await rxn_chn.fetch_message(answerid) for answerid in answerids]
+                        answermessages = [await rxn_chn.fetch_message(answerid) for answerid in state["answerids"]]
                         answers = tuple(answer.content for answer in answermessages)
                         report = buildCaptainReport(
                             int(rxn_chn.name.split('-')[1]), applicantid, answers
@@ -239,10 +251,8 @@ async def _register_react_listener(valor: Valor):
                         for chunk in report:
                             await votechn.send(chunk)
 
-                        await rxn_chn.edit(topic=makeCaptainTopic(
-                            applicantid, nextquestionindex, answerids=answerids
-                        ))
                         await rxn_chn.set_permissions(payload.member, send_messages=False, read_messages=True)
+                        finishCaptain(rxn_chn.id)
                         await msg.edit(embed=LongTextEmbed(
                             "Captain Checklist Submitted",
                             "You have completed the checklist. It is under review now.",
