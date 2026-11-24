@@ -26,7 +26,7 @@ async def _register_plot2(valor: Valor):
     parser.add_argument('-sm', '--smooth', action='store_true')
     parser.add_argument('-rs', '--resolution')
     parser.add_argument('-mv', '--moving_average', type=int, default=1)
-    parser.add_argument('--normalize', '--normalise', action='store_true',
+    parser.add_argument('--normalize', '--normalise', action='store_true')
     
     @valor.command()
     async def plot2(ctx: Context, *options):
