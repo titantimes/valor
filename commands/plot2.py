@@ -5,6 +5,7 @@ from discord.ext.commands import Context
 from discord import File
 from dotenv import load_dotenv
 from mp import plot_process
+from mp.plot_process import NormalisationE, PCSTART
 import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
 import time
@@ -25,6 +26,7 @@ async def _register_plot2(valor: Valor):
     parser.add_argument('-sm', '--smooth', action='store_true')
     parser.add_argument('-rs', '--resolution')
     parser.add_argument('-mv', '--moving_average', type=int, default=1)
+    parser.add_argument('--normalize', '--normalise', action='store_true',
     
     @valor.command()
     async def plot2(ctx: Context, *options):
@@ -65,14 +67,25 @@ async def _register_plot2(valor: Valor):
             start_time = int(start - 3600 * 24 * float(opt.range[0]))
             end_time = int(start - 3600 * 24 * float(opt.range[1]))
 
+        if opt.normalize and start_time < PCSTART:
+            return await LongTextEmbed.send_message(
+                valor, ctx, "Plot2 Error",
+                "Player totals from <t:1791382431:F>; "
+                "choose closer time",
+                color=0xFF0000)
+
+        opt.plot_start_time = start_time
+        opt.plot_end_time = end_time
         COUNCILID = int(os.getenv('COUNCILID'))
         if (end_time - start_time) > (365 *24 * 3600) and COUNCILID not in roles:
             return await LongTextEmbed.send_message(valor, ctx, "Plot2 Error", f" Maximum time range exceeded (365 days), ask a council member if you need a longer timeframe.", color=0xFF0000)
 
 
-        pool = ProcessPoolExecutor(max_workers=4)
-        data_pts, content = await valor.loop.run_in_executor(pool, plot_process, valor.db_lock, opt, query)
-        pool.shutdown()
+        with ProcessPoolExecutor(max_workers=4) as pool:
+            try:
+                data_pts, content = await valor.loop.run_in_executor(pool, plot_process, valor.db_lock, opt, query)
+            except NormalisationE as error:
+                return await LongTextEmbed.send_message(valor, ctx, "Plot2 Error", str(error), color=0xFF0000)
         file = File("/tmp/valor_guild_plot.png", filename="plot.png")
         
         end = time.time()
